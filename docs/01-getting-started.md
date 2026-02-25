@@ -80,6 +80,36 @@ The example includes:
    - **Ledger**: Detailed year-by-year transactions
    - **Percentiles**: In Monte Carlo mode, you see P5/P50/P95 scenarios
 
+## What the App Looks Like
+
+Here's an overview of the interface:
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│ [1] Portfolio  [2] Events  [3] Scenario  [4] Results [5]Analyze│
+├────────────────────────────────────────────────────────────────┤
+│                                                                │
+│   Main content area (changes based on active tab)              │
+│                                                                │
+│   Use [j/k] or arrows to navigate                              │
+│   Use [Tab/Shift+Tab] to switch panels within a tab            │
+│   Use [1-5] to switch between tabs                             │
+│                                                                │
+│   Tab-specific commands shown in status bar:                   │
+│   [a]dd [e]dit [d]elete [r]un [m]onte carlo                    │
+│                                                                │
+├────────────────────────────────────────────────────────────────┤
+│ Help: [q]uit  [Ctrl+S] save  [Esc] cancel  • Active: Portfolio │
+└────────────────────────────────────────────────────────────────┘
+```
+
+**Layout Features:**
+- **Tab bar** at top (numbered 1-5)
+- **Main content area** (changes per tab)
+- **Status bar** at bottom showing available commands
+- **Panels** within each tab (navigate with Tab/Shift+Tab)
+- **Lists** within panels (navigate with j/k or arrows)
+
 ## Customizing Your Scenario
 
 ### Portfolio & Profiles Tab (Tab 1)

@@ -13,11 +13,49 @@ The **Results** tab shows your simulation output with:
 
 ## Reading the Net Worth Chart
 
+### Typical Chart Display
+
+Here's what you'll see in the Results tab when viewing a Monte Carlo simulation:
+
+```
+NET WORTH PROJECTION (2045) (P50 Nominal)
+
+        Net Worth ($)
+    $2.0M │
+    $1.8M │                                    P5 scenario
+          │                                   (worst 5%)
+    $1.6M │    ████                          P50 scenario
+          │    ████ ████                     (median)
+    $1.4M │    ████ ████ ████               P95 scenario
+          │    ████ ████ ████ ████          (best 5%)
+    $1.2M │    ████ ████ ████ ████ ████
+          │    ████ ████ ████ ████ ████ ████
+    $1.0M │    ████ ████ ████ ████ ████ ████ ████
+          │    ████ ████ ████ ████ ████ ████ ████ ████
+    $800K │    ████ ████ ████ ████ ████ ████ ████ ████
+          │    ████ ████ ████ ████ ████ ████ ████ ████ ████
+    $600K │    ████ ████ ████ ████ ████ ████ ████ ████ ████ ████
+          │    ████ ████ ████ ████ ████ ████ ████ ████ ████ ████
+    $400K │    ████ ████ ████ ████ ████ ████ ████ ████ ████ ████
+          │    ████ ████ ████ ████ ████ ████ ████ ████ ████ ████
+    $200K │    ████ ████ ████ ████ ████ ████ ████ ████ ████ ████
+          │
+        $0 └─────────────────────────────────────────────────
+             2025  2030  2035  2040  2045  2050  2055
+
+Colors represent account types:
+  Green  = Cash (Checking, Savings)
+  Blue   = Tax-Deferred (401k, IRA)
+  Purple = Tax-Free (Roth)
+  Yellow = Taxable (Brokerage)
+  Red    = Debt (negative)
+```
+
 ### Chart Layout
 
 ```
 ┌─────────────────────────────────────┐
-│  NET WORTH PROJECTION (2025) (Nominal) │
+│  NET WORTH PROJECTION (2025) (Nominal)│
 ├─────────────────────────────────────┤
 │     ███                             │
 │     ███ ███                         │
@@ -344,52 +382,73 @@ Year Age Start    Income  Expenses Taxes Investment End
 
 **Steady Decline (Expected):**
 ```
-$2M ──┐
-      │╲
-      │ ╲
-      │  ╲
-$1M   │   ╲
-      │    ╲
-      │     ╲
-  $0  └──────┴─────
-    Age 60         100
+$2.0M ┐
+      │
+$1.5M │
+      │
+$1.0M │
+      │
+$500K │
+      │
+    0 └─ ─── ─── ─── ─── ─── ─── ───
+      Age 60  70  80  90 100
+
+✓ Healthy: Spending down savings at expected rate
+  You're living off savings as planned
 ```
-You're spending down savings as planned.
 
 **Cliff (Danger):**
 ```
-$2M ──┐
-      │════════════
-$1M   │════════════════╲
-      │                ╲
-      │                 ╲ CLIFF!
-  $0  │                  ╲____
-    Age 60    75    85    90
+$2.0M ┐  ███ ███ ███ ███ ███
+      │
+$1.5M │
+      │
+$1.0M │
+      │
+$500K │
+      │
+    0 └─ ─── ─── ─── ─── ─── ─── ─── ─── ───   ╲╲ RUNS OUT!
+      Age 60  70  80  90 100  110
+
+✗ Bad: Sudden drop to zero (money runs out)
+  Plan fails in this scenario
 ```
-Plan fails suddenly (money runs out). Bad sign.
 
 **Plateau (Good):**
 ```
-$2M ──┐
-      │    ┌─────────
-      │   ╱╱
-$1M   │╱╱
+$2.0M ┐
       │
-  $0  └──────────────
-    Age 60         100
+$1.5M ││
+      │   ╱╱│
+$1.0M │  ╱╱│
+      │ ╱╱│
+$500K │╱╱│
+      ││
+    0 └──────┴──────────────────
+      Age 60  80               120
+
+✓ Excellent: Levels off and stays stable
+  Income covers expenses, wealth is sustainable
+  Plan works indefinitely
 ```
-Wealth levels off (income covers expenses). Good sustainability.
 
 **Growth (Unexpected):**
 ```
-$4M ──┐                ┌──
-      │              ╱╱
-$2M   │    ╱╱╱╱╱╱╱╱
-      │╱╱╱
-  $0  └──────────────
-    Age 60         100
+$4.0M ┐                      ┌──────
+      │                   ╱╱│
+$3.0M │               ╱╱╱│
+      │
+$2.0M │
+      │
+$1.0M │
+      │
+    0 └──────────────────────────
+      Age 60  70  80  90 100 110
+
+✓ Great: Growing wealth over time
+  Usually from inheritance, high investment returns,
+  or significantly lower expenses than expected
 ```
-Usually from inheritance or high investment returns. Great!
 
 ## Analysis Tab: Sensitivity Analysis
 
