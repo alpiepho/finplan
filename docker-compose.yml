@@ -1,0 +1,9 @@
+services:
+  finplan:
+    build: .
+    image: finplan
+    stdin_open: true
+    tty: true
+    volumes:
+      - ~/.finplan:/root/.finplan
+      - ./examples:/examples:ro

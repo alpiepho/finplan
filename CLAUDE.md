@@ -1,3 +1,7 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 # FinPlan - Monte Carlo Retirement Simulation
 
 ## Quick Commands
@@ -9,7 +13,7 @@ cargo test              # Run all tests
 cargo fmt               # Format code (REQUIRED before commits)
 ```
 
-IMPORTIANT:
+IMPORTANT:
 - When finished making changes run `cargo fmt`
 - Run `cargo clippy` and fix any warnings if they will not cause major refactor work.
 - `git add` changed files to track
@@ -30,10 +34,10 @@ finplan/
 
 | Task | Location |
 |------|----------|
-| Run simulation | `crates/finplan_core/src/simulation.rs:70` - `simulate()` |
-| Monte Carlo | `crates/finplan_core/src/simulation.rs:474` - `monte_carlo_simulate_with_config()` |
+| Run simulation | `crates/finplan_core/src/simulation.rs` - `simulate()` |
+| Monte Carlo | `crates/finplan_core/src/simulation.rs` - `monte_carlo_simulate_with_config()` |
 | TUI entry | `crates/finplan/src/main.rs` |
-| App event loop | `crates/finplan/src/app.rs:116` - `App::run()` |
+| App event loop | `crates/finplan/src/app.rs` - `App::run()` |
 
 ## finplan_core Navigation
 
@@ -44,12 +48,17 @@ finplan/
 - `evaluate.rs` - Evaluate triggers and transfer amounts
 - `liquidation.rs` - Asset sale with tax handling
 - `taxes.rs` - Progressive tax calculations
+- `metrics.rs` - Simulation metrics computation
 
 ### Data Model (`model/`)
 - `accounts.rs` - Account, TaxStatus, AssetLot, InvestmentContainer
 - `events.rs` - Event, EventTrigger, EventEffect, TransferAmount
 - `market.rs` - ReturnProfile, InflationProfile
 - `results.rs` - SimulationResult, MonteCarloSummary
+- `records.rs` - Ledger records and transaction history
+- `rmd.rs` - Required Minimum Distribution modeling
+- `state_event.rs` - State change event types
+- `tax_config.rs` - Tax bracket configuration
 - `ids.rs` - AccountId, AssetId, EventId, ReturnProfileId
 
 ### Builder DSL (`config/`)
@@ -58,6 +67,16 @@ finplan/
 - `asset_builder.rs` - Asset definitions
 - `event_builder.rs` - Event construction helpers
 
+### Analysis (`analysis/`)
+- Parameter sweep / sensitivity analysis across N-dimensional grids
+- `SweepConfig`, `SweepParameter`, `AnalysisMetric`, `sweep_evaluate()`, `sweep_simulate()`
+- Two-phase: run simulations once, compute different metrics repeatedly
+
+### Optimization (`optimization/`)
+- Find optimal parameter values (retirement age, contribution rates, withdrawal amounts)
+- Algorithms: `binary_search` (1 param), `grid_search` (2-3 params), `nelder_mead` (4+ params)
+- Entry point: `optimize()` in `mod.rs` — auto-selects algorithm based on param count
+
 ## finplan (TUI) Navigation
 
 ### Screens (`screens/`)
@@ -65,21 +84,46 @@ finplan/
 - `scenario.rs` - Simulation parameters, tax config
 - `events.rs` - Life event management
 - `results.rs` - Monte Carlo results display
+- `analysis.rs` - Parameter sweep / sensitivity analysis screen
 
 ### State (`state/`)
 - `app_state.rs` - Root application state
-- `modal.rs` - Modal dialog state
-- `modal_action.rs` - Action dispatch enums
+- `screen_state.rs` - Per-screen state
+- `tabs.rs` - Tab management
+- `panels.rs` - Panel focus tracking
+- `cache.rs` - Cached simulation results
+- `errors.rs` - Error state
+
+### Modals (`modals/`)
+- `state.rs` - ModalState enum (Form, Picker, TextInput, Confirm, etc.)
+- `action.rs` - ModalAction dispatch enum
+- `handler.rs` - Key event routing to active modal
+- `form.rs`, `confirm.rs`, `picker.rs`, `text_input.rs`, `message.rs` - Modal UI renderers
+- `amount_builder.rs` - Multi-step amount editor
+- `context.rs` - Modal context passed to action handlers
 
 ### Actions (`actions/`)
 - `scenario.rs` - New, Load, Save, Duplicate, Delete
 - `account.rs` - Account CRUD
 - `event.rs` - Event configuration
 - `effect.rs` - Event effect management
+- `analysis.rs` - Analysis configuration
+
+### Components (`components/`)
+- `charts/` - Distribution and sweep result charts
+- `lists/` - Selectable list widget
+- `panels/` - Accounts, events, ledger, profiles panels
+- `portfolio_overview.rs`, `status_bar.rs`, `tab_bar.rs`
 
 ### Data (`data/`)
 - `storage.rs` - File persistence (`~/.finplan/scenarios/`)
 - `app_data.rs` - In-memory data structures
+- `convert.rs` - Core↔TUI data conversion
+- `keybindings_data.rs` - Keybinding loading/parsing
+
+### Other
+- `worker.rs` - Background thread for running simulations without blocking the UI
+- `keybindings.rs` - Custom keybinding support (`~/.finplan/keybindings.yaml`)
 
 ## Common Tasks
 
@@ -103,14 +147,19 @@ finplan/
 ## Testing
 
 ```bash
-cargo test -p finplan_core           # Core library tests
-cargo test -p finplan_core -- basic  # Specific test
+cargo test -p finplan_core                      # Core library tests
+cargo test -p finplan_core -- basic             # Run tests matching "basic"
+cargo test -p finplan_core -- --nocapture       # Show println output
 ```
 
-Key test files:
-- `crates/finplan_core/src/tests/basic.rs` - Basic simulation tests
-- `crates/finplan_core/src/tests/builder_dsl.rs` - Builder API tests
-- `crates/finplan_core/src/tests/accounts.rs` - Account operation tests
+Key test files in `crates/finplan_core/src/tests/`:
+- `basic.rs` - Basic simulation tests
+- `builder_dsl.rs` - Builder API tests
+- `accounts.rs` - Account operation tests
+- `contribution_limits.rs` - 401k/IRA contribution limit tests
+- `returns.rs` - Return profile distribution tests
+- `rsu.rs` - RSU vesting tests
+- `simulation_result.rs` - Result structure tests
 
 ## Specifications
 

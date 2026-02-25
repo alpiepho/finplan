@@ -16,6 +16,18 @@ FinPlan runs thousands of simulations with varying market conditions to answer q
 
 ## Installation
 
+**Option 1: Docker (no Rust required)**
+
+```bash
+docker compose run --rm finplan
+```
+
+The first run builds the image (~5–10 min). Subsequent starts are instant. Your scenarios are saved to `~/.finplan/scenarios/` on your machine and persist across runs.
+
+To load the bundled example scenario, enter `/examples/example.yaml` when prompted for a file path inside the TUI.
+
+**Option 2: From source**
+
 Requires [Rust](https://rustup.rs/) (stable).
 
 ```bash
