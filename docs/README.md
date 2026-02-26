@@ -45,6 +45,20 @@ cargo run --bin finplan --release
 5. Press `4` to see **Results** showing your projected net worth
 6. Press `5` to visit **Analysis** for sensitivity testing
 
+### Validating Scenario Files
+
+Before importing a scenario, you can validate it from the command line:
+
+```bash
+# Validate a scenario file
+finplan --scenario examples/example.yaml --validate
+
+# Shows: ✓ Scenario is valid!
+# Or detailed error messages if there are issues
+```
+
+See [Managing Scenarios](03-scenarios.md#validating-scenarios) for more details.
+
 ## Documentation Structure
 
 - [**Getting Started**](01-getting-started.md) - Basic concepts and navigation
@@ -59,6 +73,7 @@ cargo run --bin finplan --release
 - [**Understanding Results**](05-results-interpretation.md) - How to read charts and metrics
 - [**Keybindings Reference**](06-keybindings.md) - Complete keyboard shortcut guide
 - [**Advanced Tips**](07-advanced-tips.md) - Power user techniques
+- [**Scenario YAML Reference**](08-scenario-yaml-reference.md) - Complete parameter guide for scenario files
 
 ## Key Concepts
 

@@ -9,3 +9,4 @@ pub mod profiles_data;
 pub mod rename;
 pub mod storage;
 pub mod ticker_profiles;
+pub mod validator;

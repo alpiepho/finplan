@@ -48,6 +48,23 @@ An example scenario is included in [`examples/example.yaml`](examples/example.ya
 2. Press `i` to import a YAML file
 3. Enter the path to `examples/example.yaml`
 
+## Documentation
+
+Full user manual and API reference in the [docs/](docs/) directory:
+
+- [**Getting Started**](docs/01-getting-started.md) – Learn the basics
+- [**Tab Reference**](docs/02-tabs-guide.md) – Detailed UI guide
+- [**Managing Scenarios**](docs/03-scenarios.md) – Import/export and validation
+- [**Scenario YAML Reference**](docs/08-scenario-yaml-reference.md) – Complete parameter guide
+
+### Validate Scenarios from the Command Line
+
+```bash
+finplan --scenario examples/example.yaml --validate
+```
+
+Shows `✓ Scenario is valid!` or detailed error messages for invalid files.
+
 ## Features
 
 **Account Types**

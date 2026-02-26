@@ -447,4 +447,4 @@ tabs:
 
 ---
 
-**Need help?** Refer to the quick reference at the bottom of the status bar, or press `?` for context help in most screens.
+**Quick Tips:** Refer to the status bar at the bottom of the screen for available commands in your current context. Use the navigation keys (`j/k/h/l` or arrows) in any list or panel.

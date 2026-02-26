@@ -13,6 +13,14 @@ struct Args {
     /// Log level (debug, info, warn, error)
     #[arg(short, long, default_value = "info")]
     log_level: String,
+
+    /// Load a scenario file at startup
+    #[arg(short, long)]
+    scenario: Option<PathBuf>,
+
+    /// Validate scenario and exit (use with --scenario)
+    #[arg(short, long)]
+    validate: bool,
 }
 
 fn default_data_dir() -> PathBuf {
@@ -28,6 +36,27 @@ fn main() -> color_eyre::Result<()> {
     let data_dir = args.data_dir.unwrap_or_else(default_data_dir);
 
     init_logging(&data_dir, &args.log_level)?;
+
+    // Handle validation mode: -s <path> -v validates and exits
+    if args.validate {
+        if let Some(scenario_path) = &args.scenario {
+            let result = finplan::validate_scenario_file(scenario_path);
+            match result {
+                Ok(_) => {
+                    println!("✓ Scenario is valid!");
+                    std::process::exit(0);
+                }
+                Err(e) => {
+                    eprintln!("✗ Scenario validation failed:");
+                    eprintln!("{}", e);
+                    std::process::exit(1);
+                }
+            }
+        } else {
+            eprintln!("Error: --validate requires --scenario <PATH>");
+            std::process::exit(1);
+        }
+    }
 
     let mut app = App::with_data_dir(data_dir);
 

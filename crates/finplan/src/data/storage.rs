@@ -396,6 +396,26 @@ impl DataDirectory {
         let data = SimulationData::from_yaml(&content)
             .map_err(|e| StorageError::Parse(format!("Failed to parse YAML: {}", e)))?;
 
+        // Validate the scenario
+        if let Err(validation_errors) = super::validator::validate_scenario(&data) {
+            let error_messages = validation_errors
+                .iter()
+                .map(|e| format!("  • {}", e))
+                .collect::<Vec<_>>()
+                .join("\n");
+            
+            tracing::warn!(
+                scenario = ?source,
+                errors = %error_messages,
+                "Scenario validation failed"
+            );
+            
+            return Err(StorageError::Parse(format!(
+                "Scenario validation failed. Please check your YAML configuration:\n{}",
+                error_messages
+            )));
+        }
+
         // Use the filename (without extension) as the scenario name
         let name = source
             .file_stem()

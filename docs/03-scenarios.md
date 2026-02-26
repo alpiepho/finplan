@@ -143,6 +143,62 @@ FinPlan includes an example scenario:
 
 This is great for learning or as a template.
 
+## Validating Scenarios
+
+Before importing a scenario, you can validate it to catch configuration errors early.
+
+### Command-Line Validation
+
+Validate a scenario file from the command line:
+
+```bash
+finplan --scenario examples/example.yaml --validate
+```
+
+This checks your YAML file for common errors:
+- Missing or invalid accounts
+- Broken event references
+- Invalid date formats
+- Profile mismatches
+- And more
+
+**Output if valid:**
+```
+✓ Scenario is valid!
+```
+
+**Output if invalid:**
+```
+✗ Scenario validation failed:
+Validation errors found:
+  • portfolios.accounts → No accounts defined
+  Help: Define at least one account (Checking, Savings, 401k, etc.)
+  • events[0].effects[0].to → References unknown account 'InvalidAccount'
+  Help: Account 'InvalidAccount' is not defined in portfolios.accounts
+```
+
+### Getting Help
+
+View all command-line options:
+
+```bash
+finplan --help
+```
+
+This shows:
+- `-d, --data-dir` - Path to your data directory
+- `-l, --log-level` - Logging verbosity (debug, info, warn, error)
+- `-s, --scenario` - Load a scenario file at startup
+- `-v, --validate` - Validate scenario and exit (use with --scenario)
+- `-h, --help` - Show this help message
+
+### Validation in the App
+
+When you import a scenario with `i`:
+1. The file is automatically validated
+2. If errors are found, you'll see them in a clear error message
+3. Fix your YAML file and try importing again
+
 ## Exporting Scenarios
 
 Export scenarios to:

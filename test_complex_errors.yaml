@@ -1,0 +1,52 @@
+portfolios:
+  name: "Test"
+  accounts:
+    - name: "Checking"
+      type: Checking
+      value: 10000.0
+    - name: ""  # Empty name
+      type: Savings
+      value: 5000.0
+
+profiles:
+  - name: "S&P 500"
+    type: Fixed
+    rate: 0.07
+  - name: ""  # Empty profile name
+    type: Normal
+    mean: 0.08
+    std_dev: 0.12
+
+assets:
+  "Stock1": "S&P 500"
+  "Stock2": "Nonexistent Profile"  # Invalid profile reference
+
+parameters:
+  birth_date: "invalid-date"  # Invalid date format
+  start_date: "2025-01-01"
+  duration_years: 0  # Invalid: zero duration
+
+events:
+  - name: "Salary"
+    trigger:
+      type: Age
+      years: 25
+    effects:
+      - type: Income
+        to: "InvalidAccount"  # References non-existent account
+        amount:
+          type: Fixed
+          value: 5000.0
+  - name: "Retirement"
+    trigger:
+      type: Age
+      years: 65
+    effects:
+      - type: TriggerEvent
+        event: "NonExistentEvent"  # References non-existent event
+
+analysis:
+  mc_iterations: 5  # Too few iterations
+  sweep_parameters: []
+  selected_metrics: []
+  chart_configs: []
