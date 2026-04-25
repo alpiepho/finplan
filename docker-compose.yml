@@ -7,3 +7,9 @@ services:
     volumes:
       - ~/.finplan:/root/.finplan
       - ./examples:/examples:ro
+
+  finplan-mcp:
+    build: .
+    image: finplan
+    entrypoint: ["finplan-mcp"]
+    stdin_open: true

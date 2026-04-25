@@ -3,7 +3,7 @@ FROM rust:slim AS builder
 
 WORKDIR /app
 COPY . .
-RUN cargo build --release --bin finplan
+RUN cargo build --release --bin finplan --bin finplan-mcp
 
 # Stage 2: Runtime
 FROM ubuntu:24.04
@@ -13,5 +13,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /app/target/release/finplan /usr/local/bin/finplan
+COPY --from=builder /app/target/release/finplan-mcp /usr/local/bin/finplan-mcp
 
 ENTRYPOINT ["finplan"]

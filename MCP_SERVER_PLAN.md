@@ -1129,49 +1129,58 @@ async fn test_tool_list() {
 
 ### Phase 1: Scaffolding
 
-- [ ] Create `crates/finplan_mcp/Cargo.toml`
-- [ ] Add `"crates/finplan_mcp"` to workspace `Cargo.toml` members
-- [ ] Create `src/main.rs` — tokio main, stdio transport, server startup
-- [ ] Create `src/server.rs` — `FinplanMcpServer` struct with `ServerHandler` impl
-- [ ] Create `src/state.rs` — `ScenarioState` struct with `Arc<Mutex<>>` wrapper
-- [ ] Verify `cargo build -p finplan_mcp` compiles
+- [x] Create `crates/finplan_mcp/Cargo.toml`
+- [x] Add `"crates/finplan_mcp"` to workspace `Cargo.toml` members
+- [x] Create `src/main.rs` — tokio main, stdio transport, server startup
+- [x] Create `src/server.rs` — `FinplanMcpServer` struct with `ServerHandler` impl
+- [x] Create `src/state.rs` — `ScenarioState` struct with `Arc<Mutex<>>` wrapper
+- [x] Verify `cargo build -p finplan_mcp` compiles
 
 ### Phase 2: Resources
 
-- [ ] Create `src/resources.rs` — implement resource listing and reading
-- [ ] Create `src/schema_text.rs` — static strings for each schema resource
-- [ ] Wire resources into `ServerHandler::list_resources` and `read_resource`
+- [x] Create `src/resources.rs` — implement resource listing and reading
+- [x] Create `src/schema_text.rs` — static strings for each schema resource (11 resources)
+- [x] Wire resources into `ServerHandler::list_resources` and `read_resource`
 - [ ] Write `tests/resource_tests.rs`
 
 ### Phase 3: Core Tools
 
-- [ ] Create `src/tools/mod.rs` — aggregate tool router
-- [ ] Create `src/tools/parameters.rs` — `set_parameters` tool
-- [ ] Create `src/tools/portfolio.rs` — `set_portfolio` tool
-- [ ] Create `src/tools/ticker.rs` — `map_tickers` + `get_ticker_info` tools
-- [ ] Create `src/tools/merge.rs` — `merge_scenario` tool
-- [ ] Create `src/tools/validate.rs` — `validate_scenario` tool
+- [x] Create `src/tools/mod.rs` — aggregate tool router (16 tools including `get_state_summary` and `reset_state`)
+- [x] Create `src/tools/parameters.rs` — `set_parameters` tool
+- [x] Create `src/tools/portfolio.rs` — `set_portfolio` + `add_account` tools
+- [x] Create `src/tools/ticker.rs` — `map_tickers` tool (note: `get_ticker_info` not implemented as separate tool)
+- [x] Create `src/tools/merge.rs` — `merge_scenario` tool
+- [x] Create `src/tools/validate.rs` — `validate_scenario` tool
 - [ ] Write `tests/tool_tests.rs` for core tools
 
 ### Phase 4: Event Tools
 
-- [ ] Create `src/tools/events.rs` — `add_income_event`, `add_expense_event` tools
-- [ ] Create `src/tools/retirement.rs` — `add_retirement`, `add_social_security`, `add_rmd` tools
-- [ ] Create `src/tools/home_purchase.rs` — `add_home_purchase` tool
-- [ ] Create `src/tools/custom_event.rs` — `add_custom_event` tool
-- [ ] Create `src/defaults.rs` — default values and state tax lookup
-- [ ] Create `src/interview.rs` — interview question metadata
-- [ ] Add `src/tools/contribution.rs` — `add_contribution` tool (with employer match)
+- [x] Create `src/tools/events.rs` — all 8 event tools consolidated in one file:
+  - [x] `add_income_event`
+  - [x] `add_expense_event`
+  - [x] `add_retirement_event`
+  - [x] `add_social_security_event`
+  - [x] `add_rmd_event`
+  - [x] `add_contribution_event`
+  - [x] `add_sweep_event`
+  - [x] `add_custom_event`
+- [ ] ~~Create `src/tools/retirement.rs`~~ (consolidated into `events.rs`)
+- [ ] Create `src/tools/home_purchase.rs` — `add_home_purchase` tool (not implemented)
+- [ ] ~~Create `src/tools/custom_event.rs`~~ (consolidated into `events.rs`)
+- [x] Create `src/defaults.rs` — default values and state tax lookup
+- [ ] Create `src/interview.rs` — interview question metadata (not implemented)
+- [ ] ~~Add `src/tools/contribution.rs`~~ (consolidated into `events.rs`)
 - [ ] Write event tool tests
 
 ### Phase 5: Prompts
 
-- [ ] Create `src/prompts.rs` — `build_scenario` and `quick_retirement` prompts
-- [ ] Wire prompts into `ServerHandler::list_prompts` and `get_prompt`
+- [x] Create `src/prompts.rs` — `build_scenario` and `quick_retirement` prompts
+- [x] Wire prompts into `ServerHandler::list_prompts` and `get_prompt`
 
 ### Phase 6: Integration Testing
 
-- [ ] Write `tests/integration_test.rs` — full end-to-end scenario build
+- [x] Manual integration test via `scripts/test_mcp.sh` (stdio JSON-RPC, full workflow)
+- [ ] Write `tests/integration_test.rs` — full end-to-end scenario build (Rust)
 - [ ] Write `tests/validation_tests.rs` — validation edge cases
 - [ ] Test with `example.yaml` round-trip
 - [ ] Test with Claude Desktop or MCP Inspector
@@ -1179,10 +1188,25 @@ async fn test_tool_list() {
 ### Phase 7: Polish
 
 - [ ] Add `--help` to the binary with `clap`
-- [ ] Add logging with `tracing`
+- [x] Add logging with `tracing` (logs to stderr with env filter)
 - [ ] Update `finplan/README.md` with MCP server section
 - [ ] Add MCP server config example for Claude Desktop (`claude_desktop_config.json`)
-- [ ] Add Docker support for the MCP server binary
+- [x] Add Docker support for the MCP server binary (Dockerfile + docker-compose.yml)
+
+### Implementation Notes
+
+Differences from the original plan:
+- **File organization**: Event tools were consolidated into a single `events.rs` rather than separate files (`retirement.rs`, `home_purchase.rs`, `custom_event.rs`, `contribution.rs`). This is simpler and still maintainable at current scale.
+- **`get_ticker_info`**: Not implemented as a separate tool. Ticker info is available via `map_tickers` which reports mappings and unmapped tickers.
+- **`add_home_purchase`**: Not implemented. Can be built using `add_custom_event` + manual account setup for now.
+- **`interview.rs`**: Interview engine not implemented. The prompts (`build_scenario`, `quick_retirement`) provide guided workflows instead.
+- **`validate_scenario`**: Validates the accumulated server state (not a raw YAML string input as originally planned). This is more ergonomic for the tool-calling workflow.
+- **`merge_scenario`**: Does not take a `validate` param; validation is a separate tool call.
+- **Extra tools**: `get_state_summary` and `reset_state` were added (not in original plan) for better workflow control.
+- **`add_account`**: Added as a separate tool (not in original plan) to allow incremental portfolio construction.
+- **rmcp version**: Using v0.17.0 (plan was written before API stabilized). Uses manual `ServerHandler` impl instead of `#[tool]` macro.
+- **serde-saphyr**: Using v0.0.15 (plan said 0.0.8).
+- **schemars**: Using v0.8 (plan said v1).
 
 ---
 
