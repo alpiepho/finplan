@@ -152,7 +152,23 @@ Before importing a scenario, you can validate it to catch configuration errors e
 Validate a scenario file from the command line:
 
 ```bash
+# Without Docker
 finplan --scenario examples/example.yaml --validate
+
+# With Docker
+docker compose run --rm finplan -s /examples/test_good.yaml -v
+```
+
+The `-s` flag specifies the file and `-v` runs validation then exits. When using Docker, paths are relative to the container — the `examples/` directory is mounted at `/examples/`.
+
+The repo includes two test files for trying out the validator:
+
+```bash
+# Should pass — well-formed scenario
+docker compose run --rm finplan -s /examples/test_good.yaml -v
+
+# Should fail — intentionally malformed to show error output
+docker compose run --rm finplan -s /examples/test_bad.yaml -v
 ```
 
 This checks your YAML file for common errors:

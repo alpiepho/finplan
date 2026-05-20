@@ -47,11 +47,21 @@ cargo run --bin finplan --release
 Before importing a scenario, you can validate it from the command line:
 
 ```bash
-# Validate a scenario file
-finplan --scenario examples/example.yaml --validate
+# Without Docker
+finplan -s examples/example.yaml -v
 
-# Shows: ✓ Scenario is valid!
-# Or detailed error messages if there are issues
+# With Docker (examples/ is mounted at /examples/ inside the container)
+docker compose run --rm finplan -s /examples/example.yaml -v
+```
+
+The repo includes test files to try it out:
+
+```bash
+# Should pass
+docker compose run --rm finplan -s /examples/test_good.yaml -v
+
+# Should fail — shows what error output looks like
+docker compose run --rm finplan -s /examples/test_bad.yaml -v
 ```
 
 See [Managing Scenarios](03-scenarios.md#validating-scenarios) for more details.
