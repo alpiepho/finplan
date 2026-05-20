@@ -66,20 +66,32 @@ For advanced users, manually edit scenario YAML files:
 
 **Example: Bulk Edit Expenses**
 
-```yaml
-# Before (annual spending of $75,000)
-events:
-  - name: Annual_Expenses
-    amount: 75000
-  - name: Healthcare_Annual
-    amount: 5000
+Amounts live inside an effect's `amount.inner.value` (for inflation-adjusted) or `amount.value` (for fixed). Find and update the numeric values:
 
-# After (increase all by 10% for inflation)
+```yaml
+# Before (monthly expense of $5,500)
 events:
   - name: Annual_Expenses
-    amount: 82500    # 75000 * 1.1
-  - name: Healthcare_Annual
-    amount: 5500     # 5000 * 1.1
+    effects:
+      - type: Expense
+        from: Checking
+        amount:
+          type: InflationAdjusted
+          inner:
+            type: Fixed
+            value: 5500.0   # ← change this
+
+# After (10% increase)
+events:
+  - name: Annual_Expenses
+    effects:
+      - type: Expense
+        from: Checking
+        amount:
+          type: InflationAdjusted
+          inner:
+            type: Fixed
+            value: 6050.0   # 5500 * 1.1
 ```
 
 ## Advanced Event Techniques
@@ -111,17 +123,26 @@ Effect: Withdraw $20,000 for emergency care
 Result: Only triggers if you're in financial distress
 ```
 
-**Seasonal Events:**
+**Annual One-Time Expenses:**
 
-If your app supports repeating with custom intervals:
+For expenses that happen once a year (travel, gifts, taxes), use a `yearly` repeating event:
 
+```yaml
+- name: Holiday_Spending
+  trigger:
+    type: Repeating
+    interval: yearly
+  effects:
+    - type: Expense
+      from: Checking
+      amount:
+        type: Fixed
+        value: 5000.0
+  once: false
+  enabled: true
 ```
-Event: "Holiday_Spending"
-Trigger: Repeating, December 1st each year
-Effect: Withdraw $5,000 for gifts
 
-Effect: Only happens in December
-```
+Note: FinPlan repeating triggers fire at regular intervals (weekly, monthly, yearly, etc.) — you cannot trigger on a specific calendar date like "every December 1st."
 
 ### Modeling Roth Conversions
 

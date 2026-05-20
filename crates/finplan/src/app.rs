@@ -36,6 +36,7 @@ pub struct App {
     events_screen: EventsScreen,
     results_screen: ResultsScreen,
     analysis_screen: AnalysisScreen,
+    startup_scenario: Option<PathBuf>,
 }
 
 impl Default for App {
@@ -58,6 +59,7 @@ impl App {
             events_screen: EventsScreen,
             results_screen: ResultsScreen,
             analysis_screen: AnalysisScreen,
+            startup_scenario: None,
         }
     }
 
@@ -76,7 +78,14 @@ impl App {
             events_screen: EventsScreen,
             results_screen: ResultsScreen,
             analysis_screen: AnalysisScreen,
+            startup_scenario: None,
         }
+    }
+
+    /// Load a scenario file at startup and make it the active scenario
+    pub fn with_startup_scenario(mut self, path: PathBuf) -> Self {
+        self.startup_scenario = Some(path);
+        self
     }
 
     /// Load from data directory, migrating from old format if needed
@@ -126,6 +135,26 @@ impl App {
     /// runs the application's main loop until the user quits
     pub fn run(&mut self, terminal: &mut DefaultTerminal) -> color_eyre::Result<()> {
         const POLL_TIMEOUT: Duration = Duration::from_millis(50);
+
+        if let Some(path) = self.startup_scenario.take() {
+            match self.state.import_scenario(&path) {
+                Ok(name) => {
+                    self.state.switch_scenario(&name);
+                    tracing::info!(scenario = %name, path = ?path, "Loaded startup scenario");
+                    self.state.modal = ModalState::Message(MessageModal::info(
+                        "Scenario Loaded",
+                        &format!("Loaded '{}'", name),
+                    ));
+                }
+                Err(e) => {
+                    tracing::warn!(path = ?path, error = ?e, "Failed to load startup scenario");
+                    self.state.modal = ModalState::Message(MessageModal::error(
+                        "Load Failed",
+                        &format!("Could not load {}: {}", path.display(), e),
+                    ));
+                }
+            }
+        }
 
         while !self.state.exit {
             terminal.draw(|frame| self.draw(frame))?;

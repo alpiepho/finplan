@@ -212,10 +212,10 @@ Press `v` in Results to cycle between percentiles.
 
 ### Color Codes
 
-- **Green**: Tax-free accounts (Roth)
-- **Blue**: Tax-deferred accounts (401k, Traditional IRA)
-- **Yellow**: Taxable accounts (Brokerage)
-- **Red**: Debt/Liabilities
+- **Green**: Investment accounts (Brokerage, 401k, all IRAs)
+- **Cyan**: Cash accounts (Checking, Savings, HSA)
+- **Yellow**: Property and collectibles
+- **Red**: Debt and liabilities
 
 ## Tips for Success
 

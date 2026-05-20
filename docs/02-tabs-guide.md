@@ -6,7 +6,7 @@ FinPlan has 5 tabs, each with a specific purpose. This guide details what you ca
 
 ## Tab 1: Portfolio & Profiles
 
-**Access with:** `1` or `Shift+P`
+**Access with:** `1`
 
 This tab is where you define your financial accounts and configure asset mappings.
 
@@ -67,11 +67,10 @@ Shows:
 - **Total Net Worth**: Sum of all accounts minus debt
 - **Account Breakdown**: Bar chart of each account's value
 - **Color Codes**:
-  - Green: Cash accounts (Checking, Savings, HSA)
-  - Blue: Tax-Deferred (401k, Traditional IRA)
-  - Purple: Tax-Free (Roth IRA, Roth 401k)
-  - Yellow: Taxable (Brokerage)
-  - Red: Debt (Mortgages, loans)
+  - Green: Investment accounts (Brokerage, 401k, all IRAs)
+  - Cyan: Cash accounts (Checking, Savings, HSA)
+  - Yellow: Property and collectibles
+  - Red: Debt and liabilities
 
 ### Accounts & Profiles Panel
 
@@ -201,7 +200,7 @@ Flip between them with `$` in the Results or Scenario tabs.
 
 ## Tab 2: Events
 
-**Access with:** `2` or `Shift+E`
+**Access with:** `2`
 
 Events are how you model life changes. They trigger income, expenses, asset purchases, account transfers, and more.
 
@@ -362,7 +361,7 @@ For each effect, you specify:
 
 ## Tab 3: Scenario
 
-**Access with:** `3` or `Shift+S`
+**Access with:** `3`
 
 The **Scenario** tab is where you manage scenarios and configure simulation parameters.
 
@@ -528,7 +527,7 @@ Fix the issue and try again. Errors are logged in a panel you can scroll.
 
 ## Tab 4: Results
 
-**Access with:** `4` or `Shift+R`
+**Access with:** `4`
 
 Results show your projected wealth, account balances, and transaction details.
 
@@ -593,10 +592,9 @@ Multiple panels:
 
 - **Bar Height** = Total net worth that year
 - **Stacked Colors** = Breakdown by account type:
-  - Green: Cash (Checking, Savings)
-  - Blue: Tax-Deferred (401k, Traditional IRA)
-  - Purple: Tax-Free (Roth)
-  - Yellow: Taxable (Brokerage)
+  - Green: Investment accounts (Brokerage, 401k, all IRAs)
+  - Cyan: Cash (Checking, Savings, HSA)
+  - Yellow: Property and collectibles
   - Red: Debt (negative)
 
 **Navigation:**
@@ -634,10 +632,9 @@ Shows your money distributed across account types:
 
 | Type | Color | Description |
 |------|-------|-------------|
-| Cash | Green | Checking, Savings, HSA |
-| Tax-Deferred | Blue | 401k, Traditional IRA |
-| Tax-Free | Purple | Roth IRA, Roth 401k |
-| Taxable | Yellow | Brokerage accounts |
+| Investment | Green | Brokerage, 401k, all IRAs |
+| Cash | Cyan | Checking, Savings, HSA |
+| Property | Yellow | Real estate, collectibles |
 | Debt | Red | Mortgages, loans (negative) |
 
 ### Ledger Panel
@@ -691,7 +688,7 @@ Press `v` to cycle percentiles in Monte Carlo mode.
 
 ## Tab 5: Analysis
 
-**Access with:** `5` or `Shift+A`
+**Access with:** `5`
 
 Run sensitivity analysis to see how changes in parameters affect your outcomes.
 

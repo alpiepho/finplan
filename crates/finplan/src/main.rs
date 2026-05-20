@@ -59,6 +59,9 @@ fn main() -> color_eyre::Result<()> {
     }
 
     let mut app = App::with_data_dir(data_dir);
+    if let Some(scenario_path) = args.scenario {
+        app = app.with_startup_scenario(scenario_path);
+    }
 
     ratatui::run(|terminal| app.run(terminal))?;
 

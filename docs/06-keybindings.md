@@ -322,9 +322,7 @@ tabs:
 
 ### Reloading Keybindings
 
-Changes to `keybindings.yaml` take effect:
-- On next application restart
-- Or save scenario with `Ctrl+S` to reload
+Changes to `keybindings.yaml` take effect on next application restart.
 
 ## Common Keybinding Customizations
 
