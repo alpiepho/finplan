@@ -39,11 +39,8 @@ cargo run --bin finplan --release
 ### Your First Scenario
 
 1. Launch FinPlan: `docker compose run --rm finplan` or `cargo run --bin finplan`
-2. Go to **Scenario** tab (press `3`)
-3. Press `i` to import `examples/example.yaml` to see a real example
-4. Return to **Scenario** tab and press `r` to run a single simulation
-5. Press `4` to see **Results** showing your projected net worth
-6. Press `5` to visit **Analysis** for sensitivity testing
+2. To explore immediately: press `3` → `i` → import `examples/example.yaml` → `r` to run → press `4` for results
+3. To build your own plan from scratch: see [Create Your First Scenario](00-create-first-scenario.md)
 
 ### Validating Scenario Files
 
@@ -61,14 +58,22 @@ See [Managing Scenarios](03-scenarios.md#validating-scenarios) for more details.
 
 ## Documentation Structure
 
-- [**Getting Started**](01-getting-started.md) - Basic concepts and navigation
+### Tutorials (Start Here)
+
+- [**Create Your First Scenario**](00-create-first-scenario.md) - Choose your path: TUI or YAML
+  - [Build it in the TUI](00a-tui-tutorial.md) - Step-by-step interactive tutorial
+  - [Write the YAML file](00b-yaml-tutorial.md) - Build and validate a scenario file from scratch
+
+### Reference
+
+- [**Getting Started**](01-getting-started.md) - Navigation basics and key concepts
 - [**Tab Reference**](02-tabs-guide.md) - Detailed guide to all 5 tabs
   - Portfolio & Profiles Tab
   - Events Tab
   - Scenario Tab
   - Results Tab
   - Analysis Tab
-- [**Managing Scenarios**](03-scenarios.md) - Import, export, and manage your plans
+- [**Managing Scenarios**](03-scenarios.md) - Import, export, validate, and manage your plans
 - [**Running Simulations**](04-simulations.md) - Single runs, Monte Carlo, and convergence
 - [**Understanding Results**](05-results-interpretation.md) - How to read charts and metrics
 - [**Keybindings Reference**](06-keybindings.md) - Complete keyboard shortcut guide

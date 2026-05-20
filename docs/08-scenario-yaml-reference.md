@@ -89,7 +89,7 @@ accounts:
 | `HSA` | Health Savings Account | Yes | Triple tax-free (contributions, growth, withdrawals) |
 | `Mortgage` | Mortgage loan | No | Liability account, use `balance` and `interest_rate` |
 | `StudentLoanDebt` | Student loan | No | Liability account |
-| `OtherDebt` | Personal/other loans | No | Liability account |
+| `LoanDebt` | Personal/other loans | No | Liability account |
 | `Property` | Real estate | No | Illiquid asset, doesn't grow (unless mapped to return profile) |
 | `Collectible` | Art, jewelry, etc. | No | Illiquid asset |
 
@@ -296,7 +296,7 @@ Fires on a specific calendar date.
 ```yaml
 trigger:
   type: Repeating
-  interval: biweekly    # Options: daily, weekly, biweekly, monthly, quarterly, yearly
+  interval: biweekly    # Options: weekly, biweekly, monthly, quarterly, yearly
   start:
     type: Age
     years: 25
@@ -409,20 +409,24 @@ effects:
     strategy: penalty_aware  # Options: penalty_aware, fifo, tax_efficient
     gross: false            # Before/after taxes?
     taxable: true          # Is the withdrawal taxable?
-    lot_method: fifo        # Which assets to sell: fifo, lifo, tax_loss
+    lot_method: fifo        # Options: fifo, lifo, highest_cost, lowest_cost, average_cost
 ```
 
 Withdraw money from investment accounts intelligently (for retirement spending).
 
 **Strategies:**
-- `penalty_aware`: Avoid early withdrawal penalties (prioritize Roth, taxable, then tax-deferred after age 59.5)
-- `fifo`: Sell first-bought assets
-- `tax_efficient`: Minimize taxes
+- `penalty_aware` (default): Before age 59.5 uses taxable → tax-free → tax-deferred; after 59.5 uses tax-efficient ordering
+- `tax_efficient`: Taxable first, then tax-deferred, then tax-free
+- `tax_deferred_first`: Draws from tax-deferred accounts first
+- `tax_free_first`: Draws from tax-free accounts first
+- `pro_rata`: Withdraws proportionally from all accounts
 
 **Lot Methods:**
-- `fifo`: Sell oldest purchases first
-- `lifo`: Sell newest purchases first
-- `tax_loss`: Sell assets at a loss first (tax-loss harvesting)
+- `fifo` (default): Sell oldest-purchased lots first
+- `lifo`: Sell newest-purchased lots first
+- `highest_cost`: Sell highest-cost lots first (minimizes capital gains)
+- `lowest_cost`: Sell lowest-cost lots first (maximizes capital gains)
+- `average_cost`: Use average cost basis
 
 #### Cash Transfer Effect
 

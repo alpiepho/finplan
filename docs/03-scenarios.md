@@ -273,39 +273,50 @@ FinPlan stores scenarios as **YAML**, a human-readable text format. You can edit
 ### Typical Scenario Structure
 
 ```yaml
-# Basic parameters
+# Your accounts and assets
+portfolios:
+  name: My Plan
+  accounts:
+    - name: Checking
+      type: Checking
+      value: 50000.0
+    - name: Roth IRA
+      type: RothIRA
+      assets:
+        - asset: VTSAX
+          value: 150000.0
+
+# Simulation settings
 parameters:
   birth_date: 1965-03-15
   start_date: 2025-01-01
   duration_years: 40
-  annual_spending: 75000
-
-# Your accounts
-portfolios:
-  accounts:
-    - name: Checking
-      account_type: Checking
-      balance: 50000
-    - name: Roth IRA
-      account_type: RothIRA
-      balance: 150000
-      assets:
-        - ticker: VTSAX
-          shares: 1000
-          price: 150
-
-# Tax settings
-tax_config:
-  brackets: preset_2024_single
-  state_tax_rate: 0.06
+  inflation:
+    type: USHistorical
+    distribution: lognormal
+  tax_config:
+    federal_brackets: single2024
+    state_rate: 0.06
+    capital_gains_rate: 0.15
+  returns_mode: historical
+  historical_block_size: 5
 
 # Life events
 events:
   - name: Annual Expenses
-    trigger: Repeating(yearly, age 45)
+    trigger:
+      type: Repeating
+      interval: yearly
     effects:
       - type: Expense
-        amount: 75000
+        from: Checking
+        amount:
+          type: InflationAdjusted
+          inner:
+            type: Fixed
+            value: 75000.0
+    once: false
+    enabled: true
 ```
 
 ### Editing Manually

@@ -1,0 +1,501 @@
+# Path B: Write Your First Scenario as a YAML File
+
+This tutorial walks you from a blank text file to a validated, importable scenario. It takes about 20 minutes.
+
+FinPlan scenario files are YAML — plain text with a specific structure. Writing them directly is useful for bulk edits, copying and customizing examples, or sharing plans with others.
+
+## Prerequisites
+
+- A text editor (VS Code, Sublime, Notepad++, or any editor)
+- FinPlan installed (`cargo install` or Docker)
+- Basic familiarity with YAML (indentation matters; use spaces, not tabs)
+
+---
+
+## The Minimal Working Scenario
+
+Start with the smallest file that will actually run. Create a file called `myplan.yaml`:
+
+```yaml
+portfolios:
+  name: My Plan
+  accounts:
+    - name: Checking
+      type: Checking
+      value: 25000.0
+
+parameters:
+  birth_date: 1975-06-15
+  start_date: 2025-01-01
+  duration_years: 40
+  inflation:
+    type: USHistorical
+    distribution: lognormal
+  tax_config:
+    federal_brackets: single2024
+    state_rate: 0.05
+    capital_gains_rate: 0.15
+  returns_mode: historical
+  historical_block_size: 5
+```
+
+Validate it:
+
+```bash
+finplan --scenario myplan.yaml --validate
+```
+
+You should see:
+```
+✓ Scenario is valid!
+```
+
+This scenario has one account and no events. It will run but not do much. Let's add the pieces that matter.
+
+---
+
+## Step 1 — Add Investment Accounts
+
+Extend the `accounts` list with a 401k and Roth IRA. Investment accounts use `assets` instead of `value`:
+
+```yaml
+portfolios:
+  name: My Plan
+  accounts:
+    - name: Checking
+      type: Checking
+      value: 25000.0
+
+    - name: 401k
+      type: Traditional401k
+      assets:
+        - asset: FXAIX
+          value: 85000.0
+
+    - name: Roth IRA
+      type: RothIRA
+      assets:
+        - asset: FXAIX
+          value: 45000.0
+```
+
+**Key field names:**
+- `type` — account type (see [Scenario YAML Reference](08-scenario-yaml-reference.md) for all types)
+- `value` — current balance for cash accounts (Checking, Savings, HSA, etc.)
+- `assets` — list of holdings for investment accounts
+- `asset` — ticker symbol
+- `value` inside `assets` — current market value of that holding (not shares × price)
+
+---
+
+## Step 2 — Add Return Profiles
+
+Return profiles describe how investments are expected to perform. Add a `profiles` section and an `assets` mapping that links tickers to profiles:
+
+```yaml
+profiles:
+  - name: S&P 500
+    type: Normal
+    mean: 0.095668
+    std_dev: 0.165244
+
+assets:
+  FXAIX: S&P 500
+```
+
+The `assets` mapping says "when simulating `FXAIX`, use the `S&P 500` return profile."
+
+If you're using `returns_mode: historical` (as in the minimal example above), you also need a `historical_assets` mapping that links tickers to built-in historical datasets:
+
+```yaml
+historical_assets:
+  FXAIX: S&P 500
+```
+
+Built-in historical profile names: `S&P 500`, `US Small Cap`, `Intl Developed`, `Intl Emerging`, `US Bonds`, `Intl Bonds`, `Real Estate (REITs)`, `Commodities`.
+
+---
+
+## Step 3 — Add Life Events
+
+Events are the core of your scenario. Each event has a `trigger` (when it happens) and `effects` (what it does).
+
+Add an `events` section:
+
+### Salary (repeating bi-weekly until retirement)
+
+```yaml
+events:
+  - name: Salary
+    trigger:
+      type: Repeating
+      interval: biweekly
+      end:
+        type: RelativeToEvent
+        event: Retirement
+        offset:
+          unit: Months
+          value: 0
+    effects:
+      - type: Income
+        to: Checking
+        amount:
+          type: InflationAdjusted
+          inner:
+            type: Fixed
+            value: 4500.0
+        gross: true
+        taxable: true
+    once: false
+    enabled: true
+```
+
+### Retirement marker (fires once at age 62)
+
+Other events reference `Retirement` to know when to start or stop. It has no effects — it's just a marker.
+
+```yaml
+  - name: Retirement
+    trigger:
+      type: Age
+      years: 62
+    once: true
+    enabled: true
+```
+
+### Monthly living expenses
+
+```yaml
+  - name: Living Expenses
+    trigger:
+      type: Repeating
+      interval: monthly
+    effects:
+      - type: Expense
+        from: Checking
+        amount:
+          type: InflationAdjusted
+          inner:
+            type: Fixed
+            value: 5500.0
+    once: false
+    enabled: true
+```
+
+### Annual 401k contribution (until retirement)
+
+```yaml
+  - name: 401k Contribution
+    trigger:
+      type: Repeating
+      interval: yearly
+      end:
+        type: RelativeToEvent
+        event: Retirement
+        offset:
+          unit: Months
+          value: 0
+    effects:
+      - type: AssetPurchase
+        from: Checking
+        to_account: 401k
+        asset: FXAIX
+        amount:
+          type: Fixed
+          value: 23000.0
+    once: false
+    enabled: true
+```
+
+### Retirement withdrawal (yearly sweep to top up checking)
+
+```yaml
+  - name: Retirement Withdrawal
+    trigger:
+      type: Repeating
+      interval: yearly
+      start:
+        type: RelativeToEvent
+        event: Retirement
+        offset:
+          unit: Months
+          value: 0
+    effects:
+      - type: Sweep
+        to: Checking
+        amount:
+          type: TargetToBalance
+          target: 100000.0
+        strategy: penalty_aware
+        gross: false
+        taxable: true
+        lot_method: fifo
+    once: false
+    enabled: true
+```
+
+### Social Security (monthly starting at age 67)
+
+```yaml
+  - name: Social Security
+    trigger:
+      type: Repeating
+      interval: monthly
+      start:
+        type: Age
+        years: 67
+    effects:
+      - type: Income
+        to: Checking
+        amount:
+          type: Fixed
+          value: 2200.0
+        gross: true
+        taxable: true
+    once: false
+    enabled: true
+```
+
+### Required Minimum Distributions (yearly starting at age 73)
+
+```yaml
+  - name: RMD
+    trigger:
+      type: Repeating
+      interval: yearly
+      start:
+        type: Age
+        years: 73
+    effects:
+      - type: ApplyRmd
+        destination: Checking
+        lot_method: fifo
+    once: false
+    enabled: true
+```
+
+---
+
+## Step 4 — The Complete File
+
+Here is the full `myplan.yaml` with everything assembled:
+
+```yaml
+portfolios:
+  name: My Plan
+  accounts:
+    - name: Checking
+      type: Checking
+      value: 25000.0
+    - name: 401k
+      type: Traditional401k
+      assets:
+        - asset: FXAIX
+          value: 85000.0
+    - name: Roth IRA
+      type: RothIRA
+      assets:
+        - asset: FXAIX
+          value: 45000.0
+
+profiles:
+  - name: S&P 500
+    type: Normal
+    mean: 0.095668
+    std_dev: 0.165244
+
+assets:
+  FXAIX: S&P 500
+
+historical_assets:
+  FXAIX: S&P 500
+
+events:
+  - name: Salary
+    trigger:
+      type: Repeating
+      interval: biweekly
+      end:
+        type: RelativeToEvent
+        event: Retirement
+        offset:
+          unit: Months
+          value: 0
+    effects:
+      - type: Income
+        to: Checking
+        amount:
+          type: InflationAdjusted
+          inner:
+            type: Fixed
+            value: 4500.0
+        gross: true
+        taxable: true
+    once: false
+    enabled: true
+
+  - name: Retirement
+    trigger:
+      type: Age
+      years: 62
+    once: true
+    enabled: true
+
+  - name: Living Expenses
+    trigger:
+      type: Repeating
+      interval: monthly
+    effects:
+      - type: Expense
+        from: Checking
+        amount:
+          type: InflationAdjusted
+          inner:
+            type: Fixed
+            value: 5500.0
+    once: false
+    enabled: true
+
+  - name: 401k Contribution
+    trigger:
+      type: Repeating
+      interval: yearly
+      end:
+        type: RelativeToEvent
+        event: Retirement
+        offset:
+          unit: Months
+          value: 0
+    effects:
+      - type: AssetPurchase
+        from: Checking
+        to_account: 401k
+        asset: FXAIX
+        amount:
+          type: Fixed
+          value: 23000.0
+    once: false
+    enabled: true
+
+  - name: Retirement Withdrawal
+    trigger:
+      type: Repeating
+      interval: yearly
+      start:
+        type: RelativeToEvent
+        event: Retirement
+        offset:
+          unit: Months
+          value: 0
+    effects:
+      - type: Sweep
+        to: Checking
+        amount:
+          type: TargetToBalance
+          target: 100000.0
+        strategy: penalty_aware
+        gross: false
+        taxable: true
+        lot_method: fifo
+    once: false
+    enabled: true
+
+  - name: Social Security
+    trigger:
+      type: Repeating
+      interval: monthly
+      start:
+        type: Age
+        years: 67
+    effects:
+      - type: Income
+        to: Checking
+        amount:
+          type: Fixed
+          value: 2200.0
+        gross: true
+        taxable: true
+    once: false
+    enabled: true
+
+  - name: RMD
+    trigger:
+      type: Repeating
+      interval: yearly
+      start:
+        type: Age
+        years: 73
+    effects:
+      - type: ApplyRmd
+        destination: Checking
+        lot_method: fifo
+    once: false
+    enabled: true
+
+parameters:
+  birth_date: 1975-06-15
+  start_date: 2025-01-01
+  duration_years: 40
+  inflation:
+    type: USHistorical
+    distribution: lognormal
+  tax_config:
+    federal_brackets: single2024
+    state_rate: 0.05
+    capital_gains_rate: 0.15
+  returns_mode: historical
+  historical_block_size: 5
+```
+
+---
+
+## Step 5 — Validate the File
+
+```bash
+finplan --scenario myplan.yaml --validate
+```
+
+If there are errors, the output tells you exactly what's wrong:
+
+```
+✗ Scenario validation failed:
+Validation errors found:
+  • events[0].effects[0].to → References unknown account 'Checkng'
+  Help: Account 'Checkng' is not defined in portfolios.accounts
+```
+
+Fix the error and validate again. Common mistakes:
+- Account name in an event doesn't exactly match the account name in `portfolios.accounts` (case-sensitive)
+- Missing `type:` field on a trigger or effect
+- Bad date format (must be `YYYY-MM-DD`)
+- Tabs instead of spaces for indentation
+
+---
+
+## Step 6 — Import Into FinPlan
+
+1. Launch FinPlan.
+2. Press `3` to go to the **Scenario** tab.
+3. Press `i` (import).
+4. Enter the path to your file — e.g., `/Users/you/Desktop/myplan.yaml` or a relative path like `../myplan.yaml`.
+5. Give it a name when prompted.
+
+The scenario appears in your list. Press `Enter` to select it, then `r` to run a single simulation or `m` for Monte Carlo.
+
+---
+
+## YAML Tips
+
+- **Indentation**: Use 2 spaces per level. Never use tabs.
+- **Strings with special characters**: Wrap in quotes — e.g., `name: "S&P 500"`.
+- **Numbers**: Write without quotes — `value: 25000.0` not `value: "25000.0"`.
+- **Booleans**: `true` / `false` (lowercase, no quotes).
+- **Account references in events must match exactly**: `to: Checking` will fail if the account is named `checking`.
+
+---
+
+## What's Next
+
+- See [Scenario YAML Reference](08-scenario-yaml-reference.md) for the full list of account types, trigger types, effect types, and amount types
+- See [Managing Scenarios](03-scenarios.md) to export, copy, and organize your scenarios
+- See [Running Simulations](04-simulations.md) for how to interpret Monte Carlo results

@@ -44,10 +44,9 @@ NET WORTH PROJECTION (2045) (P50 Nominal)
              2025  2030  2035  2040  2045  2050  2055
 
 Colors represent account types:
-  Green  = Cash (Checking, Savings)
-  Blue   = Tax-Deferred (401k, IRA)
-  Purple = Tax-Free (Roth)
-  Yellow = Taxable (Brokerage)
+  Green  = Investment accounts (Brokerage, 401k, all IRAs)
+  Cyan   = Cash (Checking, Savings, HSA)
+  Yellow = Property and collectibles
   Red    = Debt (negative)
 ```
 
@@ -67,10 +66,9 @@ Colors represent account types:
 └─────────────────────────────────────┘
 
 Legend:
-▓▓▓ Green   = Cash (Checking, Savings)
-▓▓▓ Blue    = Tax-Deferred (401k, IRA)
-▓▓▓ Purple  = Tax-Free (Roth)
-▓▓▓ Yellow  = Taxable (Brokerage)
+▓▓▓ Green   = Investment accounts (Brokerage, 401k, all IRAs)
+▓▓▓ Cyan    = Cash (Checking, Savings, HSA)
+▓▓▓ Yellow  = Property and collectibles
 ▓▓▓ Red     = Debt (Negative)
 ```
 
@@ -87,22 +85,22 @@ Each bar is stacked in segments:
 
 ```
 $2.0M ┌─────┐      Total: $2M
-      │Green│ $100K (Cash)
+      │ Cyan│ $100K (Checking)
 $1.5M ├─────┤
-      │ Blue│ $700K (401k)
+      │Green│ $700K (401k)
 $1.0M ├─────┤
-      │Purpl│ $600K (Roth)
+      │Green│ $600K (Roth IRA)
 $0.5M ├─────┤
-      │Yello│ $600K (Taxable)
+      │Green│ $600K (Brokerage)
     0 └─────┘
 ```
 
 The proportion of colors shows how much money is in each account type.
 
 **What's Good:**
-- Tax-free (purple) growing over time
-- Tax-deferred (blue) in early years, then drawn down
-- Taxable (yellow) keeping a cushion
+- Investment accounts (green) growing in early years
+- A mix of account types providing tax flexibility
+- Cash (cyan) maintained as a spending buffer
 
 **What's Concerning:**
 - All wealth in one account type (lack of diversification)
@@ -275,13 +273,12 @@ Confidence: Low - need to adjust
 Shows how your wealth is distributed by account type:
 
 ```
-Cash        $100K  ▓▓▓░░░░░░░  (5%)
-Tax-Deferred $700K  ▓▓▓▓▓▓▓░░░  (35%)
-Tax-Free     $600K  ▓▓▓▓▓▓░░░░  (30%)
-Taxable      $600K  ▓▓▓▓▓▓░░░░  (30%)
-Debt           $0   ░░░░░░░░░░  (0%)
-─────────────────────────────────────
-Total      $2.0M
+Investment  $1900K  ████████████████  (95%)  [green]
+Cash          $100K  ██░░░░░░░░░░░░░░  (5%)   [cyan]
+Property        $0   ░░░░░░░░░░░░░░░░  (0%)   [yellow]
+Debt            $0   ░░░░░░░░░░░░░░░░  (0%)   [red]
+────────────────────────────────────────────
+Total       $2.0M
 ```
 
 ### Analyzing the Breakdown
