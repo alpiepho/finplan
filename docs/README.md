@@ -89,6 +89,7 @@ See [Managing Scenarios](03-scenarios.md#validating-scenarios) for more details.
 - [**Keybindings Reference**](06-keybindings.md) - Complete keyboard shortcut guide
 - [**Advanced Tips**](07-advanced-tips.md) - Power user techniques
 - [**Scenario YAML Reference**](08-scenario-yaml-reference.md) - Complete parameter guide for scenario files
+- [**MCP Server**](09-mcp-server.md) - AI-assisted scenario building via Claude Desktop or any MCP client
 
 ## Key Concepts
 

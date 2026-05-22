@@ -5,8 +5,8 @@ use finplan::data::portfolio_data::AssetTag;
 use finplan::data::profiles_data::{ProfileData, ReturnProfileTag};
 use finplan::data::ticker_profiles;
 
+use super::{error_result, make_tool, text_result};
 use crate::state::SharedState;
-use super::{make_tool, text_result, error_result};
 
 pub fn tools() -> Vec<Tool> {
     vec![make_tool(

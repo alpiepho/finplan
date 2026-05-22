@@ -52,7 +52,11 @@ impl Default for ScenarioState {
             historical_assets: HashMap::new(),
             asset_prices: HashMap::new(),
             asset_tracking_errors: HashMap::new(),
-            analysis: AnalysisConfigData::default(),
+            analysis: AnalysisConfigData {
+                mc_iterations: 500,
+                default_steps: 6,
+                ..Default::default()
+            },
         }
     }
 }

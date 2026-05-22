@@ -161,6 +161,28 @@ Key test files in `crates/finplan_core/src/tests/`:
 - `rsu.rs` - RSU vesting tests
 - `simulation_result.rs` - Result structure tests
 
+### MCP Server Tests
+
+The MCP crate has no local Rust toolchain — all cargo commands run via Docker:
+
+```bash
+# Run all MCP tests (quiet)
+docker run --rm -v "$(pwd)":/app -w /app rust:slim cargo test -p finplan_mcp
+
+# Run with verbose step-by-step output (shows tool responses + merged YAML)
+docker run --rm -v "$(pwd)":/app -w /app rust:slim cargo test -p finplan_mcp -- --nocapture
+
+# Run a single test by name
+docker run --rm -v "$(pwd)":/app -w /app rust:slim cargo test -p finplan_mcp -- test_full_scenario_build --nocapture
+```
+
+Test file: `crates/finplan_mcp/tests/integration_test.rs`
+- `test_full_scenario_build` — full 15-step workflow: portfolio → events → tickers → validate → YAML
+- `test_tool_list_contains_expected_tools` — all 16 tools registered
+- `test_all_resources_readable_and_non_empty` — all 11 schema resources return content
+- `test_state_summary_empty / test_reset_clears_state` — state management
+- `test_merge_fails_without_portfolio / test_duplicate_account_rejected / test_income_event_requires_name_field` — error handling
+
 ## Specifications
 
 Detailed documentation in `spec/`:

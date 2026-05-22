@@ -18,9 +18,8 @@ use std::path::Path;
 /// Validate a scenario file and return detailed error information
 pub fn validate_scenario_file(path: &Path) -> Result<(), String> {
     use std::fs;
-    
-    let content = fs::read_to_string(path)
-        .map_err(|e| format!("Failed to read file: {}", e))?;
+
+    let content = fs::read_to_string(path).map_err(|e| format!("Failed to read file: {}", e))?;
 
     let data = data::app_data::SimulationData::from_yaml(&content)
         .map_err(|e| format!("Failed to parse YAML:\n{}", e))?;
@@ -32,7 +31,7 @@ pub fn validate_scenario_file(path: &Path) -> Result<(), String> {
             .map(|e| format!("  • {}", e))
             .collect::<Vec<_>>()
             .join("\n");
-        
+
         return Err(format!("Validation errors found:\n{}", error_messages));
     }
 

@@ -6,8 +6,8 @@ use finplan::data::portfolio_data::{
 };
 use finplan::data::profiles_data::ReturnProfileTag;
 
+use super::{error_result, make_tool, text_result};
 use crate::state::SharedState;
-use super::{make_tool, text_result, error_result};
 
 pub fn tools() -> Vec<Tool> {
     vec![
@@ -102,7 +102,10 @@ pub fn set_portfolio(
         .ok_or_else(|| McpError::invalid_params("name is required", None))?
         .to_string();
 
-    let description = args.get("description").and_then(|v| v.as_str()).map(String::from);
+    let description = args
+        .get("description")
+        .and_then(|v| v.as_str())
+        .map(String::from);
 
     let portfolio = PortfolioData {
         name: name.clone(),
@@ -134,7 +137,10 @@ pub fn add_account(
         .and_then(|v| v.as_str())
         .ok_or_else(|| McpError::invalid_params("account_type is required", None))?;
 
-    let description = args.get("description").and_then(|v| v.as_str()).map(String::from);
+    let description = args
+        .get("description")
+        .and_then(|v| v.as_str())
+        .map(String::from);
 
     let account_type = match acct_type_str {
         // Investment accounts
@@ -152,10 +158,7 @@ pub fn add_account(
         }
         // Cash/property accounts
         "Checking" | "Savings" | "HSA" | "Property" | "Collectible" => {
-            let value = args
-                .get("value")
-                .and_then(|v| v.as_f64())
-                .unwrap_or(0.0);
+            let value = args.get("value").and_then(|v| v.as_f64()).unwrap_or(0.0);
             let return_profile = args
                 .get("return_profile")
                 .and_then(|v| v.as_str())
@@ -175,10 +178,7 @@ pub fn add_account(
         }
         // Debt accounts
         "Mortgage" | "LoanDebt" | "StudentLoanDebt" => {
-            let balance = args
-                .get("balance")
-                .and_then(|v| v.as_f64())
-                .unwrap_or(0.0);
+            let balance = args.get("balance").and_then(|v| v.as_f64()).unwrap_or(0.0);
             let interest_rate = args
                 .get("interest_rate")
                 .and_then(|v| v.as_f64())

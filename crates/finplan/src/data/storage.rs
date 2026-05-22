@@ -403,13 +403,13 @@ impl DataDirectory {
                 .map(|e| format!("  • {}", e))
                 .collect::<Vec<_>>()
                 .join("\n");
-            
+
             tracing::warn!(
                 scenario = ?source,
                 errors = %error_messages,
                 "Scenario validation failed"
             );
-            
+
             return Err(StorageError::Parse(format!(
                 "Scenario validation failed. Please check your YAML configuration:\n{}",
                 error_messages

@@ -5,8 +5,7 @@ use rmcp::{
 };
 
 use crate::{
-    prompts,
-    resources,
+    prompts, resources,
     state::{SharedState, new_shared_state},
     tools,
 };
@@ -22,6 +21,12 @@ impl FinplanMcpServer {
         Self {
             state: new_shared_state(),
         }
+    }
+}
+
+impl Default for FinplanMcpServer {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

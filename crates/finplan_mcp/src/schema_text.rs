@@ -1,6 +1,4 @@
-/// Static text for MCP schema resources.
-/// Each function returns a Markdown string documenting a section of the YAML format.
-
+/// Static text for MCP schema resources. Each function returns a Markdown string documenting a section of the YAML format.
 pub fn full_schema() -> &'static str {
     include_str!("../../../docs/08-scenario-yaml-reference.md")
 }

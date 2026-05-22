@@ -7,25 +7,27 @@ pub fn list_prompts() -> Vec<Prompt> {
     vec![
         Prompt::new(
             "build_scenario",
-            Some("Guided workflow to build a complete FinPlan scenario from scratch. \
-                  Walks through parameters, portfolio, events, and validation."),
-            Some(vec![
-                PromptArgument {
-                    name: "user_context".into(),
-                    title: None,
-                    description: Some(
-                        "Brief description of the user's financial situation \
+            Some(
+                "Guided workflow to build a complete FinPlan scenario from scratch. \
+                  Walks through parameters, portfolio, events, and validation.",
+            ),
+            Some(vec![PromptArgument {
+                name: "user_context".into(),
+                title: None,
+                description: Some(
+                    "Brief description of the user's financial situation \
                          (age, income, goals, accounts, etc.)"
-                            .into(),
-                    ),
-                    required: Some(true),
-                },
-            ]),
+                        .into(),
+                ),
+                required: Some(true),
+            }]),
         ),
         Prompt::new(
             "quick_retirement",
-            Some("Quick retirement planning scenario. Provide basic info and get a \
-                  complete scenario with salary, expenses, 401k, retirement, SS, and RMDs."),
+            Some(
+                "Quick retirement planning scenario. Provide basic info and get a \
+                  complete scenario with salary, expenses, 401k, retirement, SS, and RMDs.",
+            ),
             Some(vec![
                 PromptArgument {
                     name: "age".into(),
@@ -63,10 +65,7 @@ pub fn list_prompts() -> Vec<Prompt> {
 }
 
 /// Get a prompt by name.
-pub fn get_prompt(
-    name: &str,
-    args: Map<String, Value>,
-) -> Result<GetPromptResult, McpError> {
+pub fn get_prompt(name: &str, args: Map<String, Value>) -> Result<GetPromptResult, McpError> {
     match name {
         "build_scenario" => build_scenario_prompt(args),
         "quick_retirement" => quick_retirement_prompt(args),
@@ -77,9 +76,7 @@ pub fn get_prompt(
     }
 }
 
-fn build_scenario_prompt(
-    args: Map<String, Value>,
-) -> Result<GetPromptResult, McpError> {
+fn build_scenario_prompt(args: Map<String, Value>) -> Result<GetPromptResult, McpError> {
     let user_context = args
         .get("user_context")
         .and_then(|v| v.as_str())
@@ -144,28 +141,45 @@ Call `merge_scenario` to produce the final YAML.
 
     Ok(GetPromptResult {
         description: Some("Guided scenario construction workflow".into()),
-        messages: vec![PromptMessage::new_text(PromptMessageRole::User, instructions)],
+        messages: vec![PromptMessage::new_text(
+            PromptMessageRole::User,
+            instructions,
+        )],
     })
 }
 
-fn quick_retirement_prompt(
-    args: Map<String, Value>,
-) -> Result<GetPromptResult, McpError> {
+fn quick_retirement_prompt(args: Map<String, Value>) -> Result<GetPromptResult, McpError> {
     let age = args
         .get("age")
-        .and_then(|v| v.as_str().and_then(|s| s.parse::<u32>().ok()).or_else(|| v.as_u64().map(|n| n as u32)))
+        .and_then(|v| {
+            v.as_str()
+                .and_then(|s| s.parse::<u32>().ok())
+                .or_else(|| v.as_u64().map(|n| n as u32))
+        })
         .unwrap_or(30);
     let retirement_age = args
         .get("retirement_age")
-        .and_then(|v| v.as_str().and_then(|s| s.parse::<u32>().ok()).or_else(|| v.as_u64().map(|n| n as u32)))
+        .and_then(|v| {
+            v.as_str()
+                .and_then(|s| s.parse::<u32>().ok())
+                .or_else(|| v.as_u64().map(|n| n as u32))
+        })
         .unwrap_or(65);
     let annual_income = args
         .get("annual_income")
-        .and_then(|v| v.as_str().and_then(|s| s.parse::<f64>().ok()).or_else(|| v.as_f64()))
+        .and_then(|v| {
+            v.as_str()
+                .and_then(|s| s.parse::<f64>().ok())
+                .or_else(|| v.as_f64())
+        })
         .unwrap_or(100_000.0);
     let monthly_expenses = args
         .get("monthly_expenses")
-        .and_then(|v| v.as_str().and_then(|s| s.parse::<f64>().ok()).or_else(|| v.as_f64()))
+        .and_then(|v| {
+            v.as_str()
+                .and_then(|s| s.parse::<f64>().ok())
+                .or_else(|| v.as_f64())
+        })
         .unwrap_or(5_000.0);
     let state = args
         .get("state")
@@ -225,6 +239,9 @@ Call `validate_scenario`, then `merge_scenario`.
             retirement_age,
             annual_income / 1000.0
         )),
-        messages: vec![PromptMessage::new_text(PromptMessageRole::User, instructions)],
+        messages: vec![PromptMessage::new_text(
+            PromptMessageRole::User,
+            instructions,
+        )],
     })
 }

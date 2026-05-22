@@ -6,9 +6,9 @@ use finplan::data::parameters_data::{
     TaxConfigData,
 };
 
+use super::{make_tool, text_result};
 use crate::defaults;
 use crate::state::SharedState;
-use super::{make_tool, text_result, error_result};
 
 pub fn tools() -> Vec<Tool> {
     vec![make_tool(
@@ -108,11 +108,17 @@ pub fn set_parameters(
     let inflation = match args.get("inflation_type").and_then(|v| v.as_str()) {
         Some("none") => InflationData::None,
         Some("fixed") => {
-            let rate = args.get("inflation_rate").and_then(|v| v.as_f64()).unwrap_or(0.03);
+            let rate = args
+                .get("inflation_rate")
+                .and_then(|v| v.as_f64())
+                .unwrap_or(0.03);
             InflationData::Fixed { rate }
         }
         Some("normal") => {
-            let mean = args.get("inflation_mean").and_then(|v| v.as_f64()).unwrap_or(0.03);
+            let mean = args
+                .get("inflation_mean")
+                .and_then(|v| v.as_f64())
+                .unwrap_or(0.03);
             let std_dev = args
                 .get("inflation_std_dev")
                 .and_then(|v| v.as_f64())
@@ -120,7 +126,10 @@ pub fn set_parameters(
             InflationData::Normal { mean, std_dev }
         }
         Some("lognormal") => {
-            let mean = args.get("inflation_mean").and_then(|v| v.as_f64()).unwrap_or(0.03);
+            let mean = args
+                .get("inflation_mean")
+                .and_then(|v| v.as_f64())
+                .unwrap_or(0.03);
             let std_dev = args
                 .get("inflation_std_dev")
                 .and_then(|v| v.as_f64())
@@ -146,11 +155,10 @@ pub fn set_parameters(
         .and_then(|v| v.as_f64())
         .unwrap_or(0.15);
 
-    let federal_brackets =
-        match args.get("federal_brackets").and_then(|v| v.as_str()) {
-            Some("married_joint2024") => FederalBracketsPreset::MarriedJoint2024,
-            _ => FederalBracketsPreset::Single2024,
-        };
+    let federal_brackets = match args.get("federal_brackets").and_then(|v| v.as_str()) {
+        Some("married_joint2024") => FederalBracketsPreset::MarriedJoint2024,
+        _ => FederalBracketsPreset::Single2024,
+    };
 
     let returns_mode = match args.get("returns_mode").and_then(|v| v.as_str()) {
         Some("parametric") => ReturnsMode::Parametric,
@@ -184,6 +192,10 @@ pub fn set_parameters(
 
     text_result(format!(
         "Parameters set:\n  Birth: {}\n  Start: {}\n  Duration: {} years\n  Returns: {:?}\n  State tax: {:.1}%",
-        birth_date, start_date, duration_years, returns_mode, state_rate * 100.0
+        birth_date,
+        start_date,
+        duration_years,
+        returns_mode,
+        state_rate * 100.0
     ))
 }

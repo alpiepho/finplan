@@ -1,5 +1,3 @@
-/// Sensible default values for scenario construction.
-
 /// Look up state income tax rate by US state abbreviation.
 pub fn state_tax_rate(state: &str) -> f64 {
     match state.to_uppercase().as_str() {

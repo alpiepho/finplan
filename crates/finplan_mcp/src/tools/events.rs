@@ -4,9 +4,9 @@ use serde_json::{Map, Value, json};
 use finplan::data::events_data::*;
 use finplan::data::portfolio_data::AssetTag;
 
+use super::{make_tool, text_result};
 use crate::defaults;
 use crate::state::SharedState;
-use super::{make_tool, text_result, error_result};
 
 pub fn tools() -> Vec<Tool> {
     vec![
@@ -172,10 +172,20 @@ pub fn add_income_event(
     let to_account = require_str(&args, "to_account")?;
     let amount_val = require_f64(&args, "amount")?;
 
-    let interval = parse_interval(args.get("interval").and_then(|v| v.as_str()).unwrap_or("biweekly"));
+    let interval = parse_interval(
+        args.get("interval")
+            .and_then(|v| v.as_str())
+            .unwrap_or("biweekly"),
+    );
     let gross = args.get("gross").and_then(|v| v.as_bool()).unwrap_or(true);
-    let taxable = args.get("taxable").and_then(|v| v.as_bool()).unwrap_or(true);
-    let inflation_adjusted = args.get("inflation_adjusted").and_then(|v| v.as_bool()).unwrap_or(true);
+    let taxable = args
+        .get("taxable")
+        .and_then(|v| v.as_bool())
+        .unwrap_or(true);
+    let inflation_adjusted = args
+        .get("inflation_adjusted")
+        .and_then(|v| v.as_bool())
+        .unwrap_or(true);
 
     let amount = if inflation_adjusted {
         AmountData::InflationAdjusted {
@@ -185,25 +195,19 @@ pub fn add_income_event(
         AmountData::Fixed { value: amount_val }
     };
 
-    let end = args
-        .get("end_event")
-        .and_then(|v| v.as_str())
-        .map(|e| {
-            Box::new(TriggerData::RelativeToEvent {
-                event: EventTag(e.to_string()),
-                offset: OffsetData::Months { value: 0 },
-            })
-        });
+    let end = args.get("end_event").and_then(|v| v.as_str()).map(|e| {
+        Box::new(TriggerData::RelativeToEvent {
+            event: EventTag(e.to_string()),
+            offset: OffsetData::Months { value: 0 },
+        })
+    });
 
-    let start = args
-        .get("start_age")
-        .and_then(|v| v.as_u64())
-        .map(|age| {
-            Box::new(TriggerData::Age {
-                years: age as u8,
-                months: None,
-            })
-        });
+    let start = args.get("start_age").and_then(|v| v.as_u64()).map(|age| {
+        Box::new(TriggerData::Age {
+            years: age as u8,
+            months: None,
+        })
+    });
 
     let trigger = TriggerData::Repeating {
         interval,
@@ -238,8 +242,15 @@ pub fn add_expense_event(
     let from_account = require_str(&args, "from_account")?;
     let amount_val = require_f64(&args, "amount")?;
 
-    let interval = parse_interval(args.get("interval").and_then(|v| v.as_str()).unwrap_or("monthly"));
-    let inflation_adjusted = args.get("inflation_adjusted").and_then(|v| v.as_bool()).unwrap_or(true);
+    let interval = parse_interval(
+        args.get("interval")
+            .and_then(|v| v.as_str())
+            .unwrap_or("monthly"),
+    );
+    let inflation_adjusted = args
+        .get("inflation_adjusted")
+        .and_then(|v| v.as_bool())
+        .unwrap_or(true);
 
     let amount = if inflation_adjusted {
         AmountData::InflationAdjusted {
@@ -290,7 +301,10 @@ pub fn add_expense_event(
     };
 
     add_event(state, event)?;
-    text_result(format!("Added expense event \"{}\" from {}", name, from_account))
+    text_result(format!(
+        "Added expense event \"{}\" from {}",
+        name, from_account
+    ))
 }
 
 pub fn add_retirement_event(
@@ -335,7 +349,9 @@ pub fn add_contribution_event(
     let amount_val = require_f64(&args, "amount")?;
 
     let interval = parse_interval(
-        args.get("interval").and_then(|v| v.as_str()).unwrap_or("yearly"),
+        args.get("interval")
+            .and_then(|v| v.as_str())
+            .unwrap_or("yearly"),
     );
 
     let end = args.get("end_event").and_then(|v| v.as_str()).map(|e| {
@@ -382,7 +398,9 @@ pub fn add_sweep_event(
     let target_balance = require_f64(&args, "target_balance")?;
 
     let interval = parse_interval(
-        args.get("interval").and_then(|v| v.as_str()).unwrap_or("yearly"),
+        args.get("interval")
+            .and_then(|v| v.as_str())
+            .unwrap_or("yearly"),
     );
 
     let strategy = match args.get("strategy").and_then(|v| v.as_str()) {
@@ -450,10 +468,7 @@ pub fn add_social_security_event(
         .and_then(|v| v.as_str())
         .unwrap_or("Checking")
         .to_string();
-    let start_age = args
-        .get("start_age")
-        .and_then(|v| v.as_u64())
-        .unwrap_or(67) as u8;
+    let start_age = args.get("start_age").and_then(|v| v.as_u64()).unwrap_or(67) as u8;
 
     let monthly_amount = if let Some(amt) = args.get("monthly_amount").and_then(|v| v.as_f64()) {
         amt
@@ -510,10 +525,7 @@ pub fn add_rmd_event(
         .and_then(|v| v.as_str())
         .unwrap_or("Checking")
         .to_string();
-    let start_age = args
-        .get("start_age")
-        .and_then(|v| v.as_u64())
-        .unwrap_or(73) as u8;
+    let start_age = args.get("start_age").and_then(|v| v.as_u64()).unwrap_or(73) as u8;
     let lot_method = parse_lot_method(args.get("lot_method").and_then(|v| v.as_str()));
 
     let trigger = TriggerData::Repeating {
@@ -550,26 +562,29 @@ pub fn add_custom_event(
     state: &SharedState,
 ) -> Result<CallToolResult, McpError> {
     let name = require_str(&args, "name")?;
-    let description = args.get("description").and_then(|v| v.as_str()).map(String::from);
+    let description = args
+        .get("description")
+        .and_then(|v| v.as_str())
+        .map(String::from);
     let once = args.get("once").and_then(|v| v.as_bool()).unwrap_or(false);
-    let enabled = args.get("enabled").and_then(|v| v.as_bool()).unwrap_or(true);
+    let enabled = args
+        .get("enabled")
+        .and_then(|v| v.as_bool())
+        .unwrap_or(true);
 
     // Parse trigger from JSON
     let trigger_val = args
         .get("trigger")
         .ok_or_else(|| McpError::invalid_params("trigger is required", None))?;
-    let trigger: TriggerData = serde_json::from_value(trigger_val.clone()).map_err(|e| {
-        McpError::invalid_params(format!("Invalid trigger: {}", e), None)
-    })?;
+    let trigger: TriggerData = serde_json::from_value(trigger_val.clone())
+        .map_err(|e| McpError::invalid_params(format!("Invalid trigger: {}", e), None))?;
 
     // Parse effects from JSON
     let effects_val = args
         .get("effects")
         .ok_or_else(|| McpError::invalid_params("effects is required", None))?;
-    let effects: Vec<EffectData> =
-        serde_json::from_value(effects_val.clone()).map_err(|e| {
-            McpError::invalid_params(format!("Invalid effects: {}", e), None)
-        })?;
+    let effects: Vec<EffectData> = serde_json::from_value(effects_val.clone())
+        .map_err(|e| McpError::invalid_params(format!("Invalid effects: {}", e), None))?;
 
     let event = EventData {
         name: EventTag(name.clone()),

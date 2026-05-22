@@ -1,8 +1,7 @@
 /// Scenario YAML validation module
-/// 
+///
 /// Validates scenario files for common configuration errors and provides
 /// helpful error messages to guide users in fixing their YAML.
-
 use super::app_data::SimulationData;
 use super::events_data::EffectData;
 use std::collections::HashSet;
@@ -72,7 +71,10 @@ fn validate_portfolio(data: &SimulationData) -> Result<(), Vec<ValidationError>>
         errors.push(ValidationError {
             section: "portfolios".to_string(),
             message: "Portfolio name is empty".to_string(),
-            help: Some("Set portfolios.name to a descriptive string, e.g., 'My Retirement Plan'".to_string()),
+            help: Some(
+                "Set portfolios.name to a descriptive string, e.g., 'My Retirement Plan'"
+                    .to_string(),
+            ),
         });
     }
 
@@ -99,7 +101,11 @@ fn validate_portfolio(data: &SimulationData) -> Result<(), Vec<ValidationError>>
         }
 
         // Check for duplicate account names
-        let count = portfolio.accounts.iter().filter(|a| a.name == account.name).count();
+        let count = portfolio
+            .accounts
+            .iter()
+            .filter(|a| a.name == account.name)
+            .count();
         if count > 1 {
             errors.push(ValidationError {
                 section: format!("portfolios.accounts[{}]", idx),
@@ -139,7 +145,10 @@ fn validate_profiles(data: &SimulationData) -> Result<(), Vec<ValidationError>> 
         if !profile_names.contains(profile.0.as_str()) {
             errors.push(ValidationError {
                 section: "assets".to_string(),
-                message: format!("Asset '{}' references unknown profile '{}'", asset.0, profile.0),
+                message: format!(
+                    "Asset '{}' references unknown profile '{}'",
+                    asset.0, profile.0
+                ),
                 help: Some(format!(
                     "Define profile '{}' under profiles section, or use a built-in profile name",
                     profile.0
@@ -186,7 +195,12 @@ fn validate_profiles(data: &SimulationData) -> Result<(), Vec<ValidationError>> 
 fn validate_events(data: &SimulationData) -> Result<(), Vec<ValidationError>> {
     let mut errors = Vec::new();
 
-    let account_names: HashSet<_> = data.portfolios.accounts.iter().map(|a| a.name.as_str()).collect();
+    let account_names: HashSet<_> = data
+        .portfolios
+        .accounts
+        .iter()
+        .map(|a| a.name.as_str())
+        .collect();
     let event_names: HashSet<_> = data.events.iter().map(|e| e.name.0.as_str()).collect();
 
     for (idx, event) in data.events.iter().enumerate() {
@@ -264,9 +278,7 @@ fn validate_effect(
             }
         }
         EffectData::AssetPurchase {
-            from,
-            to_account,
-            ..
+            from, to_account, ..
         } => {
             if !account_names.contains(from.0.as_str()) {
                 errors.push(ValidationError {
@@ -375,9 +387,7 @@ fn validate_effect(
             }
         }
         EffectData::Random {
-            on_true,
-            on_false,
-            ..
+            on_true, on_false, ..
         } => {
             if !event_names.contains(on_true.0.as_str()) {
                 errors.push(ValidationError {
@@ -469,7 +479,10 @@ fn validate_analysis(data: &SimulationData) -> Result<(), Vec<ValidationError>> 
         errors.push(ValidationError {
             section: "analysis.mc_iterations".to_string(),
             message: format!("Too few Monte Carlo iterations: {}", analysis.mc_iterations),
-            help: Some("Use at least 100 iterations for reasonable accuracy. 1000 is recommended.".to_string()),
+            help: Some(
+                "Use at least 100 iterations for reasonable accuracy. 1000 is recommended."
+                    .to_string(),
+            ),
         });
     }
 
@@ -492,6 +505,10 @@ mod tests {
         let result = validate_scenario(&data);
         assert!(result.is_err());
         let errors = result.unwrap_err();
-        assert!(errors.iter().any(|e| e.message.contains("No accounts defined")));
+        assert!(
+            errors
+                .iter()
+                .any(|e| e.message.contains("No accounts defined"))
+        );
     }
 }

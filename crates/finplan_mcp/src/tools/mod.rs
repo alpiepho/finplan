@@ -19,7 +19,25 @@ pub fn list_tools() -> Vec<Tool> {
     tools.extend(events::tools());
     tools.extend(merge::tools());
     tools.extend(validate::tools());
+    tools.extend(utility_tools());
     tools
+}
+
+fn utility_tools() -> Vec<Tool> {
+    vec![
+        make_tool(
+            "get_state_summary",
+            "Get a summary of the current accumulated scenario state: portfolio name, \
+             account count, parameter settings, event count, and ticker mappings.",
+            serde_json::json!({"type": "object", "properties": {}}),
+        ),
+        make_tool(
+            "reset_state",
+            "Clear all accumulated scenario state and start fresh. \
+             Use this to begin building a new scenario.",
+            serde_json::json!({"type": "object", "properties": {}}),
+        ),
+    ]
 }
 
 /// Dispatch a tool call by name.
@@ -73,16 +91,8 @@ pub fn error_result(text: impl Into<String>) -> Result<CallToolResult, McpError>
 }
 
 /// Helper to make a Tool with a JSON Schema object.
-pub fn make_tool(
-    name: &'static str,
-    description: &'static str,
-    schema: Value,
-) -> Tool {
-    Tool::new(
-        name,
-        description,
-        json_object(schema),
-    )
+pub fn make_tool(name: &'static str, description: &'static str, schema: Value) -> Tool {
+    Tool::new(name, description, json_object(schema))
 }
 
 fn json_object(v: Value) -> serde_json::Map<String, Value> {
@@ -97,7 +107,7 @@ fn json_object(v: Value) -> serde_json::Map<String, Value> {
 }
 
 /// Get a summary of the current state.
-fn get_state_summary(state: &SharedState) -> Result<CallToolResult, McpError> {
+pub fn get_state_summary(state: &SharedState) -> Result<CallToolResult, McpError> {
     let st = state.lock().unwrap();
     let mut parts = Vec::new();
 
@@ -138,7 +148,7 @@ fn get_state_summary(state: &SharedState) -> Result<CallToolResult, McpError> {
 }
 
 /// Reset all accumulated state.
-fn reset_state(state: &SharedState) -> Result<CallToolResult, McpError> {
+pub fn reset_state(state: &SharedState) -> Result<CallToolResult, McpError> {
     let mut st = state.lock().unwrap();
     *st = crate::state::ScenarioState::new();
     text_result("State reset. All accumulated scenario data cleared.")
