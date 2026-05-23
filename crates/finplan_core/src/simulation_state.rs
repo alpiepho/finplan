@@ -84,8 +84,7 @@ impl SimTimeline {
         let mut months = i32::from(self.current_date.month()) - i32::from(birth.month());
 
         if self.current_date.month() < birth.month()
-            || (self.current_date.month() == birth.month()
-                && self.current_date.day() < birth.day())
+            || (self.current_date.month() == birth.month() && self.current_date.day() < birth.day())
         {
             years -= 1;
             months += 12;
@@ -475,7 +474,12 @@ impl SimulationState {
         // Load events and pre-cache age trigger dates for performance
         for event in &params.events {
             let mut age_dates = Vec::new();
-            collect_age_trigger_dates(&event.trigger, birth_date, params.spouse_birth_date, &mut age_dates);
+            collect_age_trigger_dates(
+                &event.trigger,
+                birth_date,
+                params.spouse_birth_date,
+                &mut age_dates,
+            );
 
             // Only cache if exactly one Age trigger exists in the tree
             if age_dates.len() == 1 {
@@ -679,8 +683,7 @@ impl SimulationState {
     pub fn spouse_age(&self) -> Option<(u8, u8)> {
         let birth = self.timeline.spouse_birth_date?;
         let mut years = self.timeline.current_date.year() - birth.year();
-        let mut months =
-            i32::from(self.timeline.current_date.month()) - i32::from(birth.month());
+        let mut months = i32::from(self.timeline.current_date.month()) - i32::from(birth.month());
 
         if self.timeline.current_date.month() < birth.month()
             || (self.timeline.current_date.month() == birth.month()

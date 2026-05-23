@@ -155,6 +155,13 @@ impl SimulationBuilder {
         self
     }
 
+    /// Set the spouse's birth date for age-based triggers on spouse-owned accounts/events
+    #[must_use]
+    pub fn spouse_birth_date(mut self, year: i16, month: i8, day: i8) -> Self {
+        self.config.spouse_birth_date = Some(jiff::civil::date(year, month, day));
+        self
+    }
+
     /// Set the inflation profile
     #[must_use]
     pub fn inflation_profile(mut self, profile: InflationProfile) -> Self {
@@ -524,6 +531,10 @@ impl SimulationBuilder {
             }
             TriggerSpec::Date(d) => EventTrigger::Date(*d),
             TriggerSpec::Age { years, months } => EventTrigger::Age {
+                years: *years,
+                months: *months,
+            },
+            TriggerSpec::SpouseAge { years, months } => EventTrigger::SpouseAge {
                 years: *years,
                 months: *months,
             },

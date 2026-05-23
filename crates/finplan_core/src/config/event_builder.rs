@@ -138,6 +138,10 @@ pub enum TriggerSpec {
         years: u8,
         months: Option<u8>,
     },
+    SpouseAge {
+        years: u8,
+        months: Option<u8>,
+    },
     Repeating {
         interval: RepeatInterval,
         start: Option<Box<TriggerSpec>>,
@@ -600,6 +604,26 @@ impl EventBuilder {
         self
     }
 
+    /// Trigger at a specific spouse age (requires `spouse_birth_date` in config)
+    #[must_use]
+    pub fn at_spouse_age(mut self, years: u8) -> Self {
+        self.trigger = TriggerSpec::SpouseAge {
+            years,
+            months: None,
+        };
+        self
+    }
+
+    /// Trigger at a specific spouse age and month
+    #[must_use]
+    pub fn at_spouse_age_months(mut self, years: u8, months: u8) -> Self {
+        self.trigger = TriggerSpec::SpouseAge {
+            years,
+            months: Some(months),
+        };
+        self
+    }
+
     /// Event triggers once (default for date/age triggers)
     #[must_use]
     pub fn once(mut self) -> Self {
@@ -775,6 +799,10 @@ impl EventBuilder {
         match &self.trigger {
             TriggerSpec::Date(d) => Some(Box::new(TriggerSpec::Date(*d))),
             TriggerSpec::Age { years, months } => Some(Box::new(TriggerSpec::Age {
+                years: *years,
+                months: *months,
+            })),
+            TriggerSpec::SpouseAge { years, months } => Some(Box::new(TriggerSpec::SpouseAge {
                 years: *years,
                 months: *months,
             })),
