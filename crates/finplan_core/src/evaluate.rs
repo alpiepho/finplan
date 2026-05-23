@@ -151,6 +151,21 @@ pub fn evaluate_trigger(
             }
         }
 
+        EventTrigger::SpouseAge { .. } => {
+            // Uses same pre-computed cache slot as Age triggers.
+            // Cache will be empty if no spouse_birth_date was configured.
+            if let Some(trigger_date) = state.event_state.age_trigger_date(*event_id) {
+                if state.timeline.current_date >= trigger_date {
+                    Ok(TriggerEvent::Triggered)
+                } else {
+                    Ok(TriggerEvent::NextTriggerDate(trigger_date))
+                }
+            } else {
+                // No spouse_birth_date configured — SpouseAge events never fire
+                Ok(TriggerEvent::NotTriggered)
+            }
+        }
+
         EventTrigger::RelativeToEvent {
             event_id: ref_event_id,
             offset,
