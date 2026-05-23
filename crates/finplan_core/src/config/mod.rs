@@ -140,6 +140,9 @@ pub struct SimulationConfig {
     /// Birth date for age-based triggers and RMD calculations
     pub birth_date: Option<jiff::civil::Date>,
 
+    /// Birth date of spouse for age-based triggers and RMD calculations on spouse-owned accounts
+    pub spouse_birth_date: Option<jiff::civil::Date>,
+
     /// Accounts with current balances
     #[serde(default)]
     pub accounts: Vec<Account>,
@@ -178,6 +181,7 @@ impl Default for SimulationConfig {
             tax_config: TaxConfig::default(),
             start_date: None,
             birth_date: None,
+            spouse_birth_date: None,
             accounts: Vec::new(),
             duration_years: default_duration_years(),
             events: Vec::new(),
@@ -259,6 +263,22 @@ impl SimulationConfig {
     #[must_use]
     pub fn initial_age(&self) -> Option<u8> {
         let birth = self.birth_date?;
+        let start = self.start_date?;
+        let years = start.year() - birth.year();
+
+        if start.month() < birth.month()
+            || (start.month() == birth.month() && start.day() < birth.day())
+        {
+            Some((years - 1) as u8)
+        } else {
+            Some(years as u8)
+        }
+    }
+
+    /// Calculate spouse's age at start date, if spouse_birth_date is set
+    #[must_use]
+    pub fn spouse_initial_age(&self) -> Option<u8> {
+        let birth = self.spouse_birth_date?;
         let start = self.start_date?;
         let years = start.year() - birth.year();
 
