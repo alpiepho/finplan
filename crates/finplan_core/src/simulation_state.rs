@@ -45,6 +45,7 @@ pub struct SimTimeline {
     pub end_date: jiff::civil::Date,
     pub birth_date: jiff::civil::Date,
     pub current_date: jiff::civil::Date,
+    pub spouse_birth_date: Option<jiff::civil::Date>,
 }
 
 impl SimTimeline {
@@ -72,6 +73,29 @@ impl SimTimeline {
 
         // Below 59.5 means: years < 59 OR (years == 59 AND months < 6)
         years < 59 || (years == 59 && months < 6)
+    }
+
+    /// Check if the spouse is below early withdrawal age (59.5).
+    /// Returns `None` if `spouse_birth_date` is not set.
+    #[must_use]
+    pub fn is_spouse_below_early_withdrawal_age(&self) -> Option<bool> {
+        let birth = self.spouse_birth_date?;
+        let mut years = self.current_date.year() - birth.year();
+        let mut months = i32::from(self.current_date.month()) - i32::from(birth.month());
+
+        if self.current_date.month() < birth.month()
+            || (self.current_date.month() == birth.month()
+                && self.current_date.day() < birth.day())
+        {
+            years -= 1;
+            months += 12;
+        }
+
+        if months < 0 {
+            months += 12;
+        }
+
+        Some(years < 59 || (years == 59 && months < 6))
     }
 }
 
@@ -303,6 +327,7 @@ pub struct SimHistory {
 fn collect_age_trigger_dates(
     trigger: &EventTrigger,
     birth_date: jiff::civil::Date,
+    spouse_birth_date: Option<jiff::civil::Date>,
     age_dates: &mut Vec<jiff::civil::Date>,
 ) {
     match trigger {
@@ -312,10 +337,10 @@ fn collect_age_trigger_dates(
             ..
         } => {
             if let Some(cond) = start_condition {
-                collect_age_trigger_dates(cond, birth_date, age_dates);
+                collect_age_trigger_dates(cond, birth_date, spouse_birth_date, age_dates);
             }
             if let Some(cond) = end_condition {
-                collect_age_trigger_dates(cond, birth_date, age_dates);
+                collect_age_trigger_dates(cond, birth_date, spouse_birth_date, age_dates);
             }
         }
         EventTrigger::Age { years, months } => {
@@ -325,9 +350,18 @@ fn collect_age_trigger_dates(
                 crate::model::TriggerOffset::Months(total_months).add_to_date(birth_date);
             age_dates.push(trigger_date);
         }
+        EventTrigger::SpouseAge { years, months } => {
+            if let Some(spouse_birth) = spouse_birth_date {
+                let target_months = months.unwrap_or(0);
+                let total_months = i32::from(*years) * 12 + i32::from(target_months);
+                let trigger_date =
+                    crate::model::TriggerOffset::Months(total_months).add_to_date(spouse_birth);
+                age_dates.push(trigger_date);
+            }
+        }
         EventTrigger::And(triggers) | EventTrigger::Or(triggers) => {
             for t in triggers {
-                collect_age_trigger_dates(t, birth_date, age_dates);
+                collect_age_trigger_dates(t, birth_date, spouse_birth_date, age_dates);
             }
         }
         _ => {}
@@ -441,7 +475,7 @@ impl SimulationState {
         // Load events and pre-cache age trigger dates for performance
         for event in &params.events {
             let mut age_dates = Vec::new();
-            collect_age_trigger_dates(&event.trigger, birth_date, &mut age_dates);
+            collect_age_trigger_dates(&event.trigger, birth_date, params.spouse_birth_date, &mut age_dates);
 
             // Only cache if exactly one Age trigger exists in the tree
             if age_dates.len() == 1 {
@@ -461,6 +495,7 @@ impl SimulationState {
                 start_date,
                 end_date,
                 birth_date: params.birth_date.unwrap_or(jiff::civil::date(1970, 1, 1)),
+                spouse_birth_date: params.spouse_birth_date,
             },
             portfolio: SimPortfolio {
                 accounts,
@@ -637,6 +672,29 @@ impl SimulationState {
         }
 
         (years as u8, months as u8)
+    }
+
+    /// Get spouse's current age in years and months.
+    /// Returns `None` if `spouse_birth_date` is not configured.
+    pub fn spouse_age(&self) -> Option<(u8, u8)> {
+        let birth = self.timeline.spouse_birth_date?;
+        let mut years = self.timeline.current_date.year() - birth.year();
+        let mut months =
+            i32::from(self.timeline.current_date.month()) - i32::from(birth.month());
+
+        if self.timeline.current_date.month() < birth.month()
+            || (self.timeline.current_date.month() == birth.month()
+                && self.timeline.current_date.day() < birth.day())
+        {
+            years -= 1;
+            months += 12;
+        }
+
+        if months < 0 {
+            months += 12;
+        }
+
+        Some((years as u8, months as u8))
     }
 
     /// Finalize YTD taxes when year changes or simulation ends
@@ -830,6 +888,7 @@ mod tests {
             end_date: current_date,
             birth_date,
             current_date,
+            spouse_birth_date: None,
         }
     }
 
