@@ -352,6 +352,9 @@ pub enum EventTrigger {
     /// Trigger at a specific age (requires `birth_date` in `SimulationParameters`)
     Age { years: u8, months: Option<u8> },
 
+    /// Trigger at a specific spouse age (requires `spouse_birth_date` in `SimulationParameters`)
+    SpouseAge { years: u8, months: Option<u8> },
+
     /// Trigger N days/months/years after another event
     RelativeToEvent {
         event_id: EventId,
