@@ -230,6 +230,7 @@ mod tests {
                 returns_mode: Default::default(),
                 historical_block_size: None,
                 seed: None,
+                spouse_birth_date: None,
             },
             analysis: AnalysisConfigData {
                 mc_iterations: 1000,

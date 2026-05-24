@@ -256,6 +256,7 @@ mod tests {
             returns_mode: ReturnsMode::Parametric,
             historical_block_size: None,
             seed: Some(12345),
+            spouse_birth_date: None,
         };
 
         let yaml = serde_saphyr::to_string(&params).unwrap();
