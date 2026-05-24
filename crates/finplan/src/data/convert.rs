@@ -5,8 +5,8 @@ use finplan_core::{
     model::{
         Account, AccountFlavor, AccountId, AmountMode, AssetCoord, AssetId, AssetLot,
         BalanceThreshold, Cash, Event, EventEffect, EventId, EventTrigger, FixedAsset, IncomeType,
-        InvestmentContainer, LoanDetail, LotMethod, RepeatInterval, ReturnProfileId, TaxStatus,
-        TransferAmount, TriggerOffset, WithdrawalOrder, WithdrawalSources,
+        InvestmentContainer, LoanDetail, LotMethod, Person, RepeatInterval, ReturnProfileId,
+        TaxStatus, TransferAmount, TriggerOffset, WithdrawalOrder, WithdrawalSources,
     },
 };
 use jiff::civil::Date;
@@ -169,6 +169,11 @@ fn convert_parameters(
     use finplan_core::model::InflationProfile;
 
     config.birth_date = Some(parse_date(&params.birth_date)?);
+    if let Some(ref s) = params.spouse_birth_date {
+        if !s.is_empty() {
+            config.spouse_birth_date = Some(parse_date(s)?);
+        }
+    }
     config.start_date = Some(parse_date(&params.start_date)?);
     config.duration_years = params.duration_years;
 
@@ -244,7 +249,11 @@ fn convert_accounts(
         let flavor =
             convert_account_flavor(account_data, ctx, default_cash_profile, &data.asset_prices)?;
 
-        config.accounts.push(Account { account_id, flavor });
+        config.accounts.push(Account {
+            account_id,
+            flavor,
+            owner: Person::Primary,
+        });
     }
     Ok(())
 }

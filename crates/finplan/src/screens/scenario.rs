@@ -298,6 +298,11 @@ impl Component for ScenarioScreen {
                         &params.birth_date,
                     ),
                     FormField::new(
+                        "Spouse Birth Date (YYYY-MM-DD, optional)",
+                        FieldType::Text,
+                        params.spouse_birth_date.as_deref().unwrap_or(""),
+                    ),
+                    FormField::new(
                         "Duration (years)",
                         FieldType::Text,
                         &params.duration_years.to_string(),
@@ -581,7 +586,7 @@ impl ScenarioScreen {
             state.current_scenario.clone()
         };
 
-        let lines = vec![
+        let mut lines = vec![
             Line::from(vec![
                 Span::styled("Scenario: ", Style::default().add_modifier(Modifier::BOLD)),
                 Span::styled(
@@ -599,6 +604,16 @@ impl ScenarioScreen {
                 Span::styled("Age:      ", Style::default().add_modifier(Modifier::BOLD)),
                 Span::raw(age_str),
             ]),
+        ];
+
+        if let Some(ref spouse_dob) = params.spouse_birth_date {
+            lines.push(Line::from(vec![
+                Span::styled("Spouse:   ", Style::default().add_modifier(Modifier::BOLD)),
+                Span::raw(spouse_dob.as_str()),
+            ]));
+        }
+
+        lines.extend(vec![
             Line::from(vec![
                 Span::styled("Monte:    ", Style::default().add_modifier(Modifier::BOLD)),
                 Span::raw(mc_status),
@@ -619,7 +634,7 @@ impl ScenarioScreen {
                     }),
                 ),
             ]),
-        ];
+        ]);
 
         let title = if focused {
             " SELECTED SCENARIO "

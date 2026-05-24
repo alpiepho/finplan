@@ -18,6 +18,10 @@ pub struct ParametersData {
     /// Birth date for age-based calculations (YYYY-MM-DD format)
     pub birth_date: String,
 
+    /// Spouse birth date (YYYY-MM-DD format). Optional.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub spouse_birth_date: Option<String>,
+
     /// Simulation start date (YYYY-MM-DD format)
     pub start_date: String,
 
@@ -219,6 +223,7 @@ impl Default for ParametersData {
     fn default() -> Self {
         Self {
             birth_date: "1985-01-01".to_string(),
+            spouse_birth_date: None,
             start_date: "2025-01-01".to_string(),
             duration_years: 30,
             inflation: InflationData::default(),

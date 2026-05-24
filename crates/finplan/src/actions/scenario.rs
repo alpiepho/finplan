@@ -50,8 +50,9 @@ pub fn handle_edit_parameters(state: &mut AppState, ctx: ActionContext) -> Actio
 
     let start_date = form.get_str(0).unwrap_or("").trim();
     let birth_date = form.get_str(1).unwrap_or("").trim();
-    let duration_str = form.get_str(2).unwrap_or("").trim();
-    let seed_str = form.get_str(3).unwrap_or("").trim();
+    let spouse_birth_str = form.get_str(2).unwrap_or("").trim();
+    let duration_str = form.get_str(3).unwrap_or("").trim();
+    let seed_str = form.get_str(4).unwrap_or("").trim();
 
     // Validate start_date format (YYYY-MM-DD)
     if !start_date.is_empty() && start_date.parse::<jiff::civil::Date>().is_err() {
@@ -66,6 +67,14 @@ pub fn handle_edit_parameters(state: &mut AppState, ctx: ActionContext) -> Actio
         return ActionResult::Error(format!(
             "Invalid birth date format: '{}'. Use YYYY-MM-DD",
             birth_date
+        ));
+    }
+
+    // Validate spouse_birth_date format (optional YYYY-MM-DD)
+    if !spouse_birth_str.is_empty() && spouse_birth_str.parse::<jiff::civil::Date>().is_err() {
+        return ActionResult::Error(format!(
+            "Invalid spouse birth date format: '{}'. Use YYYY-MM-DD",
+            spouse_birth_str
         ));
     }
 
@@ -99,6 +108,11 @@ pub fn handle_edit_parameters(state: &mut AppState, ctx: ActionContext) -> Actio
     let params = &mut state.data_mut().parameters;
     params.start_date = start_date.to_string();
     params.birth_date = birth_date.to_string();
+    params.spouse_birth_date = if spouse_birth_str.is_empty() {
+        None
+    } else {
+        Some(spouse_birth_str.to_string())
+    };
     params.duration_years = duration;
     params.seed = seed;
 
