@@ -700,6 +700,24 @@ impl SimulationState {
         Some((years as u8, months as u8))
     }
 
+    /// Get current age (years, months) for the owner of the given account.
+    /// Returns the spouse's age for Spouse-owned accounts, falling back to primary age
+    /// if no spouse birth date is configured.
+    #[must_use]
+    pub fn current_age_for_account(&self, account_id: AccountId) -> (u8, u8) {
+        let owner = self
+            .portfolio
+            .accounts
+            .get(&account_id)
+            .map(|a| a.owner)
+            .unwrap_or(crate::model::Person::Primary);
+
+        match owner {
+            crate::model::Person::Primary => self.current_age(),
+            crate::model::Person::Spouse => self.spouse_age().unwrap_or_else(|| self.current_age()),
+        }
+    }
+
     /// Check whether the owner of a given account is below the early withdrawal age (59.5).
     /// Uses the spouse birth date for Spouse-owned accounts; falls back to primary.
     #[must_use]

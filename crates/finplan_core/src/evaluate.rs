@@ -847,13 +847,10 @@ pub fn evaluate_effect_into(
         } => {
             let rmd_table = RmdTable::irs_uniform_lifetime_2024();
 
-            let (age, _) = state.current_age();
-            let Some(rmd_divisor) = rmd_table.divisor_for_age(age) else {
-                // TODO: Better handling for ages beyond table
-                return Ok(()); // No RMD required for this age
-            };
+            let account_ids: Vec<AccountId> = state.portfolio.accounts.keys().copied().collect();
+            for account_id in account_ids {
+                let acc = state.portfolio.accounts.get(&account_id).unwrap();
 
-            for acc in state.portfolio.accounts.values() {
                 // Only process Investment accounts with Tax-Deferred status
                 let _investment = match &acc.flavor {
                     AccountFlavor::Investment(inv) if inv.tax_status == TaxStatus::TaxDeferred => {
@@ -862,15 +859,21 @@ pub fn evaluate_effect_into(
                     _ => continue,
                 };
 
+                // Use the owner's age for RMD divisor lookup
+                let (age, _) = state.current_age_for_account(account_id);
+                let Some(rmd_divisor) = rmd_table.divisor_for_age(age) else {
+                    continue; // Owner not yet at RMD age
+                };
+
                 // Calculate required RMD amount
-                let Some(prior_balance) = state.prior_year_end_balance(acc.account_id) else {
+                let Some(prior_balance) = state.prior_year_end_balance(account_id) else {
                     continue;
                 };
                 let required_value = prior_balance / rmd_divisor;
 
                 // Liquidate and transfer required amount using Sweep
                 let sweep = EventEffect::Sweep {
-                    sources: WithdrawalSources::SingleAccount(acc.account_id),
+                    sources: WithdrawalSources::SingleAccount(account_id),
                     to: *destination,
                     amount: TransferAmount::Fixed(required_value),
                     amount_mode: AmountMode::Gross,
@@ -895,7 +898,7 @@ pub fn evaluate_effect_into(
                 out.insert(
                     sweep_start,
                     EvalEvent::StateEvent(StateEvent::RmdWithdrawal {
-                        account_id: acc.account_id,
+                        account_id,
                         age,
                         prior_year_balance: prior_balance,
                         divisor: rmd_divisor,
