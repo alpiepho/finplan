@@ -96,11 +96,39 @@ pub enum AccountFlavor {
     Liability(LoanDetail),
 }
 
+/// Which person in the household owns this account.
+/// Determines whose birth_date is used for early withdrawal penalties and RMDs.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum Person {
+    /// The primary simulation person (default).
+    #[default]
+    Primary,
+    /// The spouse.
+    Spouse,
+}
+
 /// A container for assets with a specific tax treatment
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Account {
     pub account_id: AccountId,
     pub flavor: AccountFlavor,
+    /// Which person owns this account (defaults to Primary).
+    #[serde(default)]
+    pub owner: Person,
+}
+
+impl Default for Account {
+    fn default() -> Self {
+        Self {
+            account_id: AccountId(0),
+            flavor: AccountFlavor::Bank(Cash {
+                value: 0.0,
+                return_profile_id: ReturnProfileId(0),
+            }),
+            owner: Person::Primary,
+        }
+    }
 }
 
 impl Account {

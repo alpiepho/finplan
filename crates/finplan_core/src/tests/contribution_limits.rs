@@ -40,6 +40,7 @@ fn test_monthly_contribution_limit() {
                     period: ContributionLimitPeriod::Monthly,
                 }),
             }),
+            owner: crate::model::Person::Primary,
         }],
         events: vec![
             // Try to contribute $600 on Jan 15 (should be capped at $500)
@@ -147,6 +148,7 @@ fn test_yearly_contribution_limit() {
                     period: ContributionLimitPeriod::Yearly,
                 }),
             }),
+            owner: crate::model::Person::Primary,
         }],
         events: vec![
             // Monthly contributions of $2000 repeating
@@ -239,6 +241,7 @@ fn test_contribution_limit_with_asset_purchase() {
                         period: ContributionLimitPeriod::Yearly,
                     }),
                 }),
+                owner: crate::model::Person::Primary,
             },
             Account {
                 account_id: checking,
@@ -246,6 +249,7 @@ fn test_contribution_limit_with_asset_purchase() {
                     value: 50000.0,
                     return_profile_id: ReturnProfileId(0),
                 }),
+                owner: crate::model::Person::Primary,
             },
         ],
         events: vec![

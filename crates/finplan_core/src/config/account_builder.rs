@@ -25,7 +25,7 @@
 
 use crate::model::{
     Account, AccountFlavor, AccountId, AssetId, AssetLot, Cash, FixedAsset, InvestmentContainer,
-    LoanDetail, ReturnProfileId, TaxStatus,
+    LoanDetail, Person, ReturnProfileId, TaxStatus,
 };
 use jiff::civil::Date;
 
@@ -35,6 +35,7 @@ pub struct AccountBuilder {
     pub(crate) name: Option<String>,
     pub(crate) description: Option<String>,
     flavor: AccountFlavorBuilder,
+    owner: Person,
 }
 
 #[derive(Debug, Clone)]
@@ -77,6 +78,7 @@ impl AccountBuilder {
                 cash_return_profile_id: ReturnProfileId(0),
                 positions: Vec::new(),
             },
+            owner: Person::Primary,
         }
     }
 
@@ -94,6 +96,7 @@ impl AccountBuilder {
                 cash_return_profile_id: ReturnProfileId(0),
                 positions: Vec::new(),
             },
+            owner: Person::Primary,
         }
     }
 
@@ -111,6 +114,7 @@ impl AccountBuilder {
                 cash_return_profile_id: ReturnProfileId(0),
                 positions: Vec::new(),
             },
+            owner: Person::Primary,
         }
     }
 
@@ -128,6 +132,7 @@ impl AccountBuilder {
                 cash_return_profile_id: ReturnProfileId(0),
                 positions: Vec::new(),
             },
+            owner: Person::Primary,
         }
     }
 
@@ -145,6 +150,7 @@ impl AccountBuilder {
                 cash_return_profile_id: ReturnProfileId(0),
                 positions: Vec::new(),
             },
+            owner: Person::Primary,
         }
     }
 
@@ -162,6 +168,7 @@ impl AccountBuilder {
                 cash_return_profile_id: ReturnProfileId(0),
                 positions: Vec::new(),
             },
+            owner: Person::Primary,
         }
     }
 
@@ -179,6 +186,7 @@ impl AccountBuilder {
                 cash_return_profile_id: ReturnProfileId(0),
                 positions: Vec::new(),
             },
+            owner: Person::Primary,
         }
     }
 
@@ -194,6 +202,7 @@ impl AccountBuilder {
                 cash_value: 0.0,
                 return_profile_id: ReturnProfileId(0),
             },
+            owner: Person::Primary,
         }
     }
 
@@ -209,6 +218,7 @@ impl AccountBuilder {
                 cash_value: 0.0,
                 return_profile_id: ReturnProfileId(0),
             },
+            owner: Person::Primary,
         }
     }
 
@@ -219,6 +229,7 @@ impl AccountBuilder {
             name: Some(name.into()),
             description: None,
             flavor: AccountFlavorBuilder::Property { asset: None },
+            owner: Person::Primary,
         }
     }
 
@@ -232,6 +243,7 @@ impl AccountBuilder {
                 principal,
                 interest_rate,
             },
+            owner: Person::Primary,
         }
     }
 
@@ -245,6 +257,7 @@ impl AccountBuilder {
                 principal,
                 interest_rate,
             },
+            owner: Person::Primary,
         }
     }
 
@@ -258,12 +271,20 @@ impl AccountBuilder {
                 principal,
                 interest_rate,
             },
+            owner: Person::Primary,
         }
     }
 
     // =========================================================================
     // Builder Methods
     // =========================================================================
+
+    /// Mark this account as owned by the spouse.
+    #[must_use]
+    pub fn owned_by_spouse(mut self) -> Self {
+        self.owner = Person::Spouse;
+        self
+    }
 
     /// Set or update the account name
     #[must_use]
@@ -391,7 +412,11 @@ impl AccountBuilder {
             }),
         };
 
-        Account { account_id, flavor }
+        Account {
+            account_id,
+            flavor,
+            owner: self.owner,
+        }
     }
 }
 

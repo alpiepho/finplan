@@ -45,6 +45,7 @@ fn create_basic_config(duration_years: usize) -> SimulationConfig {
                 }],
                 contribution_limit: None,
             }),
+            owner: crate::model::Person::Primary,
         }],
         ..Default::default()
     }
@@ -100,6 +101,7 @@ fn test_account_balance_trigger_safe() {
             value: 2_000.0,
             return_profile_id: ReturnProfileId(1),
         }),
+        owner: crate::model::Person::Primary,
     });
 
     // Monthly expense
@@ -185,6 +187,7 @@ fn test_account_balance_trigger_cooldown_prevents_infinite_loop() {
             value: -50.0, // Start negative to trigger the loop
             return_profile_id: ReturnProfileId(1),
         }),
+        owner: crate::model::Person::Primary,
     });
 
     // Trigger 1: When balance <= 0, add $100
@@ -276,6 +279,7 @@ fn test_event_count_scaling() {
                 value: 10_000.0,
                 return_profile_id: ReturnProfileId(1),
             }),
+            owner: crate::model::Person::Primary,
         });
         c.events.push(Event {
             event_id: EventId(1),
@@ -303,6 +307,7 @@ fn test_event_count_scaling() {
                 value: 10_000.0,
                 return_profile_id: ReturnProfileId(1),
             }),
+            owner: crate::model::Person::Primary,
         });
         c.events.push(Event {
             event_id: EventId(1),
@@ -421,6 +426,7 @@ fn test_high_frequency_events() {
             value: 100_000.0,
             return_profile_id: ReturnProfileId(1),
         }),
+        owner: crate::model::Person::Primary,
     });
 
     // Add multiple monthly events

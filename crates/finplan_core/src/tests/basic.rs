@@ -40,6 +40,7 @@ fn test_monte_carlo_simulation() {
                 }],
                 contribution_limit: None,
             }),
+            owner: crate::model::Person::Primary,
         }],
         ..Default::default()
     };
@@ -86,6 +87,7 @@ fn test_simulation_basic() {
                 }],
                 contribution_limit: None,
             }),
+            owner: crate::model::Person::Primary,
         }],
         ..Default::default()
     };

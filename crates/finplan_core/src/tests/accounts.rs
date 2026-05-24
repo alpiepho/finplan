@@ -50,6 +50,7 @@ fn test_investment_account_cash_and_positions() {
                 }],
                 contribution_limit: None,
             }),
+            owner: crate::model::Person::Primary,
         }],
         events: vec![],
         ..Default::default()
@@ -117,6 +118,7 @@ fn test_multiple_lots_same_asset() {
                 ],
                 contribution_limit: None,
             }),
+            owner: crate::model::Person::Primary,
         }],
         events: vec![],
         ..Default::default()
@@ -170,6 +172,7 @@ fn test_property_account_appreciation() {
                     asset_id: house_id,
                     value: house_value,
                 }),
+                owner: crate::model::Person::Primary,
             },
             Account {
                 account_id: AccountId(2),
@@ -177,6 +180,7 @@ fn test_property_account_appreciation() {
                     asset_id: car_id,
                     value: car_value,
                 }),
+                owner: crate::model::Person::Primary,
             },
         ],
         events: vec![],
@@ -224,6 +228,7 @@ fn test_liability_account_negative_balance() {
                 principal: loan_principal,
                 interest_rate: loan_rate,
             }),
+            owner: crate::model::Person::Primary,
         }],
         events: vec![],
         ..Default::default()
@@ -277,6 +282,7 @@ fn test_tax_status_same_returns() {
                     }],
                     contribution_limit: None,
                 }),
+                owner: crate::model::Person::Primary,
             },
             // Tax-deferred (401k/IRA)
             Account {
@@ -295,6 +301,7 @@ fn test_tax_status_same_returns() {
                     }],
                     contribution_limit: None,
                 }),
+                owner: crate::model::Person::Primary,
             },
             // Tax-free (Roth)
             Account {
@@ -313,6 +320,7 @@ fn test_tax_status_same_returns() {
                     }],
                     contribution_limit: None,
                 }),
+                owner: crate::model::Person::Primary,
             },
         ],
         events: vec![],
@@ -364,6 +372,7 @@ fn test_empty_investment_account() {
                 positions: vec![],
                 contribution_limit: None,
             }),
+            owner: crate::model::Person::Primary,
         }],
         events: vec![],
         ..Default::default()

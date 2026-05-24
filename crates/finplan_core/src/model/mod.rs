@@ -11,7 +11,7 @@ mod tax_config;
 pub use accounts::{
     Account, AccountFlavor, AccountSnapshot, AccountSnapshotFlavor, AssetLot, Cash,
     ContributionLimit, ContributionLimitPeriod, FixedAsset, InvestmentContainer, LoanDetail,
-    TaxStatus,
+    Person, TaxStatus,
 };
 pub use events::{
     AmountMode, BalanceThreshold, Event, EventEffect, EventTrigger, FlowLimits, IncomeType,

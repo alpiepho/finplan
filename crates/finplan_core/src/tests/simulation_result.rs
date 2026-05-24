@@ -83,6 +83,7 @@ fn test_final_balances_stored() {
                     }],
                     contribution_limit: None,
                 }),
+                owner: crate::model::Person::Primary,
             },
             Account {
                 account_id: AccountId(2),
@@ -90,6 +91,7 @@ fn test_final_balances_stored() {
                     value: 5_000.0,
                     return_profile_id: ReturnProfileId(999),
                 }),
+                owner: crate::model::Person::Primary,
             },
         ],
         events: vec![],
@@ -166,6 +168,7 @@ fn test_final_asset_balances_stored() {
                 ],
                 contribution_limit: None,
             }),
+            owner: crate::model::Person::Primary,
         }],
         events: vec![],
         ..Default::default()
@@ -217,6 +220,7 @@ fn test_income_records_generated() {
                 value: 0.0,
                 return_profile_id: ReturnProfileId(999),
             }),
+            owner: crate::model::Person::Primary,
         }],
         events: vec![Event {
             event_id: EventId(1),
@@ -390,6 +394,7 @@ fn test_record_filtering_methods() {
                 }],
                 contribution_limit: None,
             }),
+            owner: crate::model::Person::Primary,
         }],
         events: vec![
             // Income event
@@ -462,6 +467,7 @@ fn test_ledger_captures_state_changes() {
                 value: 10_000.0,
                 return_profile_id: cash_return_profile,
             }),
+            owner: crate::model::Person::Primary,
         }],
         events: vec![Event {
             event_id,
@@ -566,6 +572,7 @@ fn test_ledger_filter_by_account() {
                     value: 10_000.0,
                     return_profile_id: ReturnProfileId(99), // No return profile defined
                 }),
+                owner: crate::model::Person::Primary,
             },
             Account {
                 account_id: account2,
@@ -573,6 +580,7 @@ fn test_ledger_filter_by_account() {
                     value: 20_000.0,
                     return_profile_id: ReturnProfileId(99),
                 }),
+                owner: crate::model::Person::Primary,
             },
         ],
         events: vec![
@@ -655,6 +663,7 @@ fn test_ledger_income_and_expense_events() {
                 value: 5_000.0, // Starting balance
                 return_profile_id: ReturnProfileId(99),
             }),
+            owner: crate::model::Person::Primary,
         }],
         events: vec![
             // Paycheck income on the 1st of each month
@@ -781,6 +790,7 @@ fn test_ledger_asset_purchase_and_sale_events() {
                 positions: vec![],
                 contribution_limit: None,
             }),
+            owner: crate::model::Person::Primary,
         }],
         events: vec![
             // Buy $5,000 worth of stock (50 shares at $100)
@@ -957,6 +967,7 @@ fn test_monthly_cash_flows_match_yearly() {
                 value: 100_000.0,
                 return_profile_id: ReturnProfileId(99),
             }),
+            owner: crate::model::Person::Primary,
         }],
         events: vec![
             // Monthly income

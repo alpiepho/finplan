@@ -49,6 +49,7 @@ fn test_single_asset_fixed_return() {
                 }],
                 contribution_limit: None,
             }),
+            owner: crate::model::Person::Primary,
         }],
         events: vec![],
         ..Default::default()
@@ -85,6 +86,7 @@ fn test_bank_cash_no_appreciation() {
                 value: initial_value,
                 return_profile_id: ReturnProfileId(0), // Profile doesn't exist, so no growth
             }),
+            owner: crate::model::Person::Primary,
         }],
         events: vec![],
         ..Default::default()
@@ -125,6 +127,7 @@ fn test_bank_cash_with_return_profile() {
                 value: initial_value,
                 return_profile_id: cash_return_profile,
             }),
+            owner: crate::model::Person::Primary,
         }],
         events: vec![],
         ..Default::default()
@@ -185,6 +188,7 @@ fn test_investment_cash_appreciation() {
                 }],
                 contribution_limit: None,
             }),
+            owner: crate::model::Person::Primary,
         }],
         events: vec![],
         ..Default::default()
@@ -257,6 +261,7 @@ fn test_multiple_assets_different_returns() {
                 ],
                 contribution_limit: None,
             }),
+            owner: crate::model::Person::Primary,
         }],
         events: vec![],
         ..Default::default()
@@ -324,6 +329,7 @@ fn test_negative_returns() {
                 }],
                 contribution_limit: None,
             }),
+            owner: crate::model::Person::Primary,
         }],
         events: vec![],
         ..Default::default()
@@ -372,6 +378,7 @@ fn test_zero_return() {
                 }],
                 contribution_limit: None,
             }),
+            owner: crate::model::Person::Primary,
         }],
         events: vec![],
         ..Default::default()
@@ -423,6 +430,7 @@ fn test_same_asset_multiple_accounts() {
                     }],
                     contribution_limit: None,
                 }),
+                owner: crate::model::Person::Primary,
             },
             Account {
                 account_id: AccountId(2),
@@ -440,6 +448,7 @@ fn test_same_asset_multiple_accounts() {
                     }],
                     contribution_limit: None,
                 }),
+                owner: crate::model::Person::Primary,
             },
         ],
         events: vec![],
@@ -499,6 +508,7 @@ fn test_short_duration_returns() {
                 }],
                 contribution_limit: None,
             }),
+            owner: crate::model::Person::Primary,
         }],
         events: vec![],
         ..Default::default()
@@ -549,6 +559,7 @@ fn test_long_duration_returns() {
                 }],
                 contribution_limit: None,
             }),
+            owner: crate::model::Person::Primary,
         }],
         events: vec![],
         ..Default::default()
@@ -602,6 +613,7 @@ fn test_mid_simulation_cash_deposit() {
                 value: initial_value,
                 return_profile_id: cash_return_profile,
             }),
+            owner: crate::model::Person::Primary,
         }],
         events: vec![Event {
             event_id: EventId(1),
@@ -675,6 +687,7 @@ fn test_inflation_adjusted_expense() {
                 value: initial_balance,
                 return_profile_id: ReturnProfileId(999), // No returns
             }),
+            owner: crate::model::Person::Primary,
         }],
         events: vec![Event {
             event_id: EventId(1),
@@ -750,6 +763,7 @@ fn test_scale_transfer_amount() {
                 value: initial_balance,
                 return_profile_id: ReturnProfileId(999), // No returns
             }),
+            owner: crate::model::Person::Primary,
         }],
         events: vec![Event {
             event_id: EventId(1),
