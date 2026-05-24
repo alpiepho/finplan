@@ -84,7 +84,10 @@ fn test_full_scenario_build() {
     assert!(is_ok(&r), "set_parameters failed: {}", text_of(&r));
     ok(&r);
 
-    step(6, "add_income_event — Salary $5,769/biweekly → Checking (ends at Retirement)");
+    step(
+        6,
+        "add_income_event — Salary $5,769/biweekly → Checking (ends at Retirement)",
+    );
     let r = tools::events::add_income_event(
         args(json!({
             "name": "Salary",
@@ -99,7 +102,10 @@ fn test_full_scenario_build() {
     assert!(is_ok(&r), "add_income_event failed: {}", text_of(&r));
     ok(&r);
 
-    step(7, "add_expense_event — Living Expenses $6,000/month from Checking");
+    step(
+        7,
+        "add_expense_event — Living Expenses $6,000/month from Checking",
+    );
     let r = tools::events::add_expense_event(
         args(json!({
             "name": "Living Expenses",
@@ -112,7 +118,10 @@ fn test_full_scenario_build() {
     assert!(is_ok(&r), "add_expense_event failed: {}", text_of(&r));
     ok(&r);
 
-    step(8, "add_contribution_event — 401k $23,500/yr FXAIX (ends at Retirement)");
+    step(
+        8,
+        "add_contribution_event — 401k $23,500/yr FXAIX (ends at Retirement)",
+    );
     let r = tools::events::add_contribution_event(
         args(json!({
             "name": "401k Contribution",
@@ -133,7 +142,10 @@ fn test_full_scenario_build() {
     assert!(is_ok(&r), "add_retirement_event failed: {}", text_of(&r));
     ok(&r);
 
-    step(10, "add_social_security_event — $2,800/month starting age 67");
+    step(
+        10,
+        "add_social_security_event — $2,800/month starting age 67",
+    );
     let r = tools::events::add_social_security_event(
         args(json!({
             "start_age": 67,
@@ -143,7 +155,11 @@ fn test_full_scenario_build() {
         &st,
     )
     .unwrap();
-    assert!(is_ok(&r), "add_social_security_event failed: {}", text_of(&r));
+    assert!(
+        is_ok(&r),
+        "add_social_security_event failed: {}",
+        text_of(&r)
+    );
     ok(&r);
 
     step(11, "add_rmd_event — RMD starting age 73 → Checking");
@@ -151,13 +167,22 @@ fn test_full_scenario_build() {
     assert!(is_ok(&r), "add_rmd_event failed: {}", text_of(&r));
     ok(&r);
 
-    step(12, "map_tickers — auto-map FXAIX and VOO to historical presets");
+    step(
+        12,
+        "map_tickers — auto-map FXAIX and VOO to historical presets",
+    );
     let r = tools::ticker::map_tickers(args(json!({})), &st).unwrap();
     assert!(is_ok(&r), "map_tickers failed: {}", text_of(&r));
     ok(&r);
     let ticker_text = text_of(&r);
-    assert!(ticker_text.contains("FXAIX"), "Expected FXAIX in ticker mapping output");
-    assert!(ticker_text.contains("VOO"), "Expected VOO in ticker mapping output");
+    assert!(
+        ticker_text.contains("FXAIX"),
+        "Expected FXAIX in ticker mapping output"
+    );
+    assert!(
+        ticker_text.contains("VOO"),
+        "Expected VOO in ticker mapping output"
+    );
 
     step(13, "validate_scenario — check for errors");
     let r = tools::validate::validate_scenario(&st).unwrap();
@@ -168,7 +193,11 @@ fn test_full_scenario_build() {
     let r = tools::merge::merge_scenario(&st).unwrap();
     assert!(is_ok(&r), "merge_scenario failed: {}", text_of(&r));
     let yaml = text_of(&r);
-    println!("\n--- merged YAML ({} bytes) ---\n{}\n---", yaml.len(), yaml);
+    println!(
+        "\n--- merged YAML ({} bytes) ---\n{}\n---",
+        yaml.len(),
+        yaml
+    );
 
     assert!(yaml.contains("Sarah's Plan"), "YAML missing portfolio name");
     assert!(yaml.contains("Checking"), "YAML missing Checking account");
@@ -178,13 +207,19 @@ fn test_full_scenario_build() {
 
     step(15, "verify state counts");
     let st_locked = st.lock().unwrap();
-    let portfolio = st_locked.portfolio.as_ref().expect("portfolio should be set");
+    let portfolio = st_locked
+        .portfolio
+        .as_ref()
+        .expect("portfolio should be set");
     println!("  accounts : {}", portfolio.accounts.len());
     println!("  events   : {}", st_locked.events.len());
     println!("  hist maps: {}", st_locked.historical_assets.len());
     assert_eq!(portfolio.accounts.len(), 3, "Expected 3 accounts");
     assert_eq!(st_locked.events.len(), 6, "Expected 6 events");
-    assert!(!st_locked.historical_assets.is_empty(), "Expected historical asset mappings");
+    assert!(
+        !st_locked.historical_assets.is_empty(),
+        "Expected historical asset mappings"
+    );
 
     println!("\n✓ Full scenario build passed");
 }
@@ -229,7 +264,10 @@ fn test_reset_clears_state() {
     let before_r = tools::get_state_summary(&st).unwrap();
     let before = text_of(&before_r);
     println!("  before reset: {}", before.replace('\n', " | "));
-    assert!(before.contains("Events: 1 defined"), "Expected 1 event before reset");
+    assert!(
+        before.contains("Events: 1 defined"),
+        "Expected 1 event before reset"
+    );
 
     tools::reset_state(&st).unwrap();
     println!("  reset_state called");
