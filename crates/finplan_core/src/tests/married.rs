@@ -168,3 +168,48 @@ fn test_both_primary_and_spouse_ss_fire_independently() {
         "Combined SS income in 2042 should exceed primary-only income in 2037"
     );
 }
+
+/// Spouse-owned account does not incur early withdrawal penalty when the spouse
+/// is over 59.5, even if the primary is still under 59.5.
+///
+/// Primary born 1980-01-01 (age 45 at sim start 2025).
+/// Spouse born 1960-01-01 (age 65 at sim start — past 59.5).
+/// Withdrawal from spouse's TaxDeferred account should not trigger the penalty.
+#[test]
+fn test_spouse_account_no_penalty_when_spouse_over_59_5() {
+    let (mut config, _meta) = SimulationBuilder::new()
+        .start(2025, 1, 1)
+        .years(1)
+        .birth_date(1980, 1, 1)
+        .spouse_birth_date(1960, 1, 1)
+        .account(
+            AccountBuilder::bank_account("Checking").cash(0.0), // income destination
+        )
+        .account(
+            AccountBuilder::traditional_401k("Spouse 401k")
+                .cash(50_000.0)
+                .owned_by_spouse(),
+        )
+        .event(
+            EventBuilder::expense("Annual Withdrawal")
+                .from_account("Spouse 401k")
+                .amount(10_000.0)
+                .once(),
+        )
+        .build();
+    config.collect_ledger = true;
+
+    let result = simulate(&config, 42).unwrap();
+
+    // The withdrawal should happen but produce zero early-withdrawal penalty
+    let total_penalty: f64 = result
+        .yearly_taxes
+        .iter()
+        .map(|t| t.early_withdrawal_penalties)
+        .sum();
+
+    assert_eq!(
+        total_penalty, 0.0,
+        "Spouse-owned account should not incur early withdrawal penalty when spouse is 65"
+    );
+}

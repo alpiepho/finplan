@@ -700,6 +700,26 @@ impl SimulationState {
         Some((years as u8, months as u8))
     }
 
+    /// Check whether the owner of a given account is below the early withdrawal age (59.5).
+    /// Uses the spouse birth date for Spouse-owned accounts; falls back to primary.
+    #[must_use]
+    pub fn is_account_below_early_withdrawal_age(&self, account_id: AccountId) -> bool {
+        let owner = self
+            .portfolio
+            .accounts
+            .get(&account_id)
+            .map(|a| a.owner)
+            .unwrap_or(crate::model::Person::Primary);
+
+        match owner {
+            crate::model::Person::Primary => self.timeline.is_below_early_withdrawal_age(),
+            crate::model::Person::Spouse => self
+                .timeline
+                .is_spouse_below_early_withdrawal_age()
+                .unwrap_or_else(|| self.timeline.is_below_early_withdrawal_age()),
+        }
+    }
+
     /// Finalize YTD taxes when year changes or simulation ends
     pub fn finalize_year_taxes(&mut self) {
         if self.taxes.ytd_tax.ordinary_income > 0.0

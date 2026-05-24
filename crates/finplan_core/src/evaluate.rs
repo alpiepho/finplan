@@ -702,8 +702,7 @@ pub fn evaluate_effect_into(
                         tax_config: &state.taxes.config,
                         ytd_ordinary_income: state.taxes.ytd_tax.ordinary_income,
                         early_withdrawal_penalty_applies: state
-                            .timeline
-                            .is_below_early_withdrawal_age(),
+                            .is_account_below_early_withdrawal_age(*from),
                     },
                     out, // Push effects directly to scratch buffer
                 );
@@ -1164,22 +1163,25 @@ pub fn resolve_withdrawal_sources(
                     // Pro-rata: return all accounts (proportional withdrawal handled in caller)
                 }
                 WithdrawalOrder::PenaltyAware => {
-                    // Before 59.5: Taxable → TaxFree → TaxDeferred (avoid 10% penalty)
-                    // After 59.5: Same as TaxEfficientEarly
-                    if state.timeline.is_below_early_withdrawal_age() {
-                        investment_accounts.sort_by_key(|(_, _, inv)| match inv.tax_status {
-                            TaxStatus::Taxable => 0,
-                            TaxStatus::TaxFree => 1,
-                            TaxStatus::TaxDeferred => 2, // Last to avoid penalty
-                        });
-                    } else {
-                        // After 59.5, use TaxEfficientEarly order
-                        investment_accounts.sort_by_key(|(_, _, inv)| match inv.tax_status {
-                            TaxStatus::Taxable => 0,
-                            TaxStatus::TaxDeferred => 1,
-                            TaxStatus::TaxFree => 2,
-                        });
-                    }
+                    // Per-account: if owner is below 59.5 avoid TaxDeferred (10% penalty).
+                    // After 59.5 use TaxEfficientEarly order instead.
+                    investment_accounts.sort_by_key(|(acc_id, _, inv)| {
+                        if state.is_account_below_early_withdrawal_age(**acc_id) {
+                            // Before 59.5: Taxable → TaxFree → TaxDeferred
+                            match inv.tax_status {
+                                TaxStatus::Taxable => 0,
+                                TaxStatus::TaxFree => 1,
+                                TaxStatus::TaxDeferred => 2,
+                            }
+                        } else {
+                            // After 59.5: Taxable → TaxDeferred → TaxFree
+                            match inv.tax_status {
+                                TaxStatus::Taxable => 0,
+                                TaxStatus::TaxDeferred => 1,
+                                TaxStatus::TaxFree => 2,
+                            }
+                        }
+                    });
                 }
             }
 
