@@ -1,3 +1,4 @@
+use finplan_core::model::Person;
 use serde::{Deserialize, Serialize};
 
 use crate::data::profiles_data::ReturnProfileTag;
@@ -60,6 +61,10 @@ pub struct AccountData {
     pub name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
+    /// Account owner — `primary` (default) or `spouse`.
+    /// Determines whose birth_date is used for early withdrawal penalties and RMDs.
+    #[serde(default)]
+    pub owner: Person,
     #[serde(flatten)]
     pub account_type: AccountType,
 }

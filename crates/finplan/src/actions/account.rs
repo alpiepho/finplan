@@ -310,6 +310,7 @@ where
     Some(AccountData {
         name,
         description: desc,
+        owner: Default::default(),
         account_type: make_type(AssetAccount { assets: vec![] }),
     })
 }
@@ -331,6 +332,7 @@ where
     Some(AccountData {
         name,
         description: desc,
+        owner: Default::default(),
         account_type: make_type(prop),
     })
 }
@@ -353,6 +355,7 @@ where
     Some(AccountData {
         name,
         description: desc,
+        owner: Default::default(),
         account_type: make_type(debt),
     })
 }

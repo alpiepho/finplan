@@ -252,7 +252,7 @@ fn convert_accounts(
         config.accounts.push(Account {
             account_id,
             flavor,
-            owner: Person::Primary,
+            owner: account_data.owner,
         });
     }
     Ok(())
