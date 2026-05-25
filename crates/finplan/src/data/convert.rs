@@ -462,6 +462,11 @@ fn convert_trigger(
             months: *months,
         }),
 
+        TriggerData::SpouseAge { years, months } => Ok(EventTrigger::SpouseAge {
+            years: *years,
+            months: *months,
+        }),
+
         TriggerData::RelativeToEvent { event, offset } => {
             let event_id = resolve_event(event, ctx)?;
             Ok(EventTrigger::RelativeToEvent {

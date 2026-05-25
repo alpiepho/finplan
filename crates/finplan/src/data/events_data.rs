@@ -56,6 +56,13 @@ pub enum TriggerData {
         months: Option<u8>,
     },
 
+    /// Trigger at a specific spouse age (requires spouse_birth_date in parameters)
+    SpouseAge {
+        years: u8,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        months: Option<u8>,
+    },
+
     /// Trigger relative to another event
     RelativeToEvent { event: EventTag, offset: OffsetData },
 

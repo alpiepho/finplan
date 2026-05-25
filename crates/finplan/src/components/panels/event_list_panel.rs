@@ -362,6 +362,7 @@ impl EventListPanel {
         match trigger {
             TriggerData::Date { date } => format!("Date: {}", date),
             TriggerData::Age { years, .. } => format!("Age: {}", years),
+            TriggerData::SpouseAge { years, .. } => format!("Spouse Age: {}", years),
             TriggerData::Repeating { interval, .. } => {
                 format!("Repeating: {}", Self::format_interval(interval))
             }

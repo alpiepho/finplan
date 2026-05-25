@@ -284,6 +284,10 @@ impl EventsScreen {
                 let birth_year: i32 = birth_date.split('-').next()?.parse().ok()?;
                 Some(birth_year + *years as i32)
             }
+            TriggerData::SpouseAge { .. } => {
+                // Would need spouse birth date to calculate - mark as conditional
+                None
+            }
             TriggerData::Repeating { start, .. } => {
                 // Use start condition if present
                 if let Some(start_trigger) = start {
@@ -326,6 +330,17 @@ impl EventsScreen {
                     )));
                 } else {
                     lines.push(Line::from(format!("{}Age: {} years", prefix, years)));
+                }
+            }
+            TriggerData::SpouseAge { years, months } => {
+                lines.push(Line::from(format!("{}Type: Spouse Age", prefix)));
+                if let Some(m) = months {
+                    lines.push(Line::from(format!(
+                        "{}Spouse Age: {} years, {} months",
+                        prefix, years, m
+                    )));
+                } else {
+                    lines.push(Line::from(format!("{}Spouse Age: {} years", prefix, years)));
                 }
             }
             TriggerData::RelativeToEvent { event, offset } => {
@@ -444,6 +459,13 @@ impl EventsScreen {
                     format!("Age {} years, {} months", years, m)
                 } else {
                     format!("Age {} years", years)
+                }
+            }
+            TriggerData::SpouseAge { years, months } => {
+                if let Some(m) = months {
+                    format!("Spouse Age {} years, {} months", years, m)
+                } else {
+                    format!("Spouse Age {} years", years)
                 }
             }
             TriggerData::RelativeToEvent { event, offset } => {

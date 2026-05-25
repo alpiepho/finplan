@@ -117,6 +117,7 @@ pub fn handle_trigger_type_pick(state: &AppState, trigger_type: &str) -> ActionR
             // Show quick event template picker
             let templates = vec![
                 "Social Security".to_string(),
+                "Spouse Social Security".to_string(),
                 "RMD (Required Minimum Distributions)".to_string(),
                 "Medicare Part B".to_string(),
             ];
@@ -1159,6 +1160,7 @@ use crate::data::portfolio_data::AccountType;
 pub fn handle_quick_event_pick(state: &mut AppState, template: &str) -> ActionResult {
     let event = match template {
         "Social Security" => create_social_security_template(state),
+        "Spouse Social Security" => create_spouse_social_security_template(state),
         "RMD (Required Minimum Distributions)" => create_rmd_template(state),
         "Medicare Part B" => create_medicare_template(state),
         _ => return ActionResult::close(),
@@ -1209,6 +1211,32 @@ fn create_social_security_template(state: &AppState) -> EventData {
             amount: AmountData::fixed(2000.0), // Placeholder - user should customize
             gross: true,
             taxable: true, // SS is partially taxable at higher incomes
+        }],
+        once: false,
+        enabled: true,
+    }
+}
+
+/// Create a Spouse Social Security template event
+fn create_spouse_social_security_template(state: &AppState) -> EventData {
+    let dest = first_cash_account_name(state);
+    EventData {
+        name: EventTag("Spouse Social Security".to_string()),
+        description: Some("Monthly Social Security benefits for spouse".to_string()),
+        trigger: TriggerData::Repeating {
+            interval: IntervalData::Monthly,
+            start: Some(Box::new(TriggerData::SpouseAge {
+                years: 67,
+                months: None,
+            })),
+            end: None,
+            max_occurrences: None,
+        },
+        effects: vec![EffectData::Income {
+            to: AccountTag(dest),
+            amount: AmountData::fixed(2000.0),
+            gross: true,
+            taxable: true,
         }],
         once: false,
         enabled: true,
