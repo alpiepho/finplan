@@ -1035,6 +1035,7 @@ mod tests {
             AccountData {
                 name: "Checking".to_string(),
                 description: None,
+                owner: Default::default(),
                 account_type: AccountType::Checking(Property {
                     value: 10000.0,
                     return_profile: None,
@@ -1043,6 +1044,7 @@ mod tests {
             AccountData {
                 name: "Brokerage".to_string(),
                 description: None,
+                owner: Default::default(),
                 account_type: AccountType::Brokerage(AssetAccount {
                     assets: vec![
                         AssetValue {

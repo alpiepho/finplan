@@ -131,6 +131,7 @@ mod tests {
                     AccountData {
                         name: "Checking".to_string(),
                         description: None,
+                        owner: Default::default(),
                         account_type: AccountType::Checking(Property {
                             value: 5000.0,
                             return_profile: Some(ReturnProfileTag("HYSA".to_string())),
@@ -139,6 +140,7 @@ mod tests {
                     AccountData {
                         name: "Brokerage".to_string(),
                         description: Some("Taxable investment account".to_string()),
+                        owner: Default::default(),
                         account_type: AccountType::Brokerage(AssetAccount {
                             assets: vec![AssetValue {
                                 asset: AssetTag("VTSAX".to_string()),
@@ -149,6 +151,7 @@ mod tests {
                     AccountData {
                         name: "401k".to_string(),
                         description: None,
+                        owner: Default::default(),
                         account_type: AccountType::Traditional401k(AssetAccount {
                             assets: vec![AssetValue {
                                 asset: AssetTag("VTSAX".to_string()),
