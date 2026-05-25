@@ -1234,9 +1234,9 @@ fn create_spouse_social_security_template(state: &AppState) -> EventData {
         },
         effects: vec![EffectData::Income {
             to: AccountTag(dest),
-            amount: AmountData::fixed(2000.0),
+            amount: AmountData::fixed(2000.0), // Placeholder - user should customize
             gross: true,
-            taxable: true,
+            taxable: true, // SS is partially taxable at higher incomes
         }],
         once: false,
         enabled: true,
