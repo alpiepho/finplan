@@ -56,6 +56,10 @@ pub enum AccountType {
     StudentLoanDebt(Debt),
 }
 
+fn is_primary(p: &Person) -> bool {
+    *p == Person::Primary
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AccountData {
     pub name: String,
@@ -63,7 +67,7 @@ pub struct AccountData {
     pub description: Option<String>,
     /// Account owner — `primary` (default) or `spouse`.
     /// Determines whose birth_date is used for early withdrawal penalties and RMDs.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "is_primary")]
     pub owner: Person,
     #[serde(flatten)]
     pub account_type: AccountType,

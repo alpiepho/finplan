@@ -253,29 +253,18 @@ events:
     once: false
     enabled: true
 
-  - name: Primary RMD
-    description: Required Minimum Distributions from primary tax-deferred accounts (age 73)
+  - name: RMD
+    description: Required Minimum Distributions — fires when either person reaches 73
     trigger:
       type: Repeating
       interval: yearly
       start:
-        type: Age
-        years: 73
-    effects:
-      - type: ApplyRmd
-        destination: Checking
-        lot_method: fifo
-    once: false
-    enabled: true
-
-  - name: Spouse RMD
-    description: Required Minimum Distributions from spouse tax-deferred accounts (spouse age 73)
-    trigger:
-      type: Repeating
-      interval: yearly
-      start:
-        type: SpouseAge
-        years: 73
+        type: Or
+        conditions:
+          - type: Age
+            years: 73
+          - type: SpouseAge
+            years: 73
     effects:
       - type: ApplyRmd
         destination: Checking
