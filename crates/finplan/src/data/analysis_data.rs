@@ -62,6 +62,8 @@ pub struct SweepParameterData {
 pub enum SweepTypeData {
     /// Age trigger (years)
     TriggerAge,
+    /// SpouseAge trigger (years)
+    TriggerSpouseAge,
     /// Date trigger (year)
     TriggerDate,
     /// Effect amount (dollars)
@@ -77,6 +79,7 @@ impl SweepTypeData {
     pub fn display_name(&self) -> &'static str {
         match self {
             Self::TriggerAge => "Age",
+            Self::TriggerSpouseAge => "Spouse Age",
             Self::TriggerDate => "Year",
             Self::EffectValue => "Amount",
             Self::RepeatingStartAge => "Start Age",

@@ -10,6 +10,8 @@ pub enum TriggerParam {
     Date,
     /// Modify an Age trigger's years field
     Age,
+    /// Modify a SpouseAge trigger's years field
+    SpouseAge,
     /// Modify the start trigger of a Repeating event
     RepeatingStart(Box<TriggerParam>),
     /// Modify the end trigger of a Repeating event
@@ -376,6 +378,9 @@ impl SweepParameter {
         match &self.target {
             SweepTarget::Trigger(TriggerParam::Age) => {
                 format!("Age (Event {})", self.event_id.0)
+            }
+            SweepTarget::Trigger(TriggerParam::SpouseAge) => {
+                format!("Spouse Age (Event {})", self.event_id.0)
             }
             SweepTarget::Trigger(TriggerParam::Date) => {
                 format!("Date (Event {})", self.event_id.0)
