@@ -460,7 +460,10 @@ fn test_set_parameters_stores_spouse_birth_date() {
     assert!(is_ok(&r), "set_parameters failed: {}", text_of(&r));
 
     let locked = st.lock().unwrap();
-    let params = locked.parameters.as_ref().expect("parameters should be set");
+    let params = locked
+        .parameters
+        .as_ref()
+        .expect("parameters should be set");
     assert_eq!(
         params.spouse_birth_date.as_deref(),
         Some("1978-06-01"),
@@ -510,11 +513,7 @@ fn test_spouse_birth_date_omitted_when_not_set() {
         &st,
     )
     .unwrap();
-    tools::parameters::set_parameters(
-        args(json!({"birth_date": "1980-01-01"})),
-        &st,
-    )
-    .unwrap();
+    tools::parameters::set_parameters(args(json!({"birth_date": "1980-01-01"})), &st).unwrap();
 
     let r = tools::merge::merge_scenario(&st).unwrap();
     assert!(is_ok(&r), "merge_scenario failed: {}", text_of(&r));

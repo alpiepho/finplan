@@ -6,16 +6,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Quick Commands
 
+**IMPORTANT: No local Rust toolchain. ALL cargo commands must run via Docker. Use `$PWD`, not `$(pwd)`.**
+
 ```bash
-cargo build             # Build all crates
-cargo run --bin finplan # Run the TUI
-cargo test              # Run all tests
-cargo fmt               # Format code (REQUIRED before commits)
+docker run --rm -v "$PWD":/app -w /app rust:slim cargo build
+docker run --rm -v "$PWD":/app -w /app rust:slim cargo test
+docker run --rm -v "$PWD":/app -w /app rust:slim sh -c "rustup component add rustfmt 2>/dev/null; cargo fmt"
+docker run --rm -v "$PWD":/app -w /app rust:slim sh -c "rustup component add clippy 2>/dev/null; cargo clippy"
+cargo run --bin finplan  # TUI runs locally (has local binary)
 ```
 
 IMPORTANT:
-- When finished making changes run `cargo fmt`
-- Run `cargo clippy` and fix any warnings if they will not cause major refactor work.
+- When finished making changes run cargo fmt via Docker (see above)
+- Run cargo clippy via Docker and fix any warnings if they will not cause major refactor work.
 - `git add` changed files to track
 - Suggest a commit message for the completed work
 

@@ -136,11 +136,7 @@ impl AnalysisScreen {
         let inner = block_clone.inner(area);
 
         let (content_area, warning_area) = if is_married && inner.height > 3 {
-            let chunks = Layout::vertical([
-                Constraint::Min(1),
-                Constraint::Length(2),
-            ])
-            .split(inner);
+            let chunks = Layout::vertical([Constraint::Min(1), Constraint::Length(2)]).split(inner);
             (chunks[0], Some(chunks[1]))
         } else {
             (inner, None)
