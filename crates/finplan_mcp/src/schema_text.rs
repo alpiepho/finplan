@@ -122,6 +122,15 @@ trigger:
   months: 6    # optional
 ```
 
+## SpouseAge
+Fire when the spouse reaches a specific age. Requires `spouse_birth_date` in parameters.
+```yaml
+trigger:
+  type: SpouseAge
+  years: 67
+  months: 0    # optional
+```
+
 ## RelativeToEvent
 Fire relative to when another event fires.
 ```yaml
@@ -393,6 +402,7 @@ The `parameters` section configures simulation timing, inflation, taxes, and ret
 ```yaml
 parameters:
   birth_date: "1985-06-15"       # REQUIRED — YYYY-MM-DD
+  spouse_birth_date: "1988-03-20" # Optional — YYYY-MM-DD. Required for SpouseAge event triggers.
   start_date: "2026-01-01"       # Simulation start date
   duration_years: 40             # How many years to simulate
 

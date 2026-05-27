@@ -73,6 +73,11 @@ pub fn tools() -> Vec<Tool> {
                     "type": "integer",
                     "description": "Block bootstrap size for historical returns (default: 5)"
                 },
+                "spouse_birth_date": {
+                    "type": "string",
+                    "description": "Spouse's date of birth in YYYY-MM-DD format. Optional. Required for SpouseAge event triggers.",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
                 "seed": {
                     "type": "integer",
                     "description": "Random seed for reproducibility (optional)"
@@ -172,9 +177,15 @@ pub fn set_parameters(
 
     let seed = args.get("seed").and_then(|v| v.as_u64());
 
+    let spouse_birth_date = args
+        .get("spouse_birth_date")
+        .and_then(|v| v.as_str())
+        .filter(|s| !s.is_empty())
+        .map(|s| s.to_string());
+
     let params = ParametersData {
         birth_date: birth_date.clone(),
-        spouse_birth_date: None,
+        spouse_birth_date,
         start_date: start_date.clone(),
         duration_years,
         inflation,
