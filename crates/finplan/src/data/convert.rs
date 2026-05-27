@@ -5,7 +5,7 @@ use finplan_core::{
     model::{
         Account, AccountFlavor, AccountId, AmountMode, AssetCoord, AssetId, AssetLot,
         BalanceThreshold, Cash, Event, EventEffect, EventId, EventTrigger, FixedAsset, IncomeType,
-        InvestmentContainer, LoanDetail, LotMethod, Person, RepeatInterval, ReturnProfileId,
+        InvestmentContainer, LoanDetail, LotMethod, RepeatInterval, ReturnProfileId,
         TaxStatus, TransferAmount, TriggerOffset, WithdrawalOrder, WithdrawalSources,
     },
 };
