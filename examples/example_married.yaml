@@ -305,6 +305,11 @@ analysis:
       min_value: 1500.0
       max_value: 3500.0
       step_count: 5
+    - event_name: Spouse Social Security
+      sweep_type: effect_value
+      min_value: 1000.0
+      max_value: 2800.0
+      step_count: 5
   selected_metrics:
     - p50_final_net_worth
     - success_rate
@@ -315,8 +320,8 @@ analysis:
       metric: p50_final_net_worth
       color_scheme: cividis
     - chart_type: heatmap2_d
-      x_param_index: 1
-      y_param_index: 2
+      x_param_index: 2
+      y_param_index: 3
       metric: p50_final_net_worth
       color_scheme: viridis
     - chart_type: scatter1_d
