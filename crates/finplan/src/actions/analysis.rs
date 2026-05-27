@@ -603,7 +603,6 @@ fn handle_run_analysis(state: &mut AppState) -> ActionResult {
 
         let target = match param.sweep_type {
             SweepTypeData::TriggerAge => SweepTarget::Trigger(TriggerParam::Age),
-            SweepTypeData::TriggerSpouseAge => SweepTarget::Trigger(TriggerParam::SpouseAge),
             SweepTypeData::TriggerDate => SweepTarget::Trigger(TriggerParam::Date),
             SweepTypeData::EffectValue => SweepTarget::Effect {
                 param: EffectParam::Value,
@@ -918,13 +917,6 @@ fn analyze_trigger(
                 targets.push(SweepTypeData::TriggerAge);
                 let age = *years as f64;
                 defaults.push((SweepTypeData::TriggerAge, age - 5.0, age + 5.0));
-            }
-        }
-        TriggerData::SpouseAge { years, .. } => {
-            if !targets.contains(&SweepTypeData::TriggerSpouseAge) {
-                targets.push(SweepTypeData::TriggerSpouseAge);
-                let age = *years as f64;
-                defaults.push((SweepTypeData::TriggerSpouseAge, age - 5.0, age + 5.0));
             }
         }
         TriggerData::Date { date } => {

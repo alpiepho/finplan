@@ -721,15 +721,6 @@ fn apply_trigger_param(
                 ));
             }
         }
-        TriggerParam::SpouseAge => {
-            if let EventTrigger::SpouseAge { years, .. } = trigger {
-                *years = value as u8;
-            } else {
-                return Err(SimulationError::Config(
-                    "Target trigger is not a SpouseAge trigger".to_string(),
-                ));
-            }
-        }
         TriggerParam::Date => {
             if let EventTrigger::Date(date) = trigger {
                 // Modify the year while preserving month/day

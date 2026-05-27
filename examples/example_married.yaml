@@ -295,15 +295,15 @@ analysis:
       min_value: 55.0
       max_value: 65.0
       step_count: 6
-    - event_name: Spouse Retirement
-      sweep_type: trigger_spouse_age
-      min_value: 55.0
-      max_value: 65.0
-      step_count: 6
     - event_name: Living Expenses
       sweep_type: effect_value
       min_value: 5000.0
       max_value: 10000.0
+      step_count: 6
+    - event_name: Primary Social Security
+      sweep_type: effect_value
+      min_value: 1500.0
+      max_value: 3500.0
       step_count: 6
   selected_metrics:
     - p50_final_net_worth
