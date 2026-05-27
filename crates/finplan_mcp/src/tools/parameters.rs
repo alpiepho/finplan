@@ -174,6 +174,7 @@ pub fn set_parameters(
 
     let params = ParametersData {
         birth_date: birth_date.clone(),
+        spouse_birth_date: None,
         start_date: start_date.clone(),
         duration_years,
         inflation,

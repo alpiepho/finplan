@@ -202,6 +202,7 @@ pub fn add_account(
     let account = AccountData {
         name: name.clone(),
         description,
+        owner: Default::default(),
         account_type,
     };
 
