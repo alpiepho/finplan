@@ -994,6 +994,395 @@ The app already supports `married_joint2024` federal tax brackets, but has no wa
 
 ---
 
+## Phase 3b: Working Example YAML
+
+### Task 9b: Add `owner` field to `AccountData` and create `examples/example_married.yaml`
+
+**Goal:** Make the YAML format fully express the married-couple features from Phases 1–3 (spouse birth date, SpouseAge triggers, and spouse-owned accounts). Then ship a working example demonstrating all three.
+
+**Files:**
+- Modify: `crates/finplan/src/data/portfolio_data.rs` — add `owner: Person` to `AccountData`
+- Modify: `crates/finplan/src/data/convert.rs` — use `account_data.owner` instead of hardcoded `Person::Primary`
+- Create: `examples/example_married.yaml`
+
+- [ ] **Step 1: Add `owner` field to `AccountData`**
+
+  In `portfolio_data.rs`, add the import and field:
+
+  ```rust
+  use finplan_core::model::Person;
+
+  #[derive(Debug, Clone, Serialize, Deserialize)]
+  pub struct AccountData {
+      pub name: String,
+      #[serde(skip_serializing_if = "Option::is_none")]
+      pub description: Option<String>,
+      /// Account owner (defaults to Primary). Use `spouse` for spouse-owned accounts.
+      #[serde(default)]
+      pub owner: Person,
+      #[serde(flatten)]
+      pub account_type: AccountType,
+  }
+  ```
+
+  `Person` is `#[serde(rename_all = "snake_case")]` so YAML uses `owner: primary` / `owner: spouse`.
+
+- [ ] **Step 2: Update `convert_accounts()` in `convert.rs`**
+
+  Change the hardcoded `owner: Person::Primary` to use the data field:
+
+  ```rust
+  config.accounts.push(Account {
+      account_id,
+      flavor,
+      owner: account_data.owner,
+  });
+  ```
+
+  Remove the now-unused `Person::Primary` literal (keep the `use` import of `Person` which is already there).
+
+- [ ] **Step 3: Build and verify existing tests still pass**
+
+  ```bash
+  docker run --rm -v "$(pwd)":/app -w /app rust:slim cargo build -p finplan 2>&1 | grep "^error" | head -20
+  docker run --rm -v "$(pwd)":/app -w /app rust:slim cargo test -p finplan_core 2>&1 | grep "test result"
+  ```
+
+  The `owner` field has `#[serde(default)]` so all existing YAML files without it still parse as `Person::Primary`. Expected: clean build, all tests pass.
+
+- [ ] **Step 4: Create `examples/example_married.yaml`**
+
+  Scenario: Two-earner household, five years apart. Primary born 1975-01-01, spouse born 1978-06-01. Both retire around age 60. Using `married_joint2024` brackets.
+
+  Demonstrate:
+  - `spouse_birth_date` in parameters
+  - `owner: spouse` on spouse-owned accounts (Spouse 401k, Spouse Roth IRA)
+  - `SpouseAge` triggers for spouse retirement, Spouse SS, Spouse Medicare, Spouse RMD
+  - `Age` triggers for primary retirement, Primary SS, Primary Medicare, Primary RMD
+  - Both incomes ending at respective retirements (via `RelativeToEvent`)
+  - A post-retirement Sweep event to fund spending
+
+  ```yaml
+  portfolios:
+    name: Married Couple Retirement
+    description: Two-earner household — demonstrates spouse_birth_date, SpouseAge triggers, and spouse-owned accounts
+    accounts:
+      - name: Checking
+        type: Checking
+        value: 50000.0
+      - name: Primary 401k
+        type: Traditional401k
+        assets:
+          - asset: FXAIX
+            value: 320000.0
+      - name: Spouse 401k
+        type: Traditional401k
+        owner: spouse
+        assets:
+          - asset: FXAIX
+            value: 210000.0
+      - name: Primary Roth IRA
+        type: RothIRA
+        assets:
+          - asset: VTSAX
+            value: 85000.0
+      - name: Spouse Roth IRA
+        type: RothIRA
+        owner: spouse
+        assets:
+          - asset: VTSAX
+            value: 60000.0
+      - name: Brokerage
+        type: Brokerage
+        assets:
+          - asset: VTSAX
+            value: 150000.0
+
+  historical_assets:
+    FXAIX: S&P 500
+    VTSAX: S&P 500
+
+  events:
+    - name: Primary Salary
+      trigger:
+        type: Repeating
+        interval: biweekly
+        end:
+          type: RelativeToEvent
+          event: Primary Retirement
+          offset:
+            unit: Months
+            value: 0
+      effects:
+        - type: Income
+          to: Checking
+          amount:
+            type: InflationAdjusted
+            inner:
+              type: Fixed
+              value: 5500.0
+          gross: true
+          taxable: true
+      once: false
+      enabled: true
+
+    - name: Spouse Salary
+      trigger:
+        type: Repeating
+        interval: biweekly
+        end:
+          type: RelativeToEvent
+          event: Spouse Retirement
+          offset:
+            unit: Months
+            value: 0
+      effects:
+        - type: Income
+          to: Checking
+          amount:
+            type: InflationAdjusted
+            inner:
+              type: Fixed
+              value: 4200.0
+          gross: true
+          taxable: true
+      once: false
+      enabled: true
+
+    - name: Living Expenses
+      trigger:
+        type: Repeating
+        interval: monthly
+      effects:
+        - type: Expense
+          from: Checking
+          amount:
+            type: InflationAdjusted
+            inner:
+              type: Fixed
+              value: 7000.0
+      once: false
+      enabled: true
+
+    - name: Primary 401k Contribution
+      trigger:
+        type: Repeating
+        interval: yearly
+        end:
+          type: RelativeToEvent
+          event: Primary Retirement
+          offset:
+            unit: Months
+            value: 0
+      effects:
+        - type: AssetPurchase
+          from: Checking
+          to_account: Primary 401k
+          asset: FXAIX
+          amount:
+            type: Fixed
+            value: 23000.0
+      once: false
+      enabled: true
+
+    - name: Spouse 401k Contribution
+      trigger:
+        type: Repeating
+        interval: yearly
+        end:
+          type: RelativeToEvent
+          event: Spouse Retirement
+          offset:
+            unit: Months
+            value: 0
+      effects:
+        - type: AssetPurchase
+          from: Checking
+          to_account: Spouse 401k
+          asset: FXAIX
+          amount:
+            type: Fixed
+            value: 23000.0
+      once: false
+      enabled: true
+
+    - name: Primary Retirement
+      description: Primary person retires at 60
+      trigger:
+        type: Age
+        years: 60
+      once: true
+      enabled: true
+
+    - name: Spouse Retirement
+      description: Spouse retires at 60
+      trigger:
+        type: SpouseAge
+        years: 60
+      once: true
+      enabled: true
+
+    - name: Fund Retirement Spending
+      description: Sweep accounts to cover annual spending in retirement
+      trigger:
+        type: Repeating
+        interval: yearly
+        start:
+          type: RelativeToEvent
+          event: Primary Retirement
+          offset:
+            unit: Months
+            value: 0
+      effects:
+        - type: Sweep
+          to: Checking
+          amount:
+            type: TargetToBalance
+            target: 100000.0
+          strategy: penalty_aware
+          gross: false
+          taxable: true
+          lot_method: fifo
+      once: false
+      enabled: true
+
+    - name: Primary Social Security
+      description: Monthly Social Security for primary (age 67)
+      trigger:
+        type: Repeating
+        interval: monthly
+        start:
+          type: Age
+          years: 67
+      effects:
+        - type: Income
+          to: Checking
+          amount:
+            type: Fixed
+            value: 2800.0
+          gross: true
+          taxable: true
+      once: false
+      enabled: true
+
+    - name: Spouse Social Security
+      description: Monthly Social Security for spouse (spouse age 67)
+      trigger:
+        type: Repeating
+        interval: monthly
+        start:
+          type: SpouseAge
+          years: 67
+      effects:
+        - type: Income
+          to: Checking
+          amount:
+            type: Fixed
+            value: 2200.0
+          gross: true
+          taxable: true
+      once: false
+      enabled: true
+
+    - name: Primary Medicare Part B
+      description: Medicare Part B premiums for primary
+      trigger:
+        type: Repeating
+        interval: monthly
+        start:
+          type: Age
+          years: 65
+      effects:
+        - type: Expense
+          from: Checking
+          amount:
+            type: Fixed
+            value: 174.7
+      once: false
+      enabled: true
+
+    - name: Spouse Medicare Part B
+      description: Medicare Part B premiums for spouse
+      trigger:
+        type: Repeating
+        interval: monthly
+        start:
+          type: SpouseAge
+          years: 65
+      effects:
+        - type: Expense
+          from: Checking
+          amount:
+            type: Fixed
+            value: 174.7
+      once: false
+      enabled: true
+
+    - name: Primary RMD
+      description: Required Minimum Distributions from primary tax-deferred accounts (age 73)
+      trigger:
+        type: Repeating
+        interval: yearly
+        start:
+          type: Age
+          years: 73
+      effects:
+        - type: ApplyRmd
+          destination: Checking
+          lot_method: fifo
+      once: false
+      enabled: true
+
+    - name: Spouse RMD
+      description: Required Minimum Distributions from spouse tax-deferred accounts (spouse age 73)
+      trigger:
+        type: Repeating
+        interval: yearly
+        start:
+          type: SpouseAge
+          years: 73
+      effects:
+        - type: ApplyRmd
+          destination: Checking
+          lot_method: fifo
+      once: false
+      enabled: true
+
+  parameters:
+    birth_date: "1975-01-01"
+    spouse_birth_date: "1978-06-01"
+    start_date: "2026-01-01"
+    duration_years: 45
+    inflation:
+      type: USHistorical
+      distribution: lognormal
+    tax_config:
+      state_rate: 0.05
+      capital_gains_rate: 0.15
+      federal_brackets: married_joint2024
+    returns_mode: historical
+    historical_block_size: 5
+  ```
+
+- [ ] **Step 5: Load the example in the TUI to verify it parses without errors**
+
+  ```bash
+  # The TUI supports file import — confirm no parse errors by running conversion:
+  docker run --rm -v "$(pwd)":/app -w /app rust:slim cargo test -p finplan_core -- married --nocapture 2>&1 | tail -10
+  ```
+
+- [ ] **Step 6: Commit**
+
+  ```bash
+  cargo fmt
+  git add crates/finplan/src/data/portfolio_data.rs \
+          crates/finplan/src/data/convert.rs \
+          examples/example_married.yaml
+  git commit -m "feat(tui): add owner field to AccountData; add examples/example_married.yaml"
+  ```
+
+---
+
 ## Phase 4: MCP Server Updates
 
 All MCP tests run via Docker (no local Rust toolchain needed):
