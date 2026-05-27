@@ -128,6 +128,24 @@ impl AnalysisScreen {
         let block =
             focused_block_with_help(" SWEEP PARAMETERS ", focused, "[a]dd [d]el [Enter] edit");
 
+        let is_married = state.data().parameters.spouse_birth_date.is_some();
+
+        // Split inner area: reserve 2 lines at bottom for married warning
+        let block_clone = block.clone();
+        frame.render_widget(block, area);
+        let inner = block_clone.inner(area);
+
+        let (content_area, warning_area) = if is_married && inner.height > 3 {
+            let chunks = Layout::vertical([
+                Constraint::Min(1),
+                Constraint::Length(2),
+            ])
+            .split(inner);
+            (chunks[0], Some(chunks[1]))
+        } else {
+            (inner, None)
+        };
+
         let params = &state.analysis_state.sweep_parameters;
         let selected_idx = state.analysis_state.selected_param_index;
 
@@ -149,8 +167,8 @@ impl AnalysisScreen {
                 Line::from("  - Effect amounts"),
                 Line::from("  - Repeating event start/end"),
             ];
-            let paragraph = Paragraph::new(content).block(block);
-            frame.render_widget(paragraph, area);
+            let paragraph = Paragraph::new(content);
+            frame.render_widget(paragraph, content_area);
         } else {
             let items: Vec<ListItem> = params
                 .iter()
@@ -189,8 +207,22 @@ impl AnalysisScreen {
                 })
                 .collect();
 
-            let list = List::new(items).block(block);
-            frame.render_widget(list, area);
+            let list = List::new(items);
+            frame.render_widget(list, content_area);
+        }
+
+        if let Some(warn_area) = warning_area {
+            let warning = Paragraph::new(vec![
+                Line::from(Span::styled(
+                    "* Married scenario: analysis currently uses",
+                    Style::default().fg(Color::Yellow),
+                )),
+                Line::from(Span::styled(
+                    "  primary person only. Will improve in future.",
+                    Style::default().fg(Color::Yellow),
+                )),
+            ]);
+            frame.render_widget(warning, warn_area);
         }
     }
 
