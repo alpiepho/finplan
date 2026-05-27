@@ -443,3 +443,111 @@ fn test_unknown_resource_returns_none() {
     assert!(resources::read_resource("").is_none());
     assert!(resources::read_resource("http://other.com").is_none());
 }
+
+// ── Spouse / Married Couple ───────────────────────────────────────────────────
+
+#[test]
+fn test_set_parameters_stores_spouse_birth_date() {
+    let st = state::new_shared_state();
+    let r = tools::parameters::set_parameters(
+        args(json!({
+            "birth_date": "1975-01-01",
+            "spouse_birth_date": "1978-06-01"
+        })),
+        &st,
+    )
+    .unwrap();
+    assert!(is_ok(&r), "set_parameters failed: {}", text_of(&r));
+
+    let locked = st.lock().unwrap();
+    let params = locked.parameters.as_ref().expect("parameters should be set");
+    assert_eq!(
+        params.spouse_birth_date.as_deref(),
+        Some("1978-06-01"),
+        "spouse_birth_date not stored correctly"
+    );
+}
+
+#[test]
+fn test_spouse_birth_date_appears_in_merged_yaml() {
+    let st = state::new_shared_state();
+
+    tools::portfolio::set_portfolio(args(json!({"name": "Married Plan"})), &st).unwrap();
+    tools::portfolio::add_account(
+        args(json!({"name": "Checking", "account_type": "Checking", "value": 50000.0})),
+        &st,
+    )
+    .unwrap();
+    tools::parameters::set_parameters(
+        args(json!({
+            "birth_date": "1975-01-01",
+            "spouse_birth_date": "1978-06-01"
+        })),
+        &st,
+    )
+    .unwrap();
+
+    let r = tools::merge::merge_scenario(&st).unwrap();
+    assert!(is_ok(&r), "merge_scenario failed: {}", text_of(&r));
+    let yaml = text_of(&r);
+    assert!(
+        yaml.contains("spouse_birth_date"),
+        "YAML missing spouse_birth_date field"
+    );
+    assert!(
+        yaml.contains("1978-06-01"),
+        "YAML missing spouse birth date value"
+    );
+}
+
+#[test]
+fn test_spouse_birth_date_omitted_when_not_set() {
+    let st = state::new_shared_state();
+
+    tools::portfolio::set_portfolio(args(json!({"name": "Single Plan"})), &st).unwrap();
+    tools::portfolio::add_account(
+        args(json!({"name": "Checking", "account_type": "Checking", "value": 10000.0})),
+        &st,
+    )
+    .unwrap();
+    tools::parameters::set_parameters(
+        args(json!({"birth_date": "1980-01-01"})),
+        &st,
+    )
+    .unwrap();
+
+    let r = tools::merge::merge_scenario(&st).unwrap();
+    assert!(is_ok(&r), "merge_scenario failed: {}", text_of(&r));
+    let yaml = text_of(&r);
+    assert!(
+        !yaml.contains("spouse_birth_date"),
+        "YAML should not contain spouse_birth_date when not set"
+    );
+}
+
+#[test]
+fn test_triggers_schema_documents_spouse_age() {
+    let content = resources::read_resource("schema://triggers").expect("triggers schema missing");
+    let text = match content {
+        ResourceContents::TextResourceContents { text, .. } => text,
+        _ => panic!("Expected text content"),
+    };
+    assert!(
+        text.contains("SpouseAge"),
+        "triggers schema missing SpouseAge documentation"
+    );
+}
+
+#[test]
+fn test_parameters_schema_documents_spouse_birth_date() {
+    let content =
+        resources::read_resource("schema://parameters").expect("parameters schema missing");
+    let text = match content {
+        ResourceContents::TextResourceContents { text, .. } => text,
+        _ => panic!("Expected text content"),
+    };
+    assert!(
+        text.contains("spouse_birth_date"),
+        "parameters schema missing spouse_birth_date documentation"
+    );
+}
