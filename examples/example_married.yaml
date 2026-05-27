@@ -301,9 +301,9 @@ analysis:
       max_value: 10000.0
       step_count: 6
     - event_name: Primary Social Security
-      sweep_type: trigger_age
-      min_value: 62.0
-      max_value: 70.0
+      sweep_type: effect_value
+      min_value: 1500.0
+      max_value: 3500.0
       step_count: 5
   selected_metrics:
     - p50_final_net_worth
