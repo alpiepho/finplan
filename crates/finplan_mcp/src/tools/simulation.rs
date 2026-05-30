@@ -445,14 +445,13 @@ fn build_year_summaries(result: &SimulationResult, sim_data: &SimulationData) ->
         .and_then(|s| s[..4].parse::<i32>().ok());
     let start_year = parse_year(&sim_data.parameters.start_date);
 
-    // Build year-end net worth map
+    // Build net worth map: last snapshot per calendar year wins (same logic as TUI).
+    // Year-end snapshots are NOT guaranteed to fall on Dec 31 — the simulation
+    // takes a snapshot at the last event checkpoint before the year rolls over.
     let mut year_nw: HashMap<i32, f64> = HashMap::new();
     for snap in &result.wealth_snapshots {
-        let d = snap.date;
-        if d.month() == 12 && d.day() == d.days_in_month() {
-            let nw: f64 = snap.accounts.iter().map(|a| a.total_value()).sum();
-            year_nw.insert(d.year() as i32, nw);
-        }
+        let nw: f64 = snap.accounts.iter().map(|a| a.total_value()).sum();
+        year_nw.insert(snap.date.year() as i32, nw);
     }
 
     result

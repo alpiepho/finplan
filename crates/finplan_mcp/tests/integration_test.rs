@@ -1086,3 +1086,207 @@ fn test_get_ledger_pagination() {
         j1["total_matching"], first_date_p1, first_date_p2
     );
 }
+
+// ── Simulation correctness ────────────────────────────────────────────────────
+
+#[test]
+fn test_run_simulation_produces_nonzero_cashflows() {
+    // Verifies the simulation actually fired the income and expense events —
+    // not just that the tool returned successfully.
+    println!("\n═══ run_simulation: income and expenses are non-zero ═══");
+    let st = setup_runnable_scenario();
+
+    let r = tools::simulation::run_simulation(args(json!({})), &st).unwrap();
+    assert!(is_ok(&r));
+
+    let json: Value = serde_json::from_str(&text_of(&r)).unwrap();
+    let years = json["years"].as_array().unwrap();
+
+    // Every full year should have meaningful income and expenses from the monthly events.
+    // $3,000/month income = $36,000/year; $2,500/month expenses = $30,000/year.
+    // Skip the last entry — the terminal year covers only the start date (Jan 1) so
+    // no monthly events fire in it.
+    let full_years = &years[..years.len().saturating_sub(1)];
+    for year in full_years {
+        let income = year["income"].as_f64().unwrap_or(0.0);
+        let expenses = year["expenses"].as_f64().unwrap_or(0.0);
+        assert!(
+            income > 0.0,
+            "year {} income should be > 0 (got {income})",
+            year["year"]
+        );
+        assert!(
+            expenses > 0.0,
+            "year {} expenses should be > 0 (got {expenses})",
+            year["year"]
+        );
+    }
+
+    // Sanity-check magnitude: annual income from $3k/month events should be
+    // meaningfully positive and less than an implausibly large value.
+    let first_income = years[0]["income"].as_f64().unwrap();
+    assert!(
+        first_income > 1_000.0 && first_income < 200_000.0,
+        "annual income {first_income:.0} is out of plausible range for $3k/month events"
+    );
+    println!(
+        "  first year income={:.0}, expenses={:.0}",
+        years[0]["income"].as_f64().unwrap(),
+        years[0]["expenses"].as_f64().unwrap()
+    );
+}
+
+#[test]
+fn test_run_simulation_net_worth_grows_with_surplus() {
+    // Surplus scenario (income > expenses) must end with more than it started with.
+    println!("\n═══ run_simulation: net worth grows when income > expenses ═══");
+    let st = setup_runnable_scenario();
+
+    let r = tools::simulation::run_simulation(args(json!({})), &st).unwrap();
+    assert!(is_ok(&r));
+
+    let json: Value = serde_json::from_str(&text_of(&r)).unwrap();
+    let summary = &json["summary"];
+    let final_nw = summary["final_net_worth"].as_f64().unwrap();
+
+    // Started with $50,000. $500/month surplus × 10 years ≈ $60,000 gain.
+    assert!(
+        final_nw > 50_000.0,
+        "final_net_worth {final_nw:.0} should be > initial $50,000 in a surplus scenario"
+    );
+    println!(
+        "  initial=$50,000, final={:.0}, gain={:.0}",
+        final_nw,
+        final_nw - 50_000.0
+    );
+}
+
+#[test]
+fn test_run_monte_carlo_percentile_ordering() {
+    // p5 ≤ p50 ≤ p95 for final net worth — basic sanity check that MC
+    // variance is reflected in the percentile spread.
+    println!("\n═══ run_monte_carlo: p5 ≤ p50 ≤ p95 final net worth ═══");
+    let st = setup_runnable_scenario();
+
+    let r = tools::simulation::run_monte_carlo(args(json!({"iterations": 50})), &st).unwrap();
+    assert!(is_ok(&r));
+
+    let text = text_of(&r);
+    assert!(
+        text.starts_with("Completed 50 iterations."),
+        "Output should start with iteration count, got: {}",
+        &text[..50.min(text.len())]
+    );
+
+    let json_start = text.find('{').unwrap();
+    let json: Value = serde_json::from_str(&text[json_start..]).unwrap();
+    let runs = json["percentile_runs"].as_object().unwrap();
+
+    let nw = |key: &str| {
+        runs[key]["summary"]["final_net_worth"]
+            .as_f64()
+            .unwrap_or(f64::NAN)
+    };
+    let p5 = nw("p5");
+    let p50 = nw("p50");
+    let p95 = nw("p95");
+
+    println!("  p5={p5:.0}, p50={p50:.0}, p95={p95:.0}");
+    assert!(p5 <= p50 + 1.0, "p5 ({p5:.0}) should be ≤ p50 ({p50:.0})");
+    assert!(
+        p50 <= p95 + 1.0,
+        "p50 ({p50:.0}) should be ≤ p95 ({p95:.0})"
+    );
+}
+
+/// Build a scenario with investment accounts and mapped tickers so the
+/// simulation uses the stochastic return engine (not just cash flows).
+fn setup_stochastic_scenario() -> finplan_mcp::state::SharedState {
+    let st = state::new_shared_state();
+
+    tools::portfolio::set_portfolio(args(json!({"name": "Stochastic Plan"})), &st).unwrap();
+    tools::portfolio::add_account(
+        args(json!({"name": "Checking", "account_type": "Checking", "value": 10000.0})),
+        &st,
+    )
+    .unwrap();
+    tools::portfolio::add_account(
+        args(json!({
+            "name": "Brokerage",
+            "account_type": "Brokerage",
+            "assets": [{"ticker": "FXAIX", "value": 100000.0}]
+        })),
+        &st,
+    )
+    .unwrap();
+    tools::parameters::set_parameters(
+        args(json!({
+            "birth_date": "1975-01-01",
+            "start_date": "2025-01-01",
+            "duration_years": 20
+        })),
+        &st,
+    )
+    .unwrap();
+    tools::events::add_expense_event(
+        args(json!({"name": "Living Expenses", "from_account": "Checking", "amount": 4000.0})),
+        &st,
+    )
+    .unwrap();
+    // Map FXAIX to a historical preset so the return engine has volatility data
+    tools::ticker::map_tickers(args(json!({})), &st).unwrap();
+
+    st
+}
+
+#[test]
+fn test_run_simulation_different_seeds_give_different_results() {
+    // Proves the stochastic return engine is actually running: two different
+    // seeds must produce different final net worths when investment returns vary.
+    println!("\n═══ run_simulation: different seeds → different final net worth ═══");
+    let st = setup_stochastic_scenario();
+
+    let r1 = tools::simulation::run_simulation(args(json!({"seed": 1})), &st).unwrap();
+    let r2 = tools::simulation::run_simulation(args(json!({"seed": 2})), &st).unwrap();
+    assert!(is_ok(&r1));
+    assert!(is_ok(&r2));
+
+    let j1: Value = serde_json::from_str(&text_of(&r1)).unwrap();
+    let j2: Value = serde_json::from_str(&text_of(&r2)).unwrap();
+
+    let nw1 = j1["summary"]["final_net_worth"].as_f64().unwrap();
+    let nw2 = j2["summary"]["final_net_worth"].as_f64().unwrap();
+
+    println!("  seed=1 final_net_worth={nw1:.0}");
+    println!("  seed=2 final_net_worth={nw2:.0}");
+    assert_ne!(
+        (nw1 * 100.0) as i64,
+        (nw2 * 100.0) as i64,
+        "Different seeds should produce different final net worth when returns are stochastic"
+    );
+}
+
+#[test]
+fn test_run_simulation_same_seed_is_reproducible() {
+    // Proves determinism: the same seed must produce the exact same result.
+    println!("\n═══ run_simulation: same seed → identical results ═══");
+    let st = setup_stochastic_scenario();
+
+    let r1 = tools::simulation::run_simulation(args(json!({"seed": 42})), &st).unwrap();
+    let r2 = tools::simulation::run_simulation(args(json!({"seed": 42})), &st).unwrap();
+    assert!(is_ok(&r1));
+    assert!(is_ok(&r2));
+
+    let j1: Value = serde_json::from_str(&text_of(&r1)).unwrap();
+    let j2: Value = serde_json::from_str(&text_of(&r2)).unwrap();
+
+    let nw1 = j1["summary"]["final_net_worth"].as_f64().unwrap();
+    let nw2 = j2["summary"]["final_net_worth"].as_f64().unwrap();
+
+    println!("  seed=42 run1={nw1:.0}, run2={nw2:.0}");
+    assert_eq!(
+        (nw1 * 100.0) as i64,
+        (nw2 * 100.0) as i64,
+        "Same seed must produce identical final net worth"
+    );
+}
