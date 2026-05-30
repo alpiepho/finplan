@@ -696,6 +696,16 @@ pub fn get_sweep_grid(
     let ndim = results.ndim();
     let shape = results.shape();
 
+    if x_dim >= ndim {
+        return error_result(format!("x_param_index {x_dim} out of range (ndim={ndim})"));
+    }
+    if y_dim >= ndim {
+        return error_result(format!("y_param_index {y_dim} out of range (ndim={ndim})"));
+    }
+    if x_dim == y_dim {
+        return error_result("x_param_index and y_param_index must be different".to_string());
+    }
+
     let fixed: Vec<Option<usize>> = (0..ndim)
         .map(|dim| {
             if dim == x_dim || dim == y_dim {
@@ -723,7 +733,7 @@ pub fn get_sweep_grid(
         .collect();
 
     let (min_val, max_val) = value_range(&flat_values);
-    let (opt_x, opt_y, opt_val) = optimal_cell(&flat_values, x_len, y_len, &metric_str);
+    let (opt_x, opt_y, opt_val) = optimal_cell(&flat_values, y_len, &metric_str);
 
     let x_label = results.param_labels.get(x_dim).map_or("", |s| s.as_str());
     let y_label = results.param_labels.get(y_dim).map_or("", |s| s.as_str());
@@ -1040,7 +1050,10 @@ fn find_all_threshold_crossings(
     crossings
 }
 
-fn optimal_cell(values: &[f64], _x_len: usize, y_len: usize, metric: &str) -> (usize, usize, f64) {
+fn optimal_cell(values: &[f64], y_len: usize, metric: &str) -> (usize, usize, f64) {
+    if values.is_empty() {
+        return (0, 0, 0.0);
+    }
     let lower_is_better = matches!(metric, "lifetime_taxes" | "max_drawdown");
     let mut best_flat = 0usize;
     let mut best_val = if lower_is_better {
