@@ -231,7 +231,12 @@ fn test_run_sweep_1d_returns_correct_shape() {
     println!("  ndim={}, total_points={}", j["ndim"], j["total_points"]);
     assert_eq!(j["ndim"].as_u64().unwrap(), 1);
     assert_eq!(j["total_points"].as_u64().unwrap(), 3);
-    assert!(j["metric_ranges"]["success_rate"]["baseline"].as_f64().unwrap() >= 0.0);
+    assert!(
+        j["metric_ranges"]["success_rate"]["baseline"]
+            .as_f64()
+            .unwrap()
+            >= 0.0
+    );
     // Confirm sweep results are cached in state
     assert!(st.lock().unwrap().last_sweep_results.is_some());
 }
@@ -252,10 +257,217 @@ fn test_scenario_change_clears_sweep_results() {
     assert!(st.lock().unwrap().last_sweep_results.is_some());
 
     // Modify the scenario — should invalidate sweep results
-    tools::parameters::set_parameters(
-        args(json!({"birth_date": "1972-01-01"})),
+    tools::parameters::set_parameters(args(json!({"birth_date": "1972-01-01"})), &st).unwrap();
+    assert!(st.lock().unwrap().last_sweep_results.is_none());
+}
+
+// ── Shared helper: 1D sweep already run ──────────────────────────────────────
+
+fn run_1d_sweep() -> finplan_mcp::state::SharedState {
+    let st = setup_1d_sweep();
+    tools::sweep::run_sweep(args(json!({})), &st).unwrap();
+    st
+}
+
+// ── get_sensitivity tests ─────────────────────────────────────────────────────
+
+#[test]
+fn test_get_sensitivity_fails_without_sweep() {
+    let st = setup_sweep_scenario();
+    let r = tools::sweep::get_sensitivity(args(json!({"metric": "success_rate"})), &st).unwrap();
+    assert_eq!(r.is_error, Some(true));
+}
+
+#[test]
+fn test_get_sensitivity_returns_parameters_sorted_by_impact() {
+    println!("\n[get_sensitivity] results sorted by abs_impact");
+    let st = run_1d_sweep();
+    let r = tools::sweep::get_sensitivity(args(json!({"metric": "success_rate"})), &st).unwrap();
+    assert!(is_ok(&r), "get_sensitivity failed: {}", text_of(&r));
+    let j: Value = serde_json::from_str(&text_of(&r)).unwrap();
+    println!("  {}", serde_json::to_string_pretty(&j).unwrap());
+
+    assert_eq!(j["metric"].as_str().unwrap(), "success_rate");
+    assert!(j["baseline"].as_f64().is_some());
+    let params = j["parameters"].as_array().unwrap();
+    assert_eq!(params.len(), 1, "1D sweep should have 1 sensitivity entry");
+
+    let entry = &params[0];
+    assert_eq!(entry["label"].as_str().unwrap(), "Retirement (Age)");
+    assert!(entry["abs_impact"].as_f64().unwrap() >= 0.0);
+    // success_rate is a fraction 0-1, not 0-100
+    let baseline = j["baseline"].as_f64().unwrap();
+    assert!(
+        (0.0..=1.0).contains(&baseline),
+        "baseline should be 0-1 fraction, got {baseline}"
+    );
+}
+
+#[test]
+fn test_get_sensitivity_unknown_metric_returns_error() {
+    let st = run_1d_sweep();
+    let r = tools::sweep::get_sensitivity(args(json!({"metric": "bogus_metric"})), &st).unwrap();
+    assert_eq!(r.is_error, Some(true));
+}
+
+// ── get_sweep_curve tests ─────────────────────────────────────────────────────
+
+#[test]
+fn test_get_sweep_curve_returns_correct_number_of_points() {
+    println!("\n[get_sweep_curve] 1D curve has step_count points");
+    let st = run_1d_sweep(); // 3 steps
+    let r = tools::sweep::get_sweep_curve(args(json!({"metric": "success_rate"})), &st).unwrap();
+    assert!(is_ok(&r), "get_sweep_curve failed: {}", text_of(&r));
+    let j: Value = serde_json::from_str(&text_of(&r)).unwrap();
+    println!("  {}", serde_json::to_string_pretty(&j).unwrap());
+
+    let points = j["points"].as_array().unwrap();
+    assert_eq!(points.len(), 3, "Should have 3 points for 3-step sweep");
+    assert!(j["threshold_crossings"].is_array());
+    // 1D sweep: spread should be empty (no other dims to vary across)
+    let spread = j["spread"].as_array().unwrap();
+    assert!(spread.is_empty(), "1D sweep should have empty spread");
+    // Each point should have param_value and metric_value
+    let first = &points[0];
+    assert!(first["param_value"].as_f64().is_some());
+    assert!(first["metric_value"].as_f64().is_some());
+    // success_rate values should be fractions 0-1
+    for pt in points {
+        let mv = pt["metric_value"].as_f64().unwrap();
+        assert!(
+            (0.0..=1.0).contains(&mv),
+            "success_rate should be 0-1 fraction, got {mv}"
+        );
+    }
+}
+
+#[test]
+fn test_get_sweep_curve_with_threshold() {
+    let st = run_1d_sweep();
+    let r = tools::sweep::get_sweep_curve(
+        args(json!({"metric": "success_rate", "threshold": 0.5})),
         &st,
     )
     .unwrap();
-    assert!(st.lock().unwrap().last_sweep_results.is_none());
+    assert!(is_ok(&r));
+    let j: Value = serde_json::from_str(&text_of(&r)).unwrap();
+    // threshold_crossings array must be present (may be empty if curve never crosses 0.5)
+    assert!(j["threshold_crossings"].is_array());
+}
+
+#[test]
+fn test_get_sweep_curve_fails_without_sweep() {
+    let st = setup_sweep_scenario();
+    let r = tools::sweep::get_sweep_curve(args(json!({"metric": "success_rate"})), &st).unwrap();
+    assert_eq!(r.is_error, Some(true));
+}
+
+// ── Shared helper: 2D sweep already run ──────────────────────────────────────
+
+fn run_2d_sweep() -> finplan_mcp::state::SharedState {
+    let st = setup_sweep_scenario();
+    // Dim 0: retirement age 60-65 in 3 steps
+    tools::sweep::add_sweep_parameter(
+        args(json!({
+            "event_name": "Retirement",
+            "sweep_type": "trigger_age",
+            "min_value": 60,
+            "max_value": 65,
+            "step_count": 3
+        })),
+        &st,
+    )
+    .unwrap();
+    // Dim 1: living expenses $4000-$7000 in 3 steps
+    tools::sweep::add_sweep_parameter(
+        args(json!({
+            "event_name": "Living Expenses",
+            "sweep_type": "effect_value",
+            "min_value": 4000,
+            "max_value": 7000,
+            "step_count": 3
+        })),
+        &st,
+    )
+    .unwrap();
+    tools::sweep::configure_sweep(args(json!({"mc_iterations": 30})), &st).unwrap();
+    tools::sweep::run_sweep(args(json!({})), &st).unwrap();
+    st
+}
+
+// ── get_sweep_grid tests ──────────────────────────────────────────────────────
+
+#[test]
+fn test_get_sweep_grid_fails_for_1d_sweep() {
+    let st = run_1d_sweep();
+    let r = tools::sweep::get_sweep_grid(args(json!({"metric": "success_rate"})), &st).unwrap();
+    assert_eq!(r.is_error, Some(true));
+    assert!(text_of(&r).contains("2D"));
+}
+
+#[test]
+fn test_get_sweep_grid_returns_correct_matrix_shape() {
+    println!("\n[get_sweep_grid] 2D grid has correct dimensions");
+    let st = run_2d_sweep();
+    let r = tools::sweep::get_sweep_grid(args(json!({"metric": "success_rate"})), &st).unwrap();
+    assert!(is_ok(&r), "get_sweep_grid failed: {}", text_of(&r));
+    let j: Value = serde_json::from_str(&text_of(&r)).unwrap();
+    println!("  optimal={:?}", j["optimal_cell"]["metric_value"]);
+
+    let matrix = j["matrix"].as_array().unwrap();
+    assert_eq!(matrix.len(), 3, "matrix should have 3 rows (y_steps)");
+    assert_eq!(
+        matrix[0].as_array().unwrap().len(),
+        3,
+        "each row should have 3 cols (x_steps)"
+    );
+    assert_eq!(j["x_values"].as_array().unwrap().len(), 3);
+    assert_eq!(j["y_values"].as_array().unwrap().len(), 3);
+    assert!(j["optimal_cell"]["metric_value"].as_f64().is_some());
+}
+
+#[test]
+fn test_get_sweep_grid_target_zone() {
+    let st = run_2d_sweep();
+    let r = tools::sweep::get_sweep_grid(
+        args(json!({"metric": "success_rate", "target_threshold": 0.5})),
+        &st,
+    )
+    .unwrap();
+    assert!(is_ok(&r));
+    let j: Value = serde_json::from_str(&text_of(&r)).unwrap();
+    assert_eq!(j["target_zone"]["total_cells"].as_u64().unwrap(), 9); // 3x3
+    assert!(j["target_zone"]["cells_above_threshold"].as_u64().is_some());
+}
+
+// ── get_interaction_matrix tests ──────────────────────────────────────────────
+
+#[test]
+fn test_get_interaction_matrix_fails_for_1d_sweep() {
+    let st = run_1d_sweep();
+    let r =
+        tools::sweep::get_interaction_matrix(args(json!({"metric": "success_rate"})), &st).unwrap();
+    assert_eq!(r.is_error, Some(true));
+}
+
+#[test]
+fn test_get_interaction_matrix_returns_correct_structure() {
+    println!("\n[get_interaction_matrix] 2x2 matrix with null diagonal");
+    let st = run_2d_sweep();
+    let r =
+        tools::sweep::get_interaction_matrix(args(json!({"metric": "success_rate"})), &st).unwrap();
+    assert!(is_ok(&r), "get_interaction_matrix failed: {}", text_of(&r));
+    let j: Value = serde_json::from_str(&text_of(&r)).unwrap();
+    println!("  max_interaction={}", j["max_interaction"]);
+
+    let matrix = j["matrix"].as_array().unwrap();
+    assert_eq!(matrix.len(), 2, "2x2 matrix expected");
+    // Diagonal must be null
+    assert!(matrix[0].as_array().unwrap()[0].is_null());
+    assert!(matrix[1].as_array().unwrap()[1].is_null());
+    // Off-diagonal must be non-null
+    assert!(matrix[0].as_array().unwrap()[1].as_f64().is_some());
+    assert_eq!(j["labels"].as_array().unwrap().len(), 2);
+    assert!(j["max_interaction"].as_f64().is_some());
+    assert!(j["strong_interactions"].is_array());
 }
