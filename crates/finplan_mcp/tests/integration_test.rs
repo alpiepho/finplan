@@ -648,6 +648,12 @@ fn test_run_simulation_year_count_matches_duration() {
         11,
         "Expected 11 year entries for duration_years=10 (2025–2035 inclusive)"
     );
+    println!(
+        "  year count = {} (years {}-{} inclusive)",
+        years.len(),
+        years.first().and_then(|y| y["year"].as_i64()).unwrap_or(0),
+        years.last().and_then(|y| y["year"].as_i64()).unwrap_or(0)
+    );
 }
 
 #[test]
@@ -683,6 +689,14 @@ fn test_run_simulation_year_fields_present() {
     // First year should be 2025, age should be 50 (born 1975)
     assert_eq!(first_year["year"].as_i64(), Some(2025));
     assert_eq!(first_year["age"].as_i64(), Some(50));
+    println!(
+        "  first year: year={}, age={}, net_worth={:.0}, income={:.0}, expenses={:.0}",
+        first_year["year"],
+        first_year["age"],
+        first_year["net_worth"].as_f64().unwrap_or(0.0),
+        first_year["income"].as_f64().unwrap_or(0.0),
+        first_year["expenses"].as_f64().unwrap_or(0.0),
+    );
 }
 
 #[test]
@@ -699,6 +713,7 @@ fn test_run_simulation_spouse_age_null_without_spouse() {
         first_year["spouse_age"].is_null(),
         "spouse_age should be null when no spouse_birth_date is set"
     );
+    println!("  spouse_age = {} (null = no spouse configured)", first_year["spouse_age"]);
 }
 
 #[test]
@@ -729,6 +744,10 @@ fn test_run_simulation_spouse_age_appears_in_years() {
         Some(47),
         "Expected spouse_age 47 (born 1978, year 2025)"
     );
+    println!(
+        "  year={}, primary_age={}, spouse_age={}",
+        first_year["year"], first_year["age"], first_year["spouse_age"]
+    );
 }
 
 #[test]
@@ -750,6 +769,10 @@ fn test_run_simulation_caches_result_in_state() {
     assert!(
         locked.last_sim_data.is_some(),
         "last_sim_data should be set after run"
+    );
+    println!(
+        "  last_simulation_result=Some ✓  last_sim_data=Some ✓  last_mc_summary={}",
+        if locked.last_mc_summary.is_some() { "Some" } else { "None (expected for single run)" }
     );
 }
 
@@ -776,6 +799,7 @@ fn test_simulation_cache_cleared_after_scenario_change() {
         st.lock().unwrap().last_simulation_result.is_none(),
         "cache should be cleared after scenario change"
     );
+    println!("  cache before change: Some ✓  cache after set_parameters: None ✓");
 }
 
 // ── run_monte_carlo ───────────────────────────────────────────────────────────
@@ -832,6 +856,10 @@ fn test_run_monte_carlo_percentile_runs_present() {
             .unwrap_or(false),
         "p50 years empty"
     );
+    println!(
+        "  keys present: p5 ✓ p50 ✓ p95 ✓  p50 final_net_worth={:.0}",
+        p50["summary"]["final_net_worth"].as_f64().unwrap_or(0.0)
+    );
 }
 
 #[test]
@@ -854,6 +882,7 @@ fn test_run_monte_carlo_stores_mc_summary_in_state() {
         locked.last_sim_data.is_some(),
         "last_sim_data should be set"
     );
+    println!("  last_mc_summary=Some ✓  last_simulation_result(P50)=Some ✓  last_sim_data=Some ✓");
 }
 
 // ── get_account_snapshot ──────────────────────────────────────────────────────
@@ -1015,6 +1044,11 @@ fn test_get_ledger_expense_filter_returns_only_expenses() {
     for entry in entries {
         assert_eq!(entry["category"].as_str(), Some("expense"));
     }
+    println!(
+        "  {} expense entries, total_matching={}",
+        entries.len(),
+        json["total_matching"]
+    );
 }
 
 #[test]
