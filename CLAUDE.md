@@ -6,19 +6,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Quick Commands
 
-**IMPORTANT: No local Rust toolchain. ALL cargo commands must run via Docker. Use `$PWD`, not `$(pwd)`.**
-
 ```bash
+# Local cargo (primary)
+cargo build
+cargo test
+cargo fmt
+cargo clippy
+cargo run --bin finplan  # TUI
+
+# Docker alternative (no local toolchain required)
 docker run --rm -v "$PWD":/app -w /app rust:slim cargo build
 docker run --rm -v "$PWD":/app -w /app rust:slim cargo test
 docker run --rm -v "$PWD":/app -w /app rust:slim sh -c "rustup component add rustfmt 2>/dev/null; cargo fmt"
 docker run --rm -v "$PWD":/app -w /app rust:slim sh -c "rustup component add clippy 2>/dev/null; cargo clippy"
-cargo run --bin finplan  # TUI runs locally (has local binary)
 ```
 
 IMPORTANT:
-- When finished making changes run cargo fmt via Docker (see above)
-- Run cargo clippy via Docker and fix any warnings if they will not cause major refactor work.
+- When finished making changes run `cargo fmt`
+- Run `cargo clippy` and fix any warnings if they will not cause major refactor work.
 - `git add` changed files to track
 - Suggest a commit message for the completed work
 
@@ -166,17 +171,18 @@ Key test files in `crates/finplan_core/src/tests/`:
 
 ### MCP Server Tests
 
-The MCP crate has no local Rust toolchain — all cargo commands run via Docker:
-
 ```bash
 # Run all MCP tests (quiet)
-docker run --rm -v "$(pwd)":/app -w /app rust:slim cargo test -p finplan_mcp
+cargo test -p finplan_mcp
 
 # Run with verbose step-by-step output (shows tool responses + merged YAML)
-docker run --rm -v "$(pwd)":/app -w /app rust:slim cargo test -p finplan_mcp -- --nocapture
+cargo test -p finplan_mcp -- --nocapture
 
 # Run a single test by name
-docker run --rm -v "$(pwd)":/app -w /app rust:slim cargo test -p finplan_mcp -- test_full_scenario_build --nocapture
+cargo test -p finplan_mcp -- test_full_scenario_build --nocapture
+
+# Docker alternative
+docker run --rm -v "$PWD":/app -w /app rust:slim cargo test -p finplan_mcp
 ```
 
 Test file: `crates/finplan_mcp/tests/integration_test.rs`

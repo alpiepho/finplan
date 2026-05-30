@@ -265,12 +265,12 @@ pub fn tools() -> Vec<Tool> {
                     "description": "Output format. 'csv' = Boldin-compatible CSV text. 'json' = structured JSON with same data."
                 },
                 "age_at_start": {
-                    "type": "integer",
-                    "description": "Primary person's age in the first simulation year. Used to annotate year column headers."
+                    "type": ["integer", "null"],
+                    "description": "Primary person's age in the first simulation year. Auto-derived from parameters.birth_date if omitted. Override here only if you need a different value."
                 },
                 "spouse_age_at_start": {
                     "type": ["integer", "null"],
-                    "description": "Spouse age in the first simulation year (optional). If provided, adds spouse age to column headers."
+                    "description": "Spouse age in the first simulation year. Auto-derived from parameters.spouse_birth_date if set. Override here only if you need a different value."
                 },
                 "percentile_optimistic": {
                     "type": "number",
@@ -283,7 +283,7 @@ pub fn tools() -> Vec<Tool> {
                     "description": "Which MC percentile to use as the Pessimistic scenario (default 0.05 = P5)."
                 }
             },
-            "required": ["age_at_start"]
+            "required": []
         }),
     )]
 }
@@ -302,8 +302,27 @@ pub fn export_planner_summary(args: &Value, state: &SharedState) -> Result<CallT
         .ok_or_else(|| error("No simulation data available."))?;
 
     let format = args["format"].as_str().unwrap_or("csv");
-    let age_at_start = args["age_at_start"].as_i64()? as i32;
-    let spouse_age = args["spouse_age_at_start"].as_i64().map(|a| a as i32);
+
+    // Auto-derive ages from stored parameters.birth_date / spouse_birth_date if not overridden.
+    let start_year = get_simulation_start_year(optimistic); // first year in results
+    let age_at_start: i32 = if let Some(a) = args["age_at_start"].as_i64() {
+        a as i32
+    } else if let Some(ref params) = st.parameters {
+        // birth_date is "YYYY-MM-DD"; compute age at start_year
+        let birth_year = params.birth_date[..4].parse::<i32>().unwrap_or(1960);
+        start_year - birth_year
+    } else {
+        return error_result("age_at_start is required when parameters.birth_date is not set");
+    };
+    let spouse_age: Option<i32> = if let Some(a) = args["spouse_age_at_start"].as_i64() {
+        Some(a as i32)
+    } else if let Some(ref params) = st.parameters {
+        params.spouse_birth_date.as_deref().and_then(|d| {
+            d[..4].parse::<i32>().ok().map(|birth_year| start_year - birth_year)
+        })
+    } else {
+        None
+    };
     let pct_opt = args["percentile_optimistic"].as_f64().unwrap_or(0.95);
     let pct_pes = args["percentile_pessimistic"].as_f64().unwrap_or(0.05);
 
@@ -604,14 +623,16 @@ No new state fields are needed.
 
 ```
 AI Agent tool call sequence:
-1. set_parameters { start_year: 2026, primary_age: 65, spouse_age: 62, ... }
+1. set_parameters { birth_date: "1961-06-01", spouse_birth_date: "1964-03-15", start_year: 2026, ... }
 2. set_portfolio { ... }
 3. add_income_event { name: "Work", ... }
 4. add_social_security_event { name: "Social Security", ... }
-5. add_expense_event { name: "General recurring", ... }
-6. validate_scenario
-7. run_monte_carlo { iterations: 1000, compute_mean: true }
-8. export_planner_summary { age_at_start: 65, spouse_age_at_start: 62 }
+5. add_social_security_event { name: "Spouse Social Security", ... }
+6. add_expense_event { name: "General recurring", ... }
+7. validate_scenario
+8. run_monte_carlo { iterations: 1000, compute_mean: true }
+9. export_planner_summary {}
+   → ages auto-derived from birth_date / spouse_birth_date in stored parameters
    → returns CSV text matching Boldin format
 ```
 
