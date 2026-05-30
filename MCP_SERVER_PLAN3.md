@@ -1213,3 +1213,5 @@ Explicitly out of scope for this plan:
 5. **Sweep result export** — `export_sweep(format: "csv" | "json")` — return the full grid as tabular data for use in external tools (Excel, Python).
 
 6. **Progress streaming** — For large sweeps, stream progress as each batch of grid points completes. Requires MCP SSE transport (not available with stdio).
+
+7. **Move `AnalysisResults` to `finplan_core`** — The sensitivity/curve/grid/interaction computation methods currently live in `crates/finplan/src/state/screen_state.rs` (the TUI crate). This plan reuses them from there since `finplan_mcp` already depends on `finplan`. Ideally these methods belong in `finplan_core` so neither the TUI nor MCP crate duplicates or cross-borrows analysis logic.
