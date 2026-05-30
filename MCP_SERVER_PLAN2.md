@@ -70,6 +70,7 @@ Per-year cash flow and net worth summary. Returned in `run_simulation` and `run_
 {
   "year": 2045,
   "age": 57,
+  "spouse_age": 54,
   "net_worth": 1850000.0,
   "real_net_worth": 890000.0,
   "income": 145000.0,
@@ -81,6 +82,8 @@ Per-year cash flow and net worth summary. Returned in `run_simulation` and `run_
   "taxes": 36200.0
 }
 ```
+
+`spouse_age` is `null` when no `spouse_birth_date` is set in parameters.
 
 ### 3.2 `SimulationSummary`
 
@@ -137,16 +140,18 @@ Per-account balances for a specific year.
   "year": 2045,
   "net_worth": 1043000.0,
   "accounts": [
-    { "name": "Checking", "type": "Checking", "value": 28000.0 },
+    { "name": "Checking", "type": "Checking", "owner": "primary", "value": 28000.0 },
     {
-      "name": "401k", "type": "Traditional401k", "value": 890000.0,
+      "name": "401k", "type": "Traditional401k", "owner": "primary", "value": 890000.0,
       "assets": [{ "ticker": "FXAIX", "value": 890000.0 }]
     },
-    { "name": "Roth IRA", "type": "RothIRA", "value": 310000.0 },
-    { "name": "Mortgage", "type": "Mortgage", "value": -185000.0 }
+    { "name": "Spouse Roth IRA", "type": "RothIRA", "owner": "spouse", "value": 310000.0 },
+    { "name": "Mortgage", "type": "Mortgage", "owner": "primary", "value": -185000.0 }
   ]
 }
 ```
+
+`owner` is `"primary"` or `"spouse"`. Resolved by joining the `AccountSnapshot.account_id` against `sim_data.accounts` (which carries the `Account.owner: Person` field).
 
 ### 3.5 `LedgerResult`
 
@@ -356,15 +361,16 @@ Returns `AccountSnapshotResult`:
   "net_worth": 1043000.0,
   "inflation_factor": 2.08,
   "accounts": [
-    { "name": "Checking", "type": "Checking", "value": 28000.0 },
+    { "name": "Checking", "type": "Checking", "owner": "primary", "value": 28000.0 },
     {
       "name": "401k",
       "type": "Traditional401k",
+      "owner": "primary",
       "value": 890000.0,
       "assets": [{ "ticker": "FXAIX", "value": 890000.0 }]
     },
-    { "name": "Roth IRA", "type": "RothIRA", "value": 310000.0 },
-    { "name": "Mortgage", "type": "Mortgage", "value": -185000.0 }
+    { "name": "Roth IRA", "type": "RothIRA", "owner": "primary", "value": 310000.0 },
+    { "name": "Mortgage", "type": "Mortgage", "owner": "primary", "value": -185000.0 }
   ]
 }
 ```
@@ -373,7 +379,7 @@ Returns `AccountSnapshotResult`:
 
 1. Look up `state.last_simulation_result` — error if not present.
 2. Find the last `WealthSnapshot` whose `date.year() == year` in `result.wealth_snapshots`.
-3. For each `AccountSnapshot` in the snapshot, resolve the account name from the scenario's portfolio account list (by index → `AccountId`).
+3. For each `AccountSnapshot` in the snapshot, resolve the account name and `owner` from `sim_data.accounts` by `account_id`. `Account.owner: Person` is `Primary` or `Spouse`; serialize as `"primary"` / `"spouse"`.
 4. For investment accounts, include the per-asset breakdown from `AccountSnapshotFlavor::Investment { assets }`.
 5. If `real == true`, divide all values by `result.cumulative_inflation[year_index]`.
 
@@ -535,6 +541,8 @@ fn build_year_summaries(
     sim_data: &SimulationData,
 ) -> Vec<YearSummary> {
     let birth_year = sim_data.parameters.birth_date.year();
+    let spouse_birth_year = sim_data.parameters.spouse_birth_date
+        .as_ref().map(|d| d.year());
 
     result.yearly_cash_flows.iter().zip(
         result.cumulative_inflation.iter()
@@ -547,6 +555,7 @@ fn build_year_summaries(
         YearSummary {
             year: cf.year as i32,
             age: (cf.year as i32 - birth_year) as u8,
+            spouse_age: spouse_birth_year.map(|by| (cf.year as i32 - by) as u8),
             net_worth: snapshot_nw,
             real_net_worth: snapshot_nw / inflation,
             income: cf.income,
