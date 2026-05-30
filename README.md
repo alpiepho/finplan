@@ -135,12 +135,12 @@ let result = SimulationBuilder::new()
 
 ## MCP Server
 
-FinPlan includes an [MCP](https://modelcontextprotocol.io) server (`finplan-mcp`) that lets an AI agent build a complete scenario YAML file through tool calls — useful for constructing scenarios from brokerage statement data or a guided interview.
+FinPlan includes an [MCP](https://modelcontextprotocol.io) server (`finplan-mcp`) that lets an AI agent build and simulate retirement scenarios through tool calls — useful for constructing scenarios from brokerage statement data or a guided interview.
 
-**Run via Docker:**
+**Run the server:**
 
 ```bash
-docker compose run --rm finplan-mcp
+cargo run --bin finplan-mcp
 ```
 
 The server communicates over stdio (JSON-RPC). Connect it to Claude Desktop or any MCP-compatible client by adding it to your `claude_desktop_config.json`:
@@ -149,26 +149,44 @@ The server communicates over stdio (JSON-RPC). Connect it to Claude Desktop or a
 {
   "mcpServers": {
     "finplan": {
-      "command": "docker",
-      "args": ["compose", "run", "--rm", "finplan-mcp"],
+      "command": "cargo",
+      "args": ["run", "--bin", "finplan-mcp"],
       "cwd": "/path/to/finplan"
     }
   }
 }
 ```
 
-**Available tools:** `set_portfolio`, `add_account`, `set_parameters`, `add_income_event`, `add_expense_event`, `add_contribution_event`, `add_retirement_event`, `add_social_security_event`, `add_rmd_event`, `add_sweep_event`, `add_custom_event`, `map_tickers`, `merge_scenario`, `validate_scenario`, `get_state_summary`, `reset_state`
+**Available tools (20):**
+
+| Group | Tools |
+|-------|-------|
+| Scenario building | `set_portfolio`, `add_account`, `set_parameters`, `map_tickers` |
+| Events | `add_income_event`, `add_expense_event`, `add_contribution_event`, `add_retirement_event`, `add_social_security_event`, `add_rmd_event`, `add_sweep_event`, `add_custom_event` |
+| Simulation | `run_simulation`, `run_monte_carlo`, `get_account_snapshot`, `get_ledger` |
+| Utilities | `merge_scenario`, `validate_scenario`, `get_state_summary`, `reset_state` |
 
 **Schema resources** (`schema://full`, `schema://accounts`, `schema://events`, etc.) provide the AI agent with YAML format documentation.
 
-**Run the MCP test suite:**
+**Testing:**
+
+| Script | What it does |
+|--------|-------------|
+| `scripts/test_plan2.sh` | Runs each simulation tool test group with full output visible |
+| `scripts/test_mcp.sh` | Sends JSON-RPC messages to the live MCP server binary, pretty-prints responses |
 
 ```bash
-# quiet
-docker run --rm -v "$(pwd)":/app -w /app rust:slim cargo test -p finplan_mcp
+# Run all MCP cargo tests (quiet)
+cargo test -p finplan_mcp
 
-# verbose — shows each tool step, tool responses, and the final merged YAML
-docker run --rm -v "$(pwd)":/app -w /app rust:slim cargo test -p finplan_mcp -- --nocapture
+# Run all MCP cargo tests (verbose — shows tool step output)
+cargo test -p finplan_mcp -- --nocapture
+
+# Run simulation tool tests with labeled group output
+scripts/test_plan2.sh
+
+# Test the live server end-to-end
+scripts/test_mcp.sh
 ```
 
 ## Project Structure
