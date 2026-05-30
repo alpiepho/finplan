@@ -800,6 +800,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "finplan",
+ "finplan_core",
  "rmcp",
  "schemars 0.8.22",
  "serde",
