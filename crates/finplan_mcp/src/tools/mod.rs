@@ -20,6 +20,7 @@ pub fn list_tools() -> Vec<Tool> {
     tools.extend(ticker::tools());
     tools.extend(events::tools());
     tools.extend(simulation::tools());
+    tools.extend(sweep::tools());
     tools.extend(merge::tools());
     tools.extend(validate::tools());
     tools.extend(utility_tools());
@@ -66,6 +67,14 @@ pub async fn call_tool(
         "run_monte_carlo" => simulation::run_monte_carlo(args, state),
         "get_account_snapshot" => simulation::get_account_snapshot(args, state),
         "get_ledger" => simulation::get_ledger(args, state),
+        "add_sweep_parameter" => sweep::add_sweep_parameter(args, state),
+        "remove_sweep_parameter" => sweep::remove_sweep_parameter(args, state),
+        "configure_sweep" => sweep::configure_sweep(args, state),
+        "run_sweep" => sweep::run_sweep(args, state),
+        "get_sensitivity" => sweep::get_sensitivity(args, state),
+        "get_sweep_curve" => sweep::get_sweep_curve(args, state),
+        "get_sweep_grid" => sweep::get_sweep_grid(args, state),
+        "get_interaction_matrix" => sweep::get_interaction_matrix(args, state),
         "merge_scenario" => merge::merge_scenario(state),
         "validate_scenario" => validate::validate_scenario(state),
         "get_state_summary" => get_state_summary(state),
@@ -149,6 +158,31 @@ pub fn get_state_summary(state: &SharedState) -> Result<CallToolResult, McpError
 
     if !st.profiles.is_empty() {
         parts.push(format!("Profiles: {} defined", st.profiles.len()));
+    }
+
+    // Sweep state
+    if st.sweep_parameters.is_empty() {
+        parts.push("Sweep: no parameters defined".into());
+    } else {
+        let total_points: usize = st.sweep_parameters.iter().map(|p| p.step_count).product();
+        let run_status = if st.last_sweep_results.is_some() {
+            "results cached"
+        } else {
+            "not yet run"
+        };
+        parts.push(format!(
+            "Sweep: {} parameter(s), {} total points, {} MC iter/point — {}",
+            st.sweep_parameters.len(),
+            total_points,
+            st.sweep_mc_iterations,
+            run_status,
+        ));
+        for (i, p) in st.sweep_parameters.iter().enumerate() {
+            parts.push(format!(
+                "  [{i}] {} → {:?} [{:.0}–{:.0}, {} steps]",
+                p.event_name, p.sweep_type, p.min_value, p.max_value, p.step_count
+            ));
+        }
     }
 
     text_result(parts.join("\n"))

@@ -289,7 +289,7 @@ fn test_reset_clears_state() {
 
 #[test]
 fn test_tool_list_contains_expected_tools() {
-    println!("\n═══ Tool List: verify all 20 tools are registered ═══");
+    println!("\n═══ Tool List: verify all 28 tools are registered ═══");
     let tool_list = tools::list_tools();
     let names: Vec<&str> = tool_list.iter().map(|t| t.name.as_ref()).collect();
     println!("  registered tools ({}):", names.len());
@@ -320,10 +320,19 @@ fn test_tool_list_contains_expected_tools() {
         "run_monte_carlo",
         "get_account_snapshot",
         "get_ledger",
+        // Plan 3 — sweep / sensitivity analysis
+        "add_sweep_parameter",
+        "remove_sweep_parameter",
+        "configure_sweep",
+        "run_sweep",
+        "get_sensitivity",
+        "get_sweep_curve",
+        "get_sweep_grid",
+        "get_interaction_matrix",
     ] {
         assert!(names.contains(expected), "Missing tool: {}", expected);
     }
-    assert_eq!(names.len(), 20, "Expected 20 tools, got {}", names.len());
+    assert_eq!(names.len(), 28, "Expected 28 tools, got {}", names.len());
 }
 
 // ── Error Handling ────────────────────────────────────────────────────────────
@@ -713,7 +722,10 @@ fn test_run_simulation_spouse_age_null_without_spouse() {
         first_year["spouse_age"].is_null(),
         "spouse_age should be null when no spouse_birth_date is set"
     );
-    println!("  spouse_age = {} (null = no spouse configured)", first_year["spouse_age"]);
+    println!(
+        "  spouse_age = {} (null = no spouse configured)",
+        first_year["spouse_age"]
+    );
 }
 
 #[test]
@@ -772,7 +784,11 @@ fn test_run_simulation_caches_result_in_state() {
     );
     println!(
         "  last_simulation_result=Some ✓  last_sim_data=Some ✓  last_mc_summary={}",
-        if locked.last_mc_summary.is_some() { "Some" } else { "None (expected for single run)" }
+        if locked.last_mc_summary.is_some() {
+            "Some"
+        } else {
+            "None (expected for single run)"
+        }
     );
 }
 
