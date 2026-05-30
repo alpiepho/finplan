@@ -172,3 +172,90 @@ fn test_remove_sweep_parameter_by_name() {
     assert!(is_ok(&r));
     assert!(st.lock().unwrap().sweep_parameters.is_empty());
 }
+
+// ── Shared helper: 1D sweep ready to run ─────────────────────────────────────
+
+fn setup_1d_sweep() -> finplan_mcp::state::SharedState {
+    let st = setup_sweep_scenario();
+    tools::sweep::add_sweep_parameter(
+        args(json!({
+            "event_name": "Retirement",
+            "sweep_type": "trigger_age",
+            "min_value": 60,
+            "max_value": 65,
+            "step_count": 3
+        })),
+        &st,
+    )
+    .unwrap();
+    tools::sweep::configure_sweep(args(json!({"mc_iterations": 30})), &st).unwrap();
+    st
+}
+
+// ── run_sweep tests ───────────────────────────────────────────────────────────
+
+#[test]
+fn test_run_sweep_fails_without_parameters() {
+    let st = setup_sweep_scenario();
+    let r = tools::sweep::run_sweep(args(json!({})), &st).unwrap();
+    assert_eq!(r.is_error, Some(true));
+    assert!(text_of(&r).contains("No sweep parameters"));
+}
+
+#[test]
+fn test_run_sweep_fails_without_portfolio() {
+    let st = state::new_shared_state();
+    // Add a sweep param directly to state to bypass event validation
+    {
+        use finplan::data::analysis_data::{SweepParameterData, SweepTypeData};
+        let mut s = st.lock().unwrap();
+        s.sweep_parameters.push(SweepParameterData {
+            event_name: "Retirement".to_string(),
+            sweep_type: SweepTypeData::TriggerAge,
+            min_value: 60.0,
+            max_value: 65.0,
+            step_count: 3,
+        });
+    }
+    let r = tools::sweep::run_sweep(args(json!({})), &st).unwrap();
+    assert_eq!(r.is_error, Some(true));
+}
+
+#[test]
+fn test_run_sweep_1d_returns_correct_shape() {
+    println!("\n═══ run_sweep: 1D sweep produces correct ndim and total_points ═══");
+    let st = setup_1d_sweep();
+    let r = tools::sweep::run_sweep(args(json!({})), &st).unwrap();
+    assert!(is_ok(&r), "run_sweep failed: {}", text_of(&r));
+    let j: Value = serde_json::from_str(&text_of(&r)).unwrap();
+    println!("  ndim={}, total_points={}", j["ndim"], j["total_points"]);
+    assert_eq!(j["ndim"].as_u64().unwrap(), 1);
+    assert_eq!(j["total_points"].as_u64().unwrap(), 3);
+    assert!(j["metric_ranges"]["success_rate"]["baseline"].as_f64().unwrap() >= 0.0);
+    // Confirm sweep results are cached in state
+    assert!(st.lock().unwrap().last_sweep_results.is_some());
+}
+
+#[test]
+fn test_run_sweep_stores_results_in_state() {
+    let st = setup_1d_sweep();
+    assert!(st.lock().unwrap().last_sweep_results.is_none());
+    tools::sweep::run_sweep(args(json!({})), &st).unwrap();
+    assert!(st.lock().unwrap().last_sweep_results.is_some());
+}
+
+#[test]
+fn test_scenario_change_clears_sweep_results() {
+    println!("\n═══ scenario change clears cached sweep results ═══");
+    let st = setup_1d_sweep();
+    tools::sweep::run_sweep(args(json!({})), &st).unwrap();
+    assert!(st.lock().unwrap().last_sweep_results.is_some());
+
+    // Modify the scenario — should invalidate sweep results
+    tools::parameters::set_parameters(
+        args(json!({"birth_date": "1972-01-01"})),
+        &st,
+    )
+    .unwrap();
+    assert!(st.lock().unwrap().last_sweep_results.is_none());
+}
