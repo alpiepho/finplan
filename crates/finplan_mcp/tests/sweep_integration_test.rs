@@ -471,3 +471,132 @@ fn test_get_interaction_matrix_returns_correct_structure() {
     assert!(j["max_interaction"].as_f64().is_some());
     assert!(j["strong_interactions"].is_array());
 }
+
+// ── Full sweep workflow ───────────────────────────────────────────────────────
+
+#[test]
+fn test_full_sweep_workflow() {
+    println!("\n[full_sweep_workflow] 2D sensitivity analysis end-to-end");
+    let st = setup_sweep_scenario();
+
+    // Step 1: configure sweep
+    let r = tools::sweep::configure_sweep(args(json!({"mc_iterations": 30})), &st).unwrap();
+    assert!(is_ok(&r));
+    println!("[step 1] configure_sweep => {}", text_of(&r));
+
+    // Step 2: add retirement age sweep
+    let r = tools::sweep::add_sweep_parameter(
+        args(json!({
+            "event_name": "Retirement",
+            "sweep_type": "trigger_age",
+            "min_value": 60,
+            "max_value": 65,
+            "step_count": 3
+        })),
+        &st,
+    )
+    .unwrap();
+    assert!(is_ok(&r));
+    println!(
+        "[step 2] add_sweep_parameter (Retirement age) => {}",
+        text_of(&r)
+    );
+
+    // Step 3: add expense sweep
+    let r = tools::sweep::add_sweep_parameter(
+        args(json!({
+            "event_name": "Living Expenses",
+            "sweep_type": "effect_value",
+            "min_value": 4000,
+            "max_value": 7000,
+            "step_count": 3
+        })),
+        &st,
+    )
+    .unwrap();
+    assert!(is_ok(&r));
+    println!(
+        "[step 3] add_sweep_parameter (Living Expenses) => {}",
+        text_of(&r)
+    );
+
+    // Step 4: run sweep
+    let r = tools::sweep::run_sweep(args(json!({})), &st).unwrap();
+    assert!(is_ok(&r), "run_sweep failed: {}", text_of(&r));
+    let j: Value = serde_json::from_str(&text_of(&r)).unwrap();
+    assert_eq!(j["ndim"].as_u64().unwrap(), 2);
+    assert_eq!(j["total_points"].as_u64().unwrap(), 9);
+    println!(
+        "[step 4] run_sweep => ndim={}, total_points={}",
+        j["ndim"], j["total_points"]
+    );
+
+    // Step 5: get sensitivity
+    let r = tools::sweep::get_sensitivity(args(json!({"metric": "success_rate"})), &st).unwrap();
+    assert!(is_ok(&r));
+    let j: Value = serde_json::from_str(&text_of(&r)).unwrap();
+    let params = j["parameters"].as_array().unwrap();
+    assert_eq!(params.len(), 2);
+    let impact0 = params[0]["abs_impact"].as_f64().unwrap();
+    let impact1 = params[1]["abs_impact"].as_f64().unwrap();
+    assert!(
+        impact0 >= impact1,
+        "Results must be sorted by abs_impact descending"
+    );
+    println!(
+        "[step 5] get_sensitivity => top lever: {} (impact={:.3})",
+        params[0]["label"], impact0
+    );
+
+    // Step 6: get sweep curve for dim 0 with threshold
+    let r = tools::sweep::get_sweep_curve(
+        args(json!({"metric": "success_rate", "param_index": 0, "threshold": 0.5})),
+        &st,
+    )
+    .unwrap();
+    assert!(is_ok(&r));
+    let j: Value = serde_json::from_str(&text_of(&r)).unwrap();
+    assert_eq!(j["points"].as_array().unwrap().len(), 3);
+    assert!(
+        j["spread"].as_array().unwrap().len() == 3,
+        "2D sweep should have spread bands"
+    );
+    println!(
+        "[step 6] get_sweep_curve => {} points, {} crossings",
+        j["points"].as_array().unwrap().len(),
+        j["threshold_crossings"].as_array().unwrap().len()
+    );
+
+    // Step 7: get 2D grid
+    let r = tools::sweep::get_sweep_grid(
+        args(json!({"metric": "success_rate", "target_threshold": 0.5})),
+        &st,
+    )
+    .unwrap();
+    assert!(is_ok(&r));
+    let j: Value = serde_json::from_str(&text_of(&r)).unwrap();
+    let matrix = j["matrix"].as_array().unwrap();
+    assert_eq!(matrix.len(), 3);
+    assert_eq!(matrix[0].as_array().unwrap().len(), 3);
+    println!(
+        "[step 7] get_sweep_grid => {}x{} matrix, optimal={:.3}",
+        matrix.len(),
+        matrix[0].as_array().unwrap().len(),
+        j["optimal_cell"]["metric_value"].as_f64().unwrap_or(0.0)
+    );
+
+    // Step 8: get interaction matrix
+    let r =
+        tools::sweep::get_interaction_matrix(args(json!({"metric": "success_rate"})), &st).unwrap();
+    assert!(is_ok(&r));
+    let j: Value = serde_json::from_str(&text_of(&r)).unwrap();
+    let matrix = j["matrix"].as_array().unwrap();
+    assert_eq!(matrix.len(), 2);
+    assert!(matrix[0].as_array().unwrap()[0].is_null());
+    println!(
+        "[step 8] get_interaction_matrix => max_interaction={:.4}",
+        j["max_interaction"].as_f64().unwrap_or(0.0)
+    );
+
+    println!("\n[full_sweep_workflow] PASSED");
+}
