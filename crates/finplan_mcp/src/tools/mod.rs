@@ -3,6 +3,7 @@ pub mod merge;
 pub mod parameters;
 pub mod portfolio;
 pub mod simulation;
+pub mod sweep;
 pub mod ticker;
 pub mod validate;
 
