@@ -2,13 +2,14 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 use finplan::data::{
-    analysis_data::AnalysisConfigData,
+    analysis_data::{AnalysisConfigData, SweepParameterData},
     app_data::SimulationData,
     events_data::EventData,
     parameters_data::ParametersData,
     portfolio_data::{AssetTag, PortfolioData},
     profiles_data::{ProfileData, ReturnProfileTag},
 };
+use finplan_core::analysis::SweepResults;
 use finplan_core::model::{MonteCarloSummary, SimulationResult};
 
 /// Accumulated scenario state built up across tool calls.
@@ -49,6 +50,18 @@ pub struct ScenarioState {
 
     /// Full Monte Carlo summary (used by export_planner_summary in Plan 4)
     pub last_mc_summary: Option<MonteCarloSummary>,
+
+    /// Sweep parameter axes added via add_sweep_parameter.
+    pub sweep_parameters: Vec<SweepParameterData>,
+
+    /// MC iterations per sweep grid point (default: 200).
+    pub sweep_mc_iterations: usize,
+
+    /// Default step count for new sweep parameters (default: 6).
+    pub sweep_default_steps: usize,
+
+    /// Results from the last run_sweep call.
+    pub last_sweep_results: Option<SweepResults>,
 }
 
 impl Default for ScenarioState {
@@ -70,6 +83,10 @@ impl Default for ScenarioState {
             last_simulation_result: None,
             last_sim_data: None,
             last_mc_summary: None,
+            sweep_parameters: Vec::new(),
+            sweep_mc_iterations: 200,
+            sweep_default_steps: 6,
+            last_sweep_results: None,
         }
     }
 }
@@ -84,6 +101,12 @@ impl ScenarioState {
         self.last_simulation_result = None;
         self.last_sim_data = None;
         self.last_mc_summary = None;
+        self.last_sweep_results = None;
+    }
+
+    /// Clear only the sweep results cache. Call when sweep grid changes.
+    pub fn invalidate_sweep_cache(&mut self) {
+        self.last_sweep_results = None;
     }
 
     /// Merge all accumulated sections into a complete SimulationData
