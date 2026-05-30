@@ -613,6 +613,7 @@ fn add_event(state: &SharedState, event: EventData) -> Result<(), McpError> {
     }
 
     st.events.push(event);
+    st.invalidate_simulation_cache();
     Ok(())
 }
 

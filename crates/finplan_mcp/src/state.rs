@@ -9,6 +9,7 @@ use finplan::data::{
     portfolio_data::{AssetTag, PortfolioData},
     profiles_data::{ProfileData, ReturnProfileTag},
 };
+use finplan_core::model::{MonteCarloSummary, SimulationResult};
 
 /// Accumulated scenario state built up across tool calls.
 #[derive(Debug, Clone)]
@@ -39,6 +40,15 @@ pub struct ScenarioState {
 
     /// Analysis config
     pub analysis: AnalysisConfigData,
+
+    /// Last single-run or P50 MC result (used by get_account_snapshot and get_ledger)
+    pub last_simulation_result: Option<SimulationResult>,
+
+    /// SimulationData used to produce last_simulation_result (for name lookups)
+    pub last_sim_data: Option<SimulationData>,
+
+    /// Full Monte Carlo summary (used by export_planner_summary in Plan 4)
+    pub last_mc_summary: Option<MonteCarloSummary>,
 }
 
 impl Default for ScenarioState {
@@ -57,6 +67,9 @@ impl Default for ScenarioState {
                 default_steps: 6,
                 ..Default::default()
             },
+            last_simulation_result: None,
+            last_sim_data: None,
+            last_mc_summary: None,
         }
     }
 }
@@ -64,6 +77,13 @@ impl Default for ScenarioState {
 impl ScenarioState {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// Clear cached simulation results. Call whenever scenario state changes.
+    pub fn invalidate_simulation_cache(&mut self) {
+        self.last_simulation_result = None;
+        self.last_sim_data = None;
+        self.last_mc_summary = None;
     }
 
     /// Merge all accumulated sections into a complete SimulationData

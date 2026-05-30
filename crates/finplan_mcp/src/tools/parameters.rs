@@ -201,6 +201,7 @@ pub fn set_parameters(
 
     let mut st = state.lock().unwrap();
     st.parameters = Some(params);
+    st.invalidate_simulation_cache();
 
     text_result(format!(
         "Parameters set:\n  Birth: {}\n  Start: {}\n  Duration: {} years\n  Returns: {:?}\n  State tax: {:.1}%",

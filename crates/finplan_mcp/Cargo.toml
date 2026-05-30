@@ -15,6 +15,7 @@ path = "src/main.rs"
 [dependencies]
 # Internal
 finplan = { path = "../finplan" }
+finplan_core = { path = "../finplan_core" }
 
 # MCP SDK
 rmcp = { version = "0.17", features = [

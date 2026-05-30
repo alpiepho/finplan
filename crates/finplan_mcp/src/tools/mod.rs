@@ -2,6 +2,7 @@ pub mod events;
 pub mod merge;
 pub mod parameters;
 pub mod portfolio;
+pub mod simulation;
 pub mod ticker;
 pub mod validate;
 
@@ -17,6 +18,7 @@ pub fn list_tools() -> Vec<Tool> {
     tools.extend(portfolio::tools());
     tools.extend(ticker::tools());
     tools.extend(events::tools());
+    tools.extend(simulation::tools());
     tools.extend(merge::tools());
     tools.extend(validate::tools());
     tools.extend(utility_tools());
@@ -59,6 +61,10 @@ pub async fn call_tool(
         "add_social_security_event" => events::add_social_security_event(args, state),
         "add_rmd_event" => events::add_rmd_event(args, state),
         "add_custom_event" => events::add_custom_event(args, state),
+        "run_simulation" => simulation::run_simulation(args, state),
+        "run_monte_carlo" => simulation::run_monte_carlo(args, state),
+        "get_account_snapshot" => simulation::get_account_snapshot(args, state),
+        "get_ledger" => simulation::get_ledger(args, state),
         "merge_scenario" => merge::merge_scenario(state),
         "validate_scenario" => validate::validate_scenario(state),
         "get_state_summary" => get_state_summary(state),

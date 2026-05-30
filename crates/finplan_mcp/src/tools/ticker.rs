@@ -138,5 +138,6 @@ pub fn map_tickers(
         }
     }
 
+    st.invalidate_simulation_cache();
     text_result(result)
 }

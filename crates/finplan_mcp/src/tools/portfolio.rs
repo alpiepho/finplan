@@ -115,6 +115,7 @@ pub fn set_portfolio(
 
     let mut st = state.lock().unwrap();
     st.portfolio = Some(portfolio);
+    st.invalidate_simulation_cache();
 
     text_result(format!(
         "Portfolio \"{}\" initialized with 0 accounts. Use add_account to add accounts.",
@@ -221,12 +222,14 @@ pub fn add_account(
     }
 
     portfolio.accounts.push(account);
+    let count = portfolio.accounts.len();
+    // End borrow of `portfolio` so we can call methods on `st`
+    let _ = portfolio;
+    st.invalidate_simulation_cache();
 
     text_result(format!(
         "Added {} account \"{}\". Portfolio now has {} accounts.",
-        acct_type_str,
-        name,
-        portfolio.accounts.len()
+        acct_type_str, name, count
     ))
 }
 
