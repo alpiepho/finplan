@@ -35,6 +35,10 @@ struct Args {
     /// Terminal height for --headless-dump (default: 50)
     #[arg(long, default_value = "50", requires = "headless_dump")]
     headless_height: u16,
+
+    /// Suppress informational modals at startup (useful for VHS/scripted recording)
+    #[arg(long)]
+    quiet: bool,
 }
 
 fn default_data_dir() -> PathBuf {
@@ -85,6 +89,9 @@ fn main() -> color_eyre::Result<()> {
     let mut app = App::with_data_dir(data_dir);
     if let Some(scenario_path) = args.scenario {
         app = app.with_startup_scenario(scenario_path);
+    }
+    if args.quiet {
+        app = app.with_quiet();
     }
 
     ratatui::run(|terminal| app.run(terminal))?;

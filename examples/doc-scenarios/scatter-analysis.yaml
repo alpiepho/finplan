@@ -1,0 +1,200 @@
+portfolios:
+  name: Scatter Analysis Demo
+  description: Single-parameter sweep configured for 1D scatter chart — retirement age vs success rate
+  accounts:
+    - name: Checking
+      type: Checking
+      value: 25000.0
+    - name: 401k
+      type: Traditional401k
+      assets:
+        - asset: FXAIX
+          value: 380000.0
+    - name: Roth IRA
+      type: RothIRA
+      assets:
+        - asset: FXAIX
+          value: 95000.0
+    - name: Brokerage
+      type: Brokerage
+      assets:
+        - asset: VTSAX
+          value: 140000.0
+
+historical_assets:
+  FXAIX: S&P 500
+  VTSAX: S&P 500
+
+events:
+  - name: Salary
+    trigger:
+      type: Repeating
+      interval: biweekly
+      end:
+        type: RelativeToEvent
+        event: Retirement
+        offset:
+          unit: Months
+          value: 0
+    effects:
+      - type: Income
+        to: Checking
+        amount:
+          type: InflationAdjusted
+          inner:
+            type: Fixed
+            value: 3800.0
+        gross: true
+        taxable: true
+    once: false
+    enabled: true
+
+  - name: Living Expenses
+    trigger:
+      type: Repeating
+      interval: monthly
+    effects:
+      - type: Expense
+        from: Checking
+        amount:
+          type: InflationAdjusted
+          inner:
+            type: Fixed
+            value: 5800.0
+    once: false
+    enabled: true
+
+  - name: 401k Contribution
+    trigger:
+      type: Repeating
+      interval: yearly
+      end:
+        type: RelativeToEvent
+        event: Retirement
+        offset:
+          unit: Months
+          value: 0
+    effects:
+      - type: AssetPurchase
+        from: Checking
+        to_account: 401k
+        asset: FXAIX
+        amount:
+          type: Fixed
+          value: 20000.0
+    once: false
+    enabled: true
+
+  - name: Retirement
+    trigger:
+      type: Age
+      years: 62
+    once: true
+    enabled: true
+
+  - name: Fund Retirement Spending
+    trigger:
+      type: Repeating
+      interval: yearly
+      start:
+        type: RelativeToEvent
+        event: Retirement
+        offset:
+          unit: Months
+          value: 0
+    effects:
+      - type: Sweep
+        to: Checking
+        amount:
+          type: TargetToBalance
+          target: 85000.0
+        strategy: penalty_aware
+        gross: false
+        taxable: true
+        lot_method: fifo
+    once: false
+    enabled: true
+
+  - name: Medicare Part B
+    trigger:
+      type: Repeating
+      interval: monthly
+      start:
+        type: Age
+        years: 65
+    effects:
+      - type: Expense
+        from: Checking
+        amount:
+          type: Fixed
+          value: 174.7
+    once: false
+    enabled: true
+
+  - name: Social Security
+    trigger:
+      type: Repeating
+      interval: monthly
+      start:
+        type: Age
+        years: 67
+    effects:
+      - type: Income
+        to: Checking
+        amount:
+          type: Fixed
+          value: 2200.0
+        gross: true
+        taxable: true
+    once: false
+    enabled: true
+
+  - name: RMD
+    trigger:
+      type: Repeating
+      interval: yearly
+      start:
+        type: Age
+        years: 73
+    effects:
+      - type: ApplyRmd
+        destination: Checking
+        lot_method: fifo
+    once: false
+    enabled: true
+
+parameters:
+  birth_date: "1976-07-20"
+  start_date: "2026-01-01"
+  duration_years: 42
+  inflation:
+    type: USHistorical
+    distribution: lognormal
+  tax_config:
+    state_rate: 0.05
+    capital_gains_rate: 0.15
+    federal_brackets: single2024
+  returns_mode: historical
+  historical_block_size: 5
+
+analysis:
+  mc_iterations: 1000
+  default_steps: 5
+  sweep_parameters:
+    - event_name: Retirement
+      sweep_type: trigger_age
+      min_value: 57.0
+      max_value: 67.0
+      step_count: 8
+  selected_metrics:
+    - p50_final_net_worth
+    - success_rate
+  chart_configs:
+    - chart_type: scatter1_d
+      x_param_index: 0
+      metric: success_rate
+      color_scheme: viridis
+    - chart_type: scatter1_d
+      x_param_index: 0
+      metric: p50_final_net_worth
+      color_scheme: cividis

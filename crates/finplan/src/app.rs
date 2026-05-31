@@ -37,6 +37,7 @@ pub struct App {
     results_screen: ResultsScreen,
     analysis_screen: AnalysisScreen,
     startup_scenario: Option<PathBuf>,
+    quiet: bool,
 }
 
 impl Default for App {
@@ -60,6 +61,7 @@ impl App {
             results_screen: ResultsScreen,
             analysis_screen: AnalysisScreen,
             startup_scenario: None,
+            quiet: false,
         }
     }
 
@@ -79,12 +81,19 @@ impl App {
             results_screen: ResultsScreen,
             analysis_screen: AnalysisScreen,
             startup_scenario: None,
+            quiet: false,
         }
     }
 
     /// Load a scenario file at startup and make it the active scenario
     pub fn with_startup_scenario(mut self, path: PathBuf) -> Self {
         self.startup_scenario = Some(path);
+        self
+    }
+
+    /// Suppress informational modals at startup (for scripted/VHS usage)
+    pub fn with_quiet(mut self) -> Self {
+        self.quiet = true;
         self
     }
 
@@ -141,10 +150,12 @@ impl App {
                 Ok(name) => {
                     self.state.switch_scenario(&name);
                     tracing::info!(scenario = %name, path = ?path, "Loaded startup scenario");
-                    self.state.modal = ModalState::Message(MessageModal::info(
-                        "Scenario Loaded",
-                        &format!("Loaded '{}'", name),
-                    ));
+                    if !self.quiet {
+                        self.state.modal = ModalState::Message(MessageModal::info(
+                            "Scenario Loaded",
+                            &format!("Loaded '{}'", name),
+                        ));
+                    }
                 }
                 Err(e) => {
                     tracing::warn!(path = ?path, error = ?e, "Failed to load startup scenario");
@@ -296,15 +307,17 @@ impl App {
                     // Update scenario summary cache
                     self.state.update_current_scenario_summary();
 
-                    // Show completion modal
-                    self.state.modal = ModalState::Message(MessageModal::info(
-                        "Monte Carlo Complete",
-                        &format!(
-                            "{} iterations | {:.1}% success rate",
-                            iterations,
-                            success_rate * 100.0
-                        ),
-                    ));
+                    // Show completion modal (suppressed in quiet mode)
+                    if !self.quiet {
+                        self.state.modal = ModalState::Message(MessageModal::info(
+                            "Monte Carlo Complete",
+                            &format!(
+                                "{} iterations | {:.1}% success rate",
+                                iterations,
+                                success_rate * 100.0
+                            ),
+                        ));
+                    }
                 }
                 SimulationResponse::Cancelled => {
                     tracing::info!("Simulation cancelled by user");
@@ -408,11 +421,13 @@ impl App {
                         }
                     }
 
-                    // Show completion modal
-                    self.state.modal = ModalState::Message(MessageModal::info(
-                        "Analysis Complete",
-                        &format!("Evaluated {} parameter combinations.", total_points),
-                    ));
+                    // Show completion modal (suppressed in quiet mode)
+                    if !self.quiet {
+                        self.state.modal = ModalState::Message(MessageModal::info(
+                            "Analysis Complete",
+                            &format!("Evaluated {} parameter combinations.", total_points),
+                        ));
+                    }
                 }
             }
         }
