@@ -1,0 +1,213 @@
+portfolios:
+  name: At-Risk Retirement Plan
+  description: Underfunded plan with early retirement — demonstrates low success rate (~55-65%) and cliff shape
+  accounts:
+    - name: Checking
+      type: Checking
+      value: 8000.0
+    - name: 401k
+      description: Employer 401(k) — under-funded for early retirement
+      type: Traditional401k
+      assets:
+        - asset: FXAIX
+          value: 95000.0
+    - name: Roth IRA
+      type: RothIRA
+      assets:
+        - asset: FXAIX
+          value: 22000.0
+    - name: Brokerage
+      type: Brokerage
+      assets:
+        - asset: VTSAX
+          value: 35000.0
+
+historical_assets:
+  FXAIX: S&P 500
+  VTSAX: S&P 500
+
+events:
+  - name: Salary
+    trigger:
+      type: Repeating
+      interval: biweekly
+      end:
+        type: RelativeToEvent
+        event: Retirement
+        offset:
+          unit: Months
+          value: 0
+    effects:
+      - type: Income
+        to: Checking
+        amount:
+          type: InflationAdjusted
+          inner:
+            type: Fixed
+            value: 2800.0
+        gross: true
+        taxable: true
+    once: false
+    enabled: true
+
+  - name: Living Expenses
+    description: High monthly expenses relative to savings
+    trigger:
+      type: Repeating
+      interval: monthly
+    effects:
+      - type: Expense
+        from: Checking
+        amount:
+          type: InflationAdjusted
+          inner:
+            type: Fixed
+            value: 6800.0
+    once: false
+    enabled: true
+
+  - name: 401k Contribution
+    trigger:
+      type: Repeating
+      interval: yearly
+      end:
+        type: RelativeToEvent
+        event: Retirement
+        offset:
+          unit: Months
+          value: 0
+    effects:
+      - type: AssetPurchase
+        from: Checking
+        to_account: 401k
+        asset: FXAIX
+        amount:
+          type: Fixed
+          value: 8000.0
+    once: false
+    enabled: true
+
+  - name: Retirement
+    description: Early retirement at 52 — too soon given portfolio size
+    trigger:
+      type: Age
+      years: 52
+    once: true
+    enabled: true
+
+  - name: Fund Retirement Spending
+    description: Annual sweep — high withdrawal rate will deplete accounts
+    trigger:
+      type: Repeating
+      interval: yearly
+      start:
+        type: RelativeToEvent
+        event: Retirement
+        offset:
+          unit: Months
+          value: 0
+    effects:
+      - type: Sweep
+        to: Checking
+        amount:
+          type: TargetToBalance
+          target: 95000.0
+        strategy: penalty_aware
+        gross: false
+        taxable: true
+        lot_method: fifo
+    once: false
+    enabled: true
+
+  - name: Medicare Part B
+    description: Medicare Part B monthly premiums
+    trigger:
+      type: Repeating
+      interval: monthly
+      start:
+        type: Age
+        years: 65
+    effects:
+      - type: Expense
+        from: Checking
+        amount:
+          type: Fixed
+          value: 174.7
+    once: false
+    enabled: true
+
+  - name: Social Security
+    description: Delayed Social Security — small benefit due to early career stop
+    trigger:
+      type: Repeating
+      interval: monthly
+      start:
+        type: Age
+        years: 67
+    effects:
+      - type: Income
+        to: Checking
+        amount:
+          type: Fixed
+          value: 1200.0
+        gross: true
+        taxable: true
+    once: false
+    enabled: true
+
+  - name: RMD
+    description: Required Minimum Distributions from tax-deferred accounts
+    trigger:
+      type: Repeating
+      interval: yearly
+      start:
+        type: Age
+        years: 73
+    effects:
+      - type: ApplyRmd
+        destination: Checking
+        lot_method: fifo
+    once: false
+    enabled: true
+
+parameters:
+  birth_date: "1988-09-01"
+  start_date: "2026-01-01"
+  duration_years: 50
+  inflation:
+    type: USHistorical
+    distribution: lognormal
+  tax_config:
+    state_rate: 0.05
+    capital_gains_rate: 0.15
+    federal_brackets: single2024
+  returns_mode: historical
+  historical_block_size: 5
+
+analysis:
+  mc_iterations: 1000
+  default_steps: 5
+  sweep_parameters:
+    - event_name: Retirement
+      sweep_type: trigger_age
+      min_value: 50.0
+      max_value: 65.0
+      step_count: 6
+    - event_name: Living Expenses
+      sweep_type: effect_value
+      min_value: 4000.0
+      max_value: 9000.0
+      step_count: 6
+  selected_metrics:
+    - p50_final_net_worth
+    - success_rate
+  chart_configs:
+    - chart_type: heatmap2_d
+      x_param_index: 0
+      y_param_index: 1
+      metric: success_rate
+      color_scheme: viridis
+    - chart_type: scatter1_d
+      x_param_index: 0
+      metric: success_rate
+      color_scheme: viridis

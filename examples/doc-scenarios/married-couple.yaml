@@ -1,0 +1,328 @@
+portfolios:
+  name: Married Couple Plan
+  description: Two-earner household — demonstrates spouse_birth_date, SpouseAge triggers, joint tax filing, and spouse-owned accounts
+  accounts:
+    - name: Checking
+      type: Checking
+      value: 45000.0
+    - name: Primary 401k
+      description: Primary earner 401(k)
+      type: Traditional401k
+      assets:
+        - asset: FXAIX
+          value: 440000.0
+    - name: Spouse 401k
+      description: Spouse 401(k)
+      type: Traditional401k
+      owner: spouse
+      assets:
+        - asset: FXAIX
+          value: 260000.0
+    - name: Primary Roth IRA
+      type: RothIRA
+      assets:
+        - asset: VTSAX
+          value: 95000.0
+    - name: Spouse Roth IRA
+      type: RothIRA
+      owner: spouse
+      assets:
+        - asset: VTSAX
+          value: 70000.0
+    - name: Brokerage
+      description: Joint taxable investment account
+      type: Brokerage
+      assets:
+        - asset: VTSAX
+          value: 195000.0
+
+historical_assets:
+  FXAIX: S&P 500
+  VTSAX: S&P 500
+
+events:
+  - name: Primary Salary
+    trigger:
+      type: Repeating
+      interval: biweekly
+      end:
+        type: RelativeToEvent
+        event: Primary Retirement
+        offset:
+          unit: Months
+          value: 0
+    effects:
+      - type: Income
+        to: Checking
+        amount:
+          type: InflationAdjusted
+          inner:
+            type: Fixed
+            value: 5200.0
+        gross: true
+        taxable: true
+    once: false
+    enabled: true
+
+  - name: Spouse Salary
+    trigger:
+      type: Repeating
+      interval: biweekly
+      end:
+        type: RelativeToEvent
+        event: Spouse Retirement
+        offset:
+          unit: Months
+          value: 0
+    effects:
+      - type: Income
+        to: Checking
+        amount:
+          type: InflationAdjusted
+          inner:
+            type: Fixed
+            value: 3900.0
+        gross: true
+        taxable: true
+    once: false
+    enabled: true
+
+  - name: Living Expenses
+    description: Monthly household expenses
+    trigger:
+      type: Repeating
+      interval: monthly
+    effects:
+      - type: Expense
+        from: Checking
+        amount:
+          type: InflationAdjusted
+          inner:
+            type: Fixed
+            value: 7200.0
+    once: false
+    enabled: true
+
+  - name: Primary 401k Contribution
+    trigger:
+      type: Repeating
+      interval: yearly
+      end:
+        type: RelativeToEvent
+        event: Primary Retirement
+        offset:
+          unit: Months
+          value: 0
+    effects:
+      - type: AssetPurchase
+        from: Checking
+        to_account: Primary 401k
+        asset: FXAIX
+        amount:
+          type: Fixed
+          value: 23000.0
+    once: false
+    enabled: true
+
+  - name: Spouse 401k Contribution
+    trigger:
+      type: Repeating
+      interval: yearly
+      end:
+        type: RelativeToEvent
+        event: Spouse Retirement
+        offset:
+          unit: Months
+          value: 0
+    effects:
+      - type: AssetPurchase
+        from: Checking
+        to_account: Spouse 401k
+        asset: FXAIX
+        amount:
+          type: Fixed
+          value: 23000.0
+    once: false
+    enabled: true
+
+  - name: Primary Retirement
+    description: Primary earner retires at 63
+    trigger:
+      type: Age
+      years: 63
+    once: true
+    enabled: true
+
+  - name: Spouse Retirement
+    description: Spouse retires at 62
+    trigger:
+      type: SpouseAge
+      years: 62
+    once: true
+    enabled: true
+
+  - name: Fund Retirement Spending
+    description: Annual sweep to cover household expenses post-retirement
+    trigger:
+      type: Repeating
+      interval: yearly
+      start:
+        type: RelativeToEvent
+        event: Primary Retirement
+        offset:
+          unit: Months
+          value: 0
+    effects:
+      - type: Sweep
+        to: Checking
+        amount:
+          type: TargetToBalance
+          target: 110000.0
+        strategy: penalty_aware
+        gross: false
+        taxable: true
+        lot_method: fifo
+    once: false
+    enabled: true
+
+  - name: Primary Medicare Part B
+    trigger:
+      type: Repeating
+      interval: monthly
+      start:
+        type: Age
+        years: 65
+    effects:
+      - type: Expense
+        from: Checking
+        amount:
+          type: Fixed
+          value: 174.7
+    once: false
+    enabled: true
+
+  - name: Spouse Medicare Part B
+    trigger:
+      type: Repeating
+      interval: monthly
+      start:
+        type: SpouseAge
+        years: 65
+    effects:
+      - type: Expense
+        from: Checking
+        amount:
+          type: Fixed
+          value: 174.7
+    once: false
+    enabled: true
+
+  - name: Primary Social Security
+    description: Primary earner Social Security at 67
+    trigger:
+      type: Repeating
+      interval: monthly
+      start:
+        type: Age
+        years: 67
+    effects:
+      - type: Income
+        to: Checking
+        amount:
+          type: Fixed
+          value: 2900.0
+        gross: true
+        taxable: true
+    once: false
+    enabled: true
+
+  - name: Spouse Social Security
+    description: Spouse Social Security at 67
+    trigger:
+      type: Repeating
+      interval: monthly
+      start:
+        type: SpouseAge
+        years: 67
+    effects:
+      - type: Income
+        to: Checking
+        amount:
+          type: Fixed
+          value: 2100.0
+        gross: true
+        taxable: true
+    once: false
+    enabled: true
+
+  - name: RMD
+    description: Required Minimum Distributions — fires when either person reaches 73
+    trigger:
+      type: Repeating
+      interval: yearly
+      start:
+        type: Or
+        conditions:
+          - type: Age
+            years: 73
+          - type: SpouseAge
+            years: 73
+    effects:
+      - type: ApplyRmd
+        destination: Checking
+        lot_method: fifo
+    once: false
+    enabled: true
+
+parameters:
+  birth_date: "1973-03-10"
+  spouse_birth_date: "1976-11-22"
+  start_date: "2026-01-01"
+  duration_years: 40
+  inflation:
+    type: USHistorical
+    distribution: lognormal
+  tax_config:
+    state_rate: 0.05
+    capital_gains_rate: 0.15
+    federal_brackets: married_joint2024
+  returns_mode: historical
+  historical_block_size: 5
+
+analysis:
+  mc_iterations: 1000
+  default_steps: 5
+  sweep_parameters:
+    - event_name: Primary Retirement
+      sweep_type: trigger_age
+      min_value: 58.0
+      max_value: 68.0
+      step_count: 6
+    - event_name: Living Expenses
+      sweep_type: effect_value
+      min_value: 5000.0
+      max_value: 10000.0
+      step_count: 6
+    - event_name: Primary Social Security
+      sweep_type: effect_value
+      min_value: 1800.0
+      max_value: 3800.0
+      step_count: 5
+  selected_metrics:
+    - p50_final_net_worth
+    - success_rate
+  chart_configs:
+    - chart_type: heatmap2_d
+      x_param_index: 0
+      y_param_index: 1
+      metric: success_rate
+      color_scheme: viridis
+    - chart_type: heatmap2_d
+      x_param_index: 0
+      y_param_index: 2
+      metric: p50_final_net_worth
+      color_scheme: cividis
+    - chart_type: scatter1_d
+      x_param_index: 2
+      metric: success_rate
+      color_scheme: viridis

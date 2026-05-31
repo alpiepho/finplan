@@ -1,0 +1,148 @@
+portfolios:
+  name: Active Drawdown Phase
+  description: Mid-retirement scenario at age 75 — demonstrates active RMDs, Social Security income, and portfolio depletion dynamics
+  accounts:
+    - name: Checking
+      type: Checking
+      value: 28000.0
+    - name: 401k
+      description: Traditional IRA / rollover from prior 401k
+      type: Traditional401k
+      assets:
+        - asset: FXAIX
+          value: 520000.0
+    - name: Roth IRA
+      description: Tax-free bucket for late-stage spending
+      type: RothIRA
+      assets:
+        - asset: FXAIX
+          value: 110000.0
+    - name: Brokerage
+      description: Taxable account — spending bridge
+      type: Brokerage
+      assets:
+        - asset: VTSAX
+          value: 85000.0
+
+historical_assets:
+  FXAIX: S&P 500
+  VTSAX: S&P 500
+
+events:
+  - name: Living Expenses
+    description: Monthly retirement living costs
+    trigger:
+      type: Repeating
+      interval: monthly
+    effects:
+      - type: Expense
+        from: Checking
+        amount:
+          type: InflationAdjusted
+          inner:
+            type: Fixed
+            value: 4800.0
+    once: false
+    enabled: true
+
+  - name: Fund Annual Spending
+    description: Annual sweep to top up checking for living expenses
+    trigger:
+      type: Repeating
+      interval: yearly
+    effects:
+      - type: Sweep
+        to: Checking
+        amount:
+          type: TargetToBalance
+          target: 80000.0
+        strategy: penalty_aware
+        gross: false
+        taxable: true
+        lot_method: fifo
+    once: false
+    enabled: true
+
+  - name: Medicare Part B
+    description: Medicare Part B premiums — already active
+    trigger:
+      type: Repeating
+      interval: monthly
+    effects:
+      - type: Expense
+        from: Checking
+        amount:
+          type: Fixed
+          value: 174.7
+    once: false
+    enabled: true
+
+  - name: Social Security
+    description: Monthly Social Security — already being received
+    trigger:
+      type: Repeating
+      interval: monthly
+    effects:
+      - type: Income
+        to: Checking
+        amount:
+          type: Fixed
+          value: 2500.0
+        gross: true
+        taxable: true
+    once: false
+    enabled: true
+
+  - name: RMD
+    description: Required Minimum Distributions — active since age 73
+    trigger:
+      type: Repeating
+      interval: yearly
+    effects:
+      - type: ApplyRmd
+        destination: Checking
+        lot_method: fifo
+    once: false
+    enabled: true
+
+parameters:
+  birth_date: "1951-02-28"
+  start_date: "2026-01-01"
+  duration_years: 25
+  inflation:
+    type: USHistorical
+    distribution: lognormal
+  tax_config:
+    state_rate: 0.05
+    capital_gains_rate: 0.15
+    federal_brackets: single2024
+  returns_mode: historical
+  historical_block_size: 5
+
+analysis:
+  mc_iterations: 1000
+  default_steps: 5
+  sweep_parameters:
+    - event_name: Living Expenses
+      sweep_type: effect_value
+      min_value: 3000.0
+      max_value: 7000.0
+      step_count: 6
+    - event_name: Social Security
+      sweep_type: effect_value
+      min_value: 1500.0
+      max_value: 3500.0
+      step_count: 6
+  selected_metrics:
+    - p50_final_net_worth
+    - success_rate
+  chart_configs:
+    - chart_type: heatmap2_d
+      x_param_index: 0
+      y_param_index: 1
+      metric: success_rate
+      color_scheme: viridis
+    - chart_type: scatter1_d
+      x_param_index: 0
+      metric: success_rate
+      color_scheme: viridis
