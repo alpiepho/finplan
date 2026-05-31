@@ -593,6 +593,61 @@ impl App {
         }
     }
 
+    /// Render every tab to a plain-text string using a headless [`TestBackend`].
+    ///
+    /// Loads the startup scenario (if any), runs a quick single simulation to
+    /// populate the Results tab, then renders each of the five tabs at the
+    /// requested terminal dimensions.
+    ///
+    /// Returns `(filename, content)` pairs — one file per tab, named
+    /// `01-portfolio-profiles.txt` through `05-analysis.txt`.
+    ///
+    /// [`TestBackend`]: ratatui::backend::TestBackend
+    pub fn dump_screens(
+        &mut self,
+        width: u16,
+        height: u16,
+    ) -> color_eyre::Result<Vec<(String, String)>> {
+        use ratatui::Terminal;
+        use ratatui::backend::TestBackend;
+
+        // Load startup scenario if provided.
+        if let Some(path) = self.startup_scenario.take() {
+            match self.state.import_scenario(&path) {
+                Ok(name) => {
+                    self.state.switch_scenario(&name);
+                    tracing::info!(scenario = %name, "headless-dump: loaded scenario");
+                }
+                Err(e) => {
+                    return Err(color_eyre::eyre::eyre!(
+                        "Failed to load scenario '{}': {}",
+                        path.display(),
+                        e
+                    ));
+                }
+            }
+        }
+
+        // Run a synchronous single simulation so Results tab shows real data.
+        if let Err(e) = self.state.run_simulation() {
+            tracing::warn!(error = ?e, "headless-dump: simulation failed; Results tab will be empty");
+        }
+
+        let backend = TestBackend::new(width, height);
+        let mut terminal = Terminal::new(backend)?;
+        let mut outputs = Vec::new();
+
+        for tab in TabId::ALL {
+            self.state.active_tab = tab;
+            terminal.draw(|frame| self.draw(frame))?;
+            let content = render_buffer_to_string(terminal.backend().buffer());
+            let filename = format!("{:02}-{}.txt", tab.index() + 1, tab.slug());
+            outputs.push((filename, content));
+        }
+
+        Ok(outputs)
+    }
+
     fn draw(&mut self, frame: &mut Frame) {
         // Create main layout: tab bar, content, status bar
         let chunks = Layout::default()
@@ -922,4 +977,22 @@ fn convert_sweep_to_analysis_results(
     }
 
     AnalysisResults::new(sweep_results)
+}
+
+/// Convert a Ratatui [`Buffer`] to a plain-text string.
+///
+/// Each row becomes one line. Trailing whitespace is stripped.
+/// Wide Unicode characters occupy their natural columns because Ratatui
+/// stores them in the first cell and leaves the continuation cell empty.
+fn render_buffer_to_string(buf: &ratatui::buffer::Buffer) -> String {
+    let area = buf.area();
+    let mut lines = Vec::with_capacity(area.height as usize);
+    for y in 0..area.height {
+        let mut line = String::new();
+        for x in 0..area.width {
+            line.push_str(buf[(x, y)].symbol());
+        }
+        lines.push(line.trim_end().to_string());
+    }
+    lines.join("\n")
 }

@@ -48,4 +48,14 @@ impl TabId {
             _ => None,
         }
     }
+
+    pub fn slug(&self) -> &'static str {
+        match self {
+            TabId::PortfolioProfiles => "portfolio-profiles",
+            TabId::Events => "events",
+            TabId::Scenario => "scenario",
+            TabId::Results => "results",
+            TabId::Analysis => "analysis",
+        }
+    }
 }

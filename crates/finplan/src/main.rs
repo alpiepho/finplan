@@ -21,6 +21,20 @@ struct Args {
     /// Validate scenario and exit (use with --scenario)
     #[arg(short, long)]
     validate: bool,
+
+    /// Render all tabs to text files in DIR and exit (no terminal required).
+    /// Loads --scenario if provided and runs a single simulation first.
+    /// Output: 01-portfolio-profiles.txt … 05-analysis.txt
+    #[arg(long, value_name = "DIR")]
+    headless_dump: Option<PathBuf>,
+
+    /// Terminal width for --headless-dump (default: 160)
+    #[arg(long, default_value = "160", requires = "headless_dump")]
+    headless_width: u16,
+
+    /// Terminal height for --headless-dump (default: 50)
+    #[arg(long, default_value = "50", requires = "headless_dump")]
+    headless_height: u16,
 }
 
 fn default_data_dir() -> PathBuf {
@@ -36,6 +50,16 @@ fn main() -> color_eyre::Result<()> {
     let data_dir = args.data_dir.unwrap_or_else(default_data_dir);
 
     init_logging(&data_dir, &args.log_level)?;
+
+    // Handle headless-dump mode: render all tabs to text files and exit.
+    if let Some(output_dir) = args.headless_dump {
+        return finplan::headless_dump(
+            args.scenario,
+            &output_dir,
+            args.headless_width,
+            args.headless_height,
+        );
+    }
 
     // Handle validation mode: -s <path> -v validates and exits
     if args.validate {
