@@ -1,629 +1,324 @@
 # Understanding Results & Analysis
 
-This guide helps you interpret FinPlan's charts, metrics, and analysis features.
+This guide explains how to interpret what FinPlan shows you in the **Results** tab (Tab 4) and the **Analysis** tab (Tab 5). For navigation and keybindings in these tabs, see [Tab Reference](02-tabs-guide.md).
 
-## Results Tab Overview
+---
 
-The **Results** tab shows your simulation output with:
+## Tab 4: Results
 
-1. **Net Worth Projection Chart** - Your wealth over time
-2. **Account Breakdown** - Money distributed by account type
-3. **Ledger** - Detailed year-by-year transactions
-4. **Status Indicators** - Key metrics
+The Results tab has four panels:
 
-## Reading the Net Worth Chart
+1. **Net Worth Chart** (top-left) — your wealth over time as a bar chart
+2. **Account Breakdown** (top-right) — wealth split by account type
+3. **Ledger** (bottom) — year-by-year transaction detail
+4. **Status Bar** (bottom edge) — key metrics at a glance
 
-### Typical Chart Display
+### Net Worth Chart
 
-Here's what you'll see in the Results tab when viewing a Monte Carlo simulation:
+Each bar represents one year. Bar height = total net worth. Bars are stacked by account type:
 
+| Color | Account Types |
+|-------|--------------|
+| Green | Investment accounts (Brokerage, 401k, all IRAs) |
+| Cyan | Cash (Checking, Savings, HSA) |
+| Yellow | Property and collectibles |
+| Red | Debt (negative, reduces total height) |
+
+**Percentile views (Monte Carlo only):** Press `v` to cycle through P5, P50, P95, and Mean. Only one percentile is shown at a time — the chart title shows which one (e.g., `P50 Nominal`).
+
+**Nominal vs Real dollars:** Press `$` to toggle. Nominal shows raw numbers; Real adjusts for inflation so all years are in today's dollars. A $1M bar in 2045 Real dollars is worth more than a $1M bar in 2045 Nominal.
+
+#### Chart Shape Patterns
+
+**Steady Decline — expected and healthy:**
 ```
-NET WORTH PROJECTION (2045) (P50 Nominal)
+$2.0M ┤╲
+$1.5M ┤ ╲
+$1.0M ┤  ╲
+$500K ┤   ╲
+   $0 └────╲──────────────
+      60   70   80   90  100
 
-        Net Worth ($)
-    $2.0M │
-    $1.8M │                                    P5 scenario
-          │                                   (worst 5%)
-    $1.6M │    ████                          P50 scenario
-          │    ████ ████                     (median)
-    $1.4M │    ████ ████ ████               P95 scenario
-          │    ████ ████ ████ ████          (best 5%)
-    $1.2M │    ████ ████ ████ ████ ████
-          │    ████ ████ ████ ████ ████ ████
-    $1.0M │    ████ ████ ████ ████ ████ ████ ████
-          │    ████ ████ ████ ████ ████ ████ ████ ████
-    $800K │    ████ ████ ████ ████ ████ ████ ████ ████
-          │    ████ ████ ████ ████ ████ ████ ████ ████ ████
-    $600K │    ████ ████ ████ ████ ████ ████ ████ ████ ████ ████
-          │    ████ ████ ████ ████ ████ ████ ████ ████ ████ ████
-    $400K │    ████ ████ ████ ████ ████ ████ ████ ████ ████ ████
-          │    ████ ████ ████ ████ ████ ████ ████ ████ ████ ████
-    $200K │    ████ ████ ████ ████ ████ ████ ████ ████ ████ ████
-          │
-        $0 └─────────────────────────────────────────────────
-             2025  2030  2035  2040  2045  2050  2055
-
-Colors represent account types:
-  Green  = Investment accounts (Brokerage, 401k, all IRAs)
-  Cyan   = Cash (Checking, Savings, HSA)
-  Yellow = Property and collectibles
-  Red    = Debt (negative)
+You're spending down savings at a planned rate.
 ```
 
-### Chart Layout
-
+**Cliff — plan fails:**
 ```
-┌─────────────────────────────────────┐
-│  NET WORTH PROJECTION (2025) (Nominal)│
-├─────────────────────────────────────┤
-│     ███                             │
-│     ███ ███                         │
-│ ███ ███ ███ ███                     │
-│ ███ ███ ███ ███ ███                 │
-│ ███ ███ ███ ███ ███ ███             │
-├─────────────────────────────────────┤
-│ 2025  2027  2029  2031  2033  2035  │
-└─────────────────────────────────────┘
+$2.0M ┤────────────────┐
+$1.5M ┤                │
+$1.0M ┤                │
+$500K ┤                │
+   $0 └────────────────┴──
+      60               95
 
-Legend:
-▓▓▓ Green   = Investment accounts (Brokerage, 401k, all IRAs)
-▓▓▓ Cyan    = Cash (Checking, Savings, HSA)
-▓▓▓ Yellow  = Property and collectibles
-▓▓▓ Red     = Debt (Negative)
+Money runs out suddenly. Success rate will be low.
 ```
 
-### Interpreting Heights
-
-- **Tall bar** = High net worth that year
-- **Short bar** = Lower net worth
-- **Declining bars** = Spending down your wealth (expected in retirement)
-- **Flat bars** = Stable wealth (income covering expenses)
-
-### Color Composition
-
-Each bar is stacked in segments:
-
+**Plateau — excellent:**
 ```
-$2.0M ┌─────┐      Total: $2M
-      │ Cyan│ $100K (Checking)
-$1.5M ├─────┤
-      │Green│ $700K (401k)
-$1.0M ├─────┤
-      │Green│ $600K (Roth IRA)
-$0.5M ├─────┤
-      │Green│ $600K (Brokerage)
-    0 └─────┘
+$2.0M ┤     ╱───────────────
+$1.5M ┤    ╱
+$1.0M ┤   ╱
+$500K ┤  ╱
+   $0 └─────────────────────
+      60   70   80   90  100
+
+Income covers expenses. Wealth is self-sustaining.
 ```
 
-The proportion of colors shows how much money is in each account type.
-
-**What's Good:**
-- Investment accounts (green) growing in early years
-- A mix of account types providing tax flexibility
-- Cash (cyan) maintained as a spending buffer
-
-**What's Concerning:**
-- All wealth in one account type (lack of diversification)
-- Red sections (debt) growing
-- Rapid bar decline (spending too much)
-
-## Reading Single Run Results
-
-### Example: Single Deterministic Run
-
+**Growth — over-saved or unexpected windfall:**
 ```
-Year  Age  Net Worth   Income   Expenses  Taxes   Returns
-2025   60  $800,000   $120K    $75K      $15K    +$50K
-2026   61  $805,000   $120K    $75K      $14K    +$45K
-2027   62  $810,000    $75K    $75K      $12K    +$45K   ← Transition year
-2028   63  $820,000     $0K    $75K       $8K    +$48K   ← Drawing down accounts
-2029   64  $835,000     $0K    $75K       $6K    +$50K
-...continues for 40 years...
-2065   100 $150,000     $0K    $75K       $0K    -$10K
-2066   101 -$50,000 ← PLAN FAILS (money runs out in year 41)
+$4.0M ┤                  ╱
+$3.0M ┤              ╱╱╱
+$2.0M ┤          ╱╱╱
+$1.0M ┤      ╱╱╱
+   $0 └─────────────────────
+      60   70   80   90  100
+
+Wealth grows in retirement — may mean you can spend more
+or retire earlier.
 ```
 
-### What to Look For
+### Account Breakdown Panel
 
-**Success Indicators:**
-- ✓ Net worth stays positive entire period
-- ✓ Decreases predictably as you spend down
-- ✓ Taxes decline as income ends
-- ✓ Still have money at 100+ years old
+Shows the current selected year's wealth split by category. What to look for at each life stage:
 
-**Warning Signs:**
-- ✗ Net worth hits zero or negative (plan fails)
-- ✗ Wild year-to-year swings (indicates problem)
-- ✗ Rapid decline in early years (spending too much)
-- ✗ Account type runs dry before others (liquidation issue)
+**Early Retirement (Age 60–65):**
+- 2–3 years of expenses in cash (cyan) as a spending buffer
+- Mix of tax-deferred (401k/IRA) and tax-free (Roth) for flexibility
+- Some taxable brokerage for flexible withdrawals
 
-### Single Run Limitations
-
-A single run shows **only one path**. Reality is random:
-- Markets might crash early (bad scenario)
-- Markets might soar (good scenario)
-- You might live longer than expected
-- Major health costs might appear
-
-**Always follow up with Monte Carlo** for real retirement decisions.
-
-## Reading Monte Carlo Results
-
-### Success Rate
-
-The most important metric from Monte Carlo.
-
-```
-1000 simulations run with different market returns:
-
-Succeeded: 920 simulations (92% success rate)
-Failed:     80 simulations (8% failure rate)
-```
-
-**Interpretation:**
-- **92% success** = In 92 out of 100 alternate universes, your plan works
-- **8% failure** = In 8 out of 100, you run out of money
-
-### Success Rate Benchmarks
-
-| Range | Interpretation | Recommendation |
-|-------|-----------------|-----------------|
-| 95%+ | Excellent. Very safe. | Retire comfortably |
-| 90-95% | Good. High confidence. | Safe choice |
-| 80-90% | Moderate. Acceptable risk. | OK for most |
-| 70-80% | High risk. Significant chance of failure. | Consider adjusting |
-| <70% | Very risky. Plan likely to fail. | Modify plan |
-
-**Financial Rules of Thumb:**
-- **Traditional**: Aim for 95%+ for 30-year retirement
-- **Modern**: 90% is acceptable for most people
-- **Aggressive**: 80% if you have flexibility (can reduce spending)
-
-### Percentile Outcomes
-
-When viewing Monte Carlo results, you see different percentiles:
-
-**P5 (5th Percentile - Worst Case):**
-```
-Final Net Worth: $50,000
-
-Worst 5% of scenarios end here. Even in very bad luck with markets,
-you have a cushion. This is your downside protection.
-```
-
-**P50 (50th Percentile - Median):**
-```
-Final Net Worth: $800,000
-
-Middle outcome. Half the runs do better, half do worse.
-This is the most likely scenario. Plan for this.
-```
-
-**P95 (95th Percentile - Best Case):**
-```
-Final Net Worth: $2,000,000
-
-Best 5% of scenarios end here. With lucky market timing,
-you're very wealthy. Don't plan for this.
-```
-
-**Mean (Average):**
-```
-Final Net Worth: $750,000
-
-Mathematical average across all 1000 runs.
-Often not realistic for individual scenarios.
-```
-
-### Example Monte Carlo Output
-
-```
-Monte Carlo Analysis (1000 simulations)
-
-Success Rate: 88%
-
-Final Net Worth (at age 100):
-  P5 (worst 5%):  $100,000
-  P50 (median):   $600,000
-  P95 (best 5%):  $1,800,000
-  Mean (avg):     $700,000
-
-Max Drawdown (worst year-to-year decline):
-  P5:   -45% (stocks crash, bad year)
-  P50:  -25% (normal market correction)
-  P95:  -10% (minor market decline)
-
-Lifetime Taxes Paid:
-  P5:   $400,000 (lower income years = fewer taxes)
-  P50:  $600,000 (steady taxes throughout)
-  P95:  $750,000 (higher income, more taxes)
-```
-
-### Interpreting Percentiles
-
-**Safe Plan Indicators:**
-- P5 outcome is still positive (cushion against bad luck)
-- P50 outcome is comfortable for your lifestyle
-- P95 outcome shows potential upside
-
-**Example Good Plan:**
-```
-Success: 92%
-P5: $200,000
-P50: $800,000
-P95: $2,200,000
-
-Analysis: Even worst-case has cushion. Median is strong.
-Confidence: High
-```
-
-**Example Concerning Plan:**
-```
-Success: 72%
-P5: -$50,000 (runs out of money!)
-P50: $300,000
-P95: $1,500,000
-
-Analysis: 28% chance of failure. Worst case is bad.
-Confidence: Low - need to adjust
-```
-
-## Account Breakdown Panel
-
-Shows how your wealth is distributed by account type:
-
-```
-Investment  $1900K  ████████████████  (95%)  [green]
-Cash          $100K  ██░░░░░░░░░░░░░░  (5%)   [cyan]
-Property        $0   ░░░░░░░░░░░░░░░░  (0%)   [yellow]
-Debt            $0   ░░░░░░░░░░░░░░░░  (0%)   [red]
-────────────────────────────────────────────
-Total       $2.0M
-```
-
-### Analyzing the Breakdown
-
-**Good distributions at different life stages:**
-
-**Early Retirement (Age 60-65):**
-- Keep 2-3 years expenses in cash
-- 30-40% in tax-deferred (401k phase)
-- 20-30% in tax-free (Roth)
-- 30-40% in taxable (flexibility)
-
-**Mid-Retirement (Age 75-85):**
-- Keep 1-2 years expenses in cash
-- Less in tax-deferred (drawing it down)
-- More in tax-free (preserve assets)
-- Adjust taxable as needed
+**Mid-Retirement (Age 75–85):**
+- 1–2 years of expenses in cash
+- Tax-deferred declining (drawing it down via RMDs)
+- Tax-free (Roth) preserved as long as possible
 
 **Late Retirement (Age 90+):**
-- Mostly spent down
-- Some tax-free remaining (Roth)
+- Portfolio mostly spent down — this is normal
+- Some Roth may remain (it never has RMDs)
 - Debt should be zero
-- Declining but positive
 
-### Red Flags
+**Red flags:**
+- All cash — no growth, inflation erodes purchasing power
+- Single account type — no tax flexibility for withdrawals
+- Red (debt) growing over time — liabilities increasing
+- Bars reaching zero — plan has failed in this scenario
 
-- **All cash**: No growth potential (inflation problem)
-- **All in one account**: Inflexible (can't optimize taxes)
-- **Growing debt**: Mortgages should decrease
-- **Negative total**: Plan failed (money ran out)
+### Ledger Panel
 
-## Ledger Panel
-
-Detailed year-by-year breakdown:
+Year-by-year breakdown. Navigate with `j/k` or arrow keys.
 
 ```
-Year Age Start    Income  Expenses Taxes Investment End
-      Balance                             Returns    Balance
-2025 60  $800K   $120K   $75K     $15K  +$50K      $880K
-2026 61  $880K   $120K   $75K     $14K  +$45K      $956K
-2027 62  $956K    $75K   $75K     $12K  +$48K      $997K
-2028 63  $997K     $0K   $75K      $8K  +$50K      $964K (declining)
-2029 64  $964K     $0K   $75K      $6K  +$48K      $931K
+Year  Age  Start Bal   Income  Expenses  Taxes   Returns   End Bal
+────────────────────────────────────────────────────────────────────
+2025   60   $800,000  $120,000  $75,000  $15,000  +$50,000  $880,000
+2026   61   $880,000  $120,000  $75,000  $14,000  +$45,000  $956,000
+2027   62   $956,000   $75,000  $75,000  $12,000  +$48,000  $992,000  ← transition
+2028   63   $992,000        $0  $75,000   $8,000  +$50,000  $959,000  ← drawing down
+2029   64   $959,000        $0  $75,000   $6,000  +$48,000  $926,000
 ```
 
-### Key Columns
+**Ending Balance formula:** `Start + Income − Expenses − Taxes + Returns`
 
-**Starting Balance:**
-- Net worth at start of year
-- Should match previous year's ending balance
+**Column meanings:**
 
-**Income:**
-- All money coming in (salary, Social Security, gifts, transfers)
-- Usually drops at retirement
+| Column | What it shows |
+|--------|--------------|
+| Income | All money in — salary, Social Security, transfers received |
+| Expenses | Living costs and planned purchases |
+| Taxes | Federal and state income taxes paid that year |
+| Returns | Market gains/losses. In a single run, always the median return. In Monte Carlo, varies by run and is shown for the selected percentile. |
+| End Bal | Net worth at end of year |
 
-**Expenses:**
-- Living costs, planned purchases
-- Should be relatively stable (unless you modeled change)
+**What to look for:**
+- **Money hitting zero or going negative** — plan fails that year
+- **Large tax years** — often Roth conversion years or high-income years; flag for tax planning
+- **Sudden income drop** — should match your retirement event date
+- **Returns going negative** — market crash years in that percentile's scenario
 
-**Taxes:**
-- Federal and state income taxes paid that year
-- Depends on income level and account type
+### Status Bar
 
-**Investment Returns:**
-- Gains/losses from market for that year
-- Positive in good years, negative in down markets
-- Only for Monte Carlo (single run always uses median)
+The status bar at the bottom of the Results tab shows:
 
-**Ending Balance:**
-- Net worth at end of year
-- Formula: Start + Income - Expenses - Taxes + Returns
+- **Success Rate** — percentage of Monte Carlo runs where money lasted the full simulation period. Only shown after a Monte Carlo run.
+- **P5 / P50 / P95** — final net worth at the 5th, 50th, and 95th percentile across all runs
+- **Max Drawdown** — the worst single-year percentage decline in net worth across the simulation. A drawdown of −35% means net worth fell 35% from one year to the next in the worst year.
+- **Display Mode** — which percentile is currently shown in the chart (P5, P50, P95, or Mean) and whether dollars are Nominal or Real
 
-### Using the Ledger
+### Interpreting Monte Carlo Results
 
-**Find the year money runs out:**
-- Scroll through ledger
-- Look for negative net worth
-- See what caused it (too much spending, bad market, etc.)
+#### Success Rate
 
-**Identify high-tax years:**
-- Look for large "Taxes" column values
-- These might be conversion years or high-income years
-- Could optimize with tax strategies
+The most important single number. It answers: "In what fraction of simulated futures does my plan work?"
 
-**See portfolio growth:**
-- Compare starting to ending balances
-- Investment returns should compound
-- Declining balance is normal in retirement
-
-**Verify events fire correctly:**
-- Look for expected income/expense jumps
-- Social Security should appear at expected age
-- Major expenses should align with planned events
-
-## Charts and Visualization
-
-### What Different Chart Shapes Mean
-
-**Steady Decline (Expected):**
 ```
-$2.0M ┐
-      │
-$1.5M │
-      │
-$1.0M │
-      │
-$500K │
-      │
-    0 └─ ─── ─── ─── ─── ─── ─── ───
-      Age 60  70  80  90 100
+1000 simulations run with different random market returns:
 
-✓ Healthy: Spending down savings at expected rate
-  You're living off savings as planned
+Succeeded: 920 (92% success rate)
+Failed:      80 (8% failure rate)
 ```
 
-**Cliff (Danger):**
-```
-$2.0M ┐  ███ ███ ███ ███ ███
-      │
-$1.5M │
-      │
-$1.0M │
-      │
-$500K │
-      │
-    0 └─ ─── ─── ─── ─── ─── ─── ─── ─── ───   ╲╲ RUNS OUT!
-      Age 60  70  80  90 100  110
+| Range | Meaning | Guidance |
+|-------|---------|---------|
+| 95%+ | Very safe | Retire confidently |
+| 90–95% | Good | Safe for most plans |
+| 80–90% | Moderate risk | Acceptable if you have spending flexibility |
+| 70–80% | High risk | Plan likely needs adjustment |
+| <70% | Very risky | Modify before relying on this plan |
 
-✗ Bad: Sudden drop to zero (money runs out)
-  Plan fails in this scenario
-```
+**Rules of thumb:**
+- 30-year retirement: aim for 90%+
+- 40+ year retirement: aim for 95%+
+- If you can cut spending or work part-time in a downturn: 80%+ may be acceptable
 
-**Plateau (Good):**
-```
-$2.0M ┐
-      │
-$1.5M ││
-      │   ╱╱│
-$1.0M │  ╱╱│
-      │ ╱╱│
-$500K │╱╱│
-      ││
-    0 └──────┴──────────────────
-      Age 60  80               120
+#### Percentile Outcomes
 
-✓ Excellent: Levels off and stays stable
-  Income covers expenses, wealth is sustainable
-  Plan works indefinitely
-```
+Four views of final net worth across all runs:
 
-**Growth (Unexpected):**
-```
-$4.0M ┐                      ┌──────
-      │                   ╱╱│
-$3.0M │               ╱╱╱│
-      │
-$2.0M │
-      │
-$1.0M │
-      │
-    0 └──────────────────────────
-      Age 60  70  80  90 100 110
+**P5 — worst 5%:**
+The bottom 5% of outcomes. Think of this as "bad luck scenario." If this is positive, your plan has a cushion even in bad markets.
 
-✓ Great: Growing wealth over time
-  Usually from inheritance, high investment returns,
-  or significantly lower expenses than expected
+**P50 — median:**
+Half of runs end above this, half below. This is your most likely outcome. Plan your lifestyle around this.
+
+**P95 — best 5%:**
+The top 5% of outcomes — excellent market timing. Don't plan around this; it's the upside.
+
+**Mean — average:**
+Mathematically averages all 1000 runs. Often pulled above P50 by a few very good outcomes. Less useful for planning than P50.
+
+#### Example: Good Plan vs Concerning Plan
+
+```
+Good Plan:
+  Success: 92%    P5: $200K    P50: $800K    P95: $2.2M
+  → Even worst-case has cushion. Median is strong.
+
+Concerning Plan:
+  Success: 72%    P5: −$50K    P50: $300K    P95: $1.5M
+  → 28% chance of failure. Worst case runs out of money.
 ```
 
-## Analysis Tab: Sensitivity Analysis
+---
 
-The **Analysis** tab lets you test how changes affect your plan.
+## Tab 5: Analysis
 
-### Parameter Sweeps
+The Analysis tab runs a **parameter sweep** — it tests your scenario across a range of values for one or two parameters and shows how outcomes change. This answers questions like "how does retiring at 60 vs 70 change my success rate?"
 
-Test multiple values of a parameter and see the impact:
+For how to configure and run sweeps, see [Tab Reference](02-tabs-guide.md#tab-5-analysis). This section covers how to read the results.
 
-**Example: Retirement Age**
-```
-Test ages 60-70 to find optimal retirement year
+### Reading a 1D Scatter Plot
 
-60  → 75% success rate (risky)
-62  → 88% success rate (good)
-64  → 95% success rate (very safe)
-66  → 98% success rate (overly safe)
+Used when sweeping one parameter. The X-axis is the parameter value; the Y-axis is your chosen metric (usually success rate).
 
-Answer: Retire at 64 for 95% confidence
-```
-
-### Chart Types
-
-**1D Scatter Plot (One Parameter):**
 ```
 Success Rate (%)
-100% |     ╱╱╱
- 90% |   ╱╱
- 80% | ╱╱
- 70%|╱
-    └─────────────────
-      60  62  64  66  68  70
-         Retirement Age
-```
 
-How a single parameter affects outcome.
-
-**2D Heatmap (Two Parameters):**
-```
-Annual    $100k  🟩🟩🟩  (80% success)
-Spending  $80k   🟨🟨🟩  (60% success)
-          $60k   🟥🟨🟩  (40% success)
-               └────────────────
-                 60  65  70
+100% │               ╱╱╱
+ 95% │           ╱╱╱
+ 90% │        ◯ ╱          ← current scenario (age 62, 88%)
+ 85% │      ╱╱
+ 80% │   ╱╱
+ 75% │ ╱
+     └──────────────────────
+       60   62   64   66   68   70
               Retirement Age
 ```
 
-Color intensity shows outcome quality. Bright = good, dark = bad.
+**How to use it:** Find the point where success rate crosses your target (e.g., 90%) and read down to the X-axis. That's your answer. In this example: retire at 64 for 90% confidence.
 
-### Metrics You Can Analyze
+### Reading a 2D Heatmap
 
-| Metric | What It Shows |
+Used when sweeping two parameters simultaneously. Color shows the outcome — green is good, red is risky.
+
+```
+Annual Spending
+
+ $100K │ 🟥  🟥  🟨  🟨  🟩  🟩
+  $80K │ 🟥  🟨  🟨  🟩  🟩  🟩
+  $60K │ 🟨  🟩  🟩  🟩  🟩  🟩
+  $40K │ 🟩  🟩  🟩  🟩  🟩  🟩
+       └────────────────────────────
+         60   62   64   66   68   70
+                Retirement Age
+
+Legend:
+  🟩 85%+  (safe)
+  🟨 70–85% (moderate)
+  🟥 <70%  (risky)
+```
+
+The top-left corner (early retirement + high spending) is always the riskiest. The bottom-right (late retirement + low spending) is always the safest. You're looking for the boundary where color shifts from green to yellow — that's the edge of your comfort zone.
+
+**Example reading:** "I want to retire at 62. How much can I spend?" — scan the column at age 62 and find the spending level where the cell turns green. In the example above: $60K/year is safe at 62; $80K is moderate risk.
+
+### Available Metrics
+
+You can change what the chart measures with `t` (toggle metric):
+
+| Metric | Use it to answer |
+|--------|-----------------|
+| **Success Rate** | Will my plan work? |
+| **P50 Final Net Worth** | What's my most likely ending wealth? |
+| **P5 Final Net Worth** | What does my worst-case look like? |
+| **P95 Final Net Worth** | What's my upside? |
+| **Lifetime Taxes** | Which strategy costs least in taxes? |
+| **Max Drawdown** | How bad could a single down year get? |
+
+### Common Decision Questions
+
+**"When can I retire?"**
+1. Add your retirement event's trigger age as a sweep parameter (e.g., 60–70)
+2. Run with `r`
+3. In the 1D chart, find where success rate crosses 90%
+4. That age is your safe retirement target
+
+**"How much can I spend?"**
+1. Add annual spending as a sweep parameter (e.g., $40K–$120K)
+2. Run with `r`
+3. Find the maximum spending that keeps success rate above your threshold
+4. That's your safe spending ceiling
+
+**"Should I delay Social Security?"**
+1. Create two scenarios: one claiming at 62, one at 70
+2. Run Monte Carlo on each in the Scenario tab
+3. Compare their success rates in Results
+4. Waiting typically wins, but the margin depends on your longevity assumptions
+
+**"What's my safe withdrawal rate?"**
+1. Add your withdrawal amount (or percentage) as a sweep parameter
+2. Test 2%–6%
+3. Find the highest rate that keeps success rate above 90%
+4. That's your personal safe withdrawal rate — it will differ from the generic "4% rule" based on your specific account mix and timeline
+
+---
+
+## Quick Reference: What Good Looks Like
+
+| Indicator | Healthy | Concerning |
+|-----------|---------|-----------|
+| Success rate | 90%+ | Below 80% |
+| P5 final net worth | Positive | Zero or negative |
+| P50 final net worth | Supports your lifestyle | Uncomfortably low |
+| Chart shape | Gradual decline or plateau | Cliff or sudden drop |
+| Account mix | Mix of tax types | All in one account |
+| Ledger taxes | Declining in retirement | Unusually high or spiking |
+
+## When to Adjust Your Plan
+
+- **Success rate < 85%**: Plan is risky — consider changes
+- **P5 outcome is negative**: Even moderate bad luck could fail your plan
+- **Chart shows a cliff**: Money runs out at a specific year — check the ledger for that year
+
+**Levers to pull:**
+
+| Change | Typical effect |
 |--------|---------------|
-| **Success Rate** | % of scenarios where plan doesn't run out of money |
-| **P50 Final Net Worth** | Median ending wealth |
-| **P5 Final Net Worth** | Conservative ending wealth |
-| **P95 Final Net Worth** | Optimistic ending wealth |
-| **Lifetime Taxes** | Total taxes paid over lifetime |
-| **Max Drawdown** | Worst year-to-year decline |
-
-### Analysis Workflow
-
-```
-1. Decide what you want to optimize
-   → "I want to retire as early as possible"
-
-2. Add that parameter to analysis
-   → Retirement age (60-70)
-
-3. Run analysis (press 'r')
-   → Tests all ages from 60 to 70
-
-4. Look at the chart
-   → Find the age where success rate reaches 90%
-
-5. Answer: "I can safely retire at age 62"
-```
-
-### Finding Optimal Values
-
-**Example 1: Spending Level**
-```
-Find maximum safe spending
-
-Test: $50K to $100K annually
-
-Results:
-  $50K  → 99% success (can spend more)
-  $70K  → 92% success (good)
-  $80K  → 85% success (acceptable)
-  $100K → 70% success (too much)
-
-Recommendation: $80K spending for 85% confidence
-```
-
-**Example 2: Early vs Deferred Social Security**
-```
-Test: Claim at 62 vs 70
-
-Claim at 62:
-  Small amount per year, collected 8 years early
-  Success rate: 85%
-
-Wait until 70:
-  Larger amount per year, delayed 8 years
-  Success rate: 92%
-
-Recommendation: Wait until 70 (higher success rate)
-```
-
-**Example 3: Work Longer vs Higher Spending**
-```
-Two parameters: Retirement Age, Annual Spending
-
-Retire at 60, Spend $100K → 70% success
-Retire at 62, Spend $90K  → 85% success
-Retire at 64, Spend $80K  → 95% success
-Retire at 60, Spend $70K  → 88% success (same as retire at 62 with $90K)
-
-Options:
-1. Work 2 more years (62 vs 60), reduce spending $10K → +15% success
-2. Work 4 more years (64 vs 60), reduce spending $20K → +25% success
-3. Keep 60 age, reduce spending $30K → +18% success
-
-Choose based on preferences (work-life balance vs spending desires)
-```
-
-## Common Analysis Questions
-
-### "When can I retire?"
-
-1. Go to **Analysis** tab
-2. Add your retirement age event as parameter
-3. Test ages 60-70
-4. Find where success rate reaches 90%
-
-### "How much can I spend?"
-
-1. Add annual spending as parameter
-2. Test $40K to $120K
-3. Find maximum spending at 90% success rate
-
-### "Should I delay Social Security?"
-
-1. Create two scenarios: Claim at 62 vs 70
-2. Run Monte Carlo on each
-3. Compare success rates
-4. (Usually waiting wins, but depends on longevity)
-
-### "What's my safe withdrawal rate?"
-
-1. Add spending or withdrawal percentage as parameter
-2. Test 2%, 3%, 4%, 5%
-3. Find the rate at 90% success
-4. This is your personal safe withdrawal rate
-
-## Tips for Interpretation
-
-### What's a Good Outcome?
-
-- **Success rate**: 90%+ is strong
-- **P5 net worth**: Should be positive (safety margin)
-- **P50 net worth**: Should support your lifestyle
-- **No cliff**: Chart shouldn't suddenly drop
-
-### When to Adjust Your Plan
-
-- **Success rate < 85%**: Plan is risky, consider changes
-- **P5 outcome negative**: Plan might fail in bad luck scenario
-- **Rapid decline**: Spending might be too high
-- **All wealth in one account**: Lacks tax flexibility
-
-### Changes to Consider
-
-- **Reduce spending**: 10% cut often adds 5-10% success rate
-- **Work longer**: Each extra year adds 3-5% success rate
-- **Optimize withdrawal strategy**: Can save 1-2% in lifetime taxes
-- **Adjust asset allocation**: More conservative = lower risk but also lower growth
+| Reduce annual spending 10% | +5–10% success rate |
+| Work one additional year | +3–5% success rate |
+| Delay Social Security to 70 | +3–7% success rate |
+| Add Roth conversions in early retirement | −1–2% success rate near-term, +2–4% long-term |
+| More conservative asset allocation | Lower returns AND lower volatility — mixed effect |
 
 ---
 
