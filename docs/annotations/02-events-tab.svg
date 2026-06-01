@@ -1,0 +1,31 @@
+<svg width="1600" height="900" xmlns="http://www.w3.org/2000/svg">
+  <!-- annotation overlay only — composited onto raw PNG via magick composite -->
+
+  <!-- 1: Events list panel -->
+  <rect x="13" y="37" width="545" height="800" fill="rgba(80,250,123,0.10)" stroke="#50fa7b" stroke-width="2" rx="2"/>
+  <circle cx="26" cy="65" r="11" fill="#50fa7b"/>
+  <text x="26" y="69" text-anchor="middle" fill="#282a36" font-family="monospace" font-size="12" font-weight="bold">1</text>
+  <rect x="38" y="57" width="168" height="18" fill="#50fa7b" rx="3"/>
+  <text x="122" y="70" text-anchor="middle" fill="#282a36" font-family="monospace" font-size="11">Event list (a=add, d=del)</text>
+
+  <!-- 2: Event Details panel -->
+  <rect x="560" y="37" width="544" height="800" fill="rgba(139,233,253,0.10)" stroke="#8be9fd" stroke-width="2" rx="2"/>
+  <circle cx="573" cy="65" r="11" fill="#8be9fd"/>
+  <text x="573" y="69" text-anchor="middle" fill="#282a36" font-family="monospace" font-size="12" font-weight="bold">2</text>
+  <rect x="585" y="57" width="182" height="18" fill="#8be9fd" rx="3"/>
+  <text x="676" y="70" text-anchor="middle" fill="#282a36" font-family="monospace" font-size="11">Trigger &amp; effect details</text>
+
+  <!-- 3: Timeline panel -->
+  <rect x="1106" y="37" width="481" height="800" fill="rgba(255,184,108,0.10)" stroke="#ffb86c" stroke-width="2" rx="2"/>
+  <circle cx="1119" cy="65" r="11" fill="#ffb86c"/>
+  <text x="1119" y="69" text-anchor="middle" fill="#282a36" font-family="monospace" font-size="12" font-weight="bold">3</text>
+  <rect x="1131" y="57" width="200" height="18" fill="#ffb86c" rx="3"/>
+  <text x="1231" y="70" text-anchor="middle" fill="#282a36" font-family="monospace" font-size="11">Event timeline by year</text>
+
+  <!-- 4: Status bar keybindings hint -->
+  <rect x="13" y="855" width="780" height="22" fill="rgba(255,107,107,0.20)" stroke="#ff6b6b" stroke-width="1.5" rx="2"/>
+  <circle cx="26" cy="840" r="11" fill="#ff6b6b"/>
+  <text x="26" y="844" text-anchor="middle" fill="white" font-family="monospace" font-size="12" font-weight="bold">4</text>
+  <rect x="38" y="832" width="182" height="18" fill="#ff6b6b" rx="3"/>
+  <text x="129" y="845" text-anchor="middle" fill="white" font-family="monospace" font-size="11">Context keybindings hint</text>
+</svg>

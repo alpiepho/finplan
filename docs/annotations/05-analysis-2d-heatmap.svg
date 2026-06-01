@@ -1,0 +1,38 @@
+<svg width="1600" height="900" xmlns="http://www.w3.org/2000/svg">
+  <!-- annotation overlay only — composited onto raw PNG via magick composite -->
+
+  <!-- 1: Sweep Parameters panel -->
+  <rect x="55" y="77" width="320" height="133" fill="rgba(80,250,123,0.12)" stroke="#50fa7b" stroke-width="2" rx="2"/>
+  <circle cx="68" cy="104" r="11" fill="#50fa7b"/>
+  <text x="68" y="108" text-anchor="middle" fill="#282a36" font-family="monospace" font-size="12" font-weight="bold">1</text>
+  <rect x="80" y="96" width="194" height="18" fill="#50fa7b" rx="3"/>
+  <text x="177" y="109" text-anchor="middle" fill="#282a36" font-family="monospace" font-size="11">Sweep parameters (a=add)</text>
+
+  <!-- 2: Sensitivity panel -->
+  <rect x="378" y="77" width="770" height="198" fill="rgba(139,233,253,0.10)" stroke="#8be9fd" stroke-width="2" rx="2"/>
+  <circle cx="391" cy="104" r="11" fill="#8be9fd"/>
+  <text x="391" y="108" text-anchor="middle" fill="#282a36" font-family="monospace" font-size="12" font-weight="bold">2</text>
+  <rect x="403" y="96" width="236" height="18" fill="#8be9fd" rx="3"/>
+  <text x="521" y="109" text-anchor="middle" fill="#282a36" font-family="monospace" font-size="11">Sensitivity: impact per parameter</text>
+
+  <!-- 3: Configuration panel -->
+  <rect x="55" y="213" width="320" height="64" fill="rgba(255,184,108,0.12)" stroke="#ffb86c" stroke-width="2" rx="2"/>
+  <circle cx="68" cy="232" r="11" fill="#ffb86c"/>
+  <text x="68" y="236" text-anchor="middle" fill="#282a36" font-family="monospace" font-size="12" font-weight="bold">3</text>
+  <rect x="80" y="224" width="216" height="18" fill="#ffb86c" rx="3"/>
+  <text x="188" y="237" text-anchor="middle" fill="#282a36" font-family="monospace" font-size="11">MC iterations &amp; step count</text>
+
+  <!-- 4: Left heatmap (success rate) -->
+  <rect x="63" y="298" width="470" height="288" fill="rgba(189,147,249,0.10)" stroke="#bd93f9" stroke-width="2" rx="2"/>
+  <circle cx="76" cy="325" r="11" fill="#bd93f9"/>
+  <text x="76" y="329" text-anchor="middle" fill="white" font-family="monospace" font-size="12" font-weight="bold">4</text>
+  <rect x="88" y="317" width="220" height="18" fill="#bd93f9" rx="3"/>
+  <text x="198" y="330" text-anchor="middle" fill="white" font-family="monospace" font-size="11">Heatmap: success rate %</text>
+
+  <!-- 5: Right heatmap (P50 net worth) -->
+  <rect x="547" y="298" width="490" height="288" fill="rgba(255,184,108,0.10)" stroke="#ffb86c" stroke-width="2" rx="2"/>
+  <circle cx="560" cy="325" r="11" fill="#ffb86c"/>
+  <text x="560" y="329" text-anchor="middle" fill="#282a36" font-family="monospace" font-size="12" font-weight="bold">5</text>
+  <rect x="572" y="317" width="196" height="18" fill="#ffb86c" rx="3"/>
+  <text x="670" y="330" text-anchor="middle" fill="#282a36" font-family="monospace" font-size="11">Heatmap: P50 net worth</text>
+</svg>

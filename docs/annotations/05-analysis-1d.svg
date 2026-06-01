@@ -1,0 +1,38 @@
+<svg width="1600" height="900" xmlns="http://www.w3.org/2000/svg">
+  <!-- annotation overlay only — composited onto raw PNG via magick composite -->
+
+  <!-- 1: Single sweep parameter -->
+  <rect x="55" y="77" width="320" height="52" fill="rgba(80,250,123,0.15)" stroke="#50fa7b" stroke-width="2" rx="2"/>
+  <circle cx="68" cy="104" r="11" fill="#50fa7b"/>
+  <text x="68" y="108" text-anchor="middle" fill="#282a36" font-family="monospace" font-size="12" font-weight="bold">1</text>
+  <rect x="80" y="96" width="212" height="18" fill="#50fa7b" rx="3"/>
+  <text x="186" y="109" text-anchor="middle" fill="#282a36" font-family="monospace" font-size="11">1 sweep parameter (age)</text>
+
+  <!-- 2: Sensitivity bar chart -->
+  <rect x="378" y="77" width="770" height="255" fill="rgba(139,233,253,0.10)" stroke="#8be9fd" stroke-width="2" rx="2"/>
+  <circle cx="391" cy="104" r="11" fill="#8be9fd"/>
+  <text x="391" y="108" text-anchor="middle" fill="#282a36" font-family="monospace" font-size="12" font-weight="bold">2</text>
+  <rect x="403" y="96" width="248" height="18" fill="#8be9fd" rx="3"/>
+  <text x="527" y="109" text-anchor="middle" fill="#282a36" font-family="monospace" font-size="11">Sensitivity distribution chart</text>
+
+  <!-- 3: Left scatter chart (success rate) -->
+  <rect x="63" y="355" width="630" height="435" fill="rgba(189,147,249,0.10)" stroke="#bd93f9" stroke-width="2" rx="2"/>
+  <circle cx="76" cy="385" r="11" fill="#bd93f9"/>
+  <text x="76" y="389" text-anchor="middle" fill="white" font-family="monospace" font-size="12" font-weight="bold">3</text>
+  <rect x="88" y="377" width="232" height="18" fill="#bd93f9" rx="3"/>
+  <text x="204" y="390" text-anchor="middle" fill="white" font-family="monospace" font-size="11">Scatter: age → success rate</text>
+
+  <!-- 4: Right scatter chart (P50 net worth) -->
+  <rect x="700" y="355" width="450" height="435" fill="rgba(255,184,108,0.10)" stroke="#ffb86c" stroke-width="2" rx="2"/>
+  <circle cx="713" cy="385" r="11" fill="#ffb86c"/>
+  <text x="713" y="389" text-anchor="middle" fill="#282a36" font-family="monospace" font-size="12" font-weight="bold">4</text>
+  <rect x="725" y="377" width="208" height="18" fill="#ffb86c" rx="3"/>
+  <text x="829" y="390" text-anchor="middle" fill="#282a36" font-family="monospace" font-size="11">Scatter: age → P50 wealth</text>
+
+  <!-- 5: Configuration panel -->
+  <rect x="55" y="130" width="320" height="80" fill="rgba(255,107,107,0.12)" stroke="#ff6b6b" stroke-width="2" rx="2" stroke-dasharray="5,3"/>
+  <circle cx="68" cy="155" r="11" fill="#ff6b6b"/>
+  <text x="68" y="159" text-anchor="middle" fill="white" font-family="monospace" font-size="12" font-weight="bold">5</text>
+  <rect x="80" y="147" width="160" height="18" fill="#ff6b6b" rx="3"/>
+  <text x="160" y="160" text-anchor="middle" fill="white" font-family="monospace" font-size="11">Run config (r=run)</text>
+</svg>

@@ -1,0 +1,35 @@
+<svg width="1600" height="900" xmlns="http://www.w3.org/2000/svg">
+  <!-- annotation overlay only — composited onto raw PNG via magick composite -->
+
+  <!-- 1: Net Worth chart with percentile bands -->
+  <rect x="13" y="30" width="1127" height="380" fill="rgba(80,250,123,0.08)" stroke="#50fa7b" stroke-width="2" rx="2"/>
+  <circle cx="26" cy="58" r="11" fill="#50fa7b"/>
+  <text x="26" y="62" text-anchor="middle" fill="#282a36" font-family="monospace" font-size="12" font-weight="bold">1</text>
+  <rect x="38" y="50" width="230" height="18" fill="#50fa7b" rx="3"/>
+  <text x="153" y="63" text-anchor="middle" fill="#282a36" font-family="monospace" font-size="11">P5 / P50 / P95 percentile bands</text>
+
+  <!-- 2: Account Breakdown with success rate -->
+  <rect x="1142" y="30" width="445" height="380" fill="rgba(255,107,107,0.10)" stroke="#ff6b6b" stroke-width="2" rx="2"/>
+  <circle cx="1155" cy="58" r="11" fill="#ff6b6b"/>
+  <text x="1155" y="62" text-anchor="middle" fill="white" font-family="monospace" font-size="12" font-weight="bold">2</text>
+  <rect x="1167" y="50" width="210" height="18" fill="#ff6b6b" rx="3"/>
+  <text x="1272" y="63" text-anchor="middle" fill="white" font-family="monospace" font-size="11">Success rate + breakdowns</text>
+
+  <!-- 3: hint callout for v key / percentile toggle -->
+  <rect x="13" y="390" width="312" height="18" fill="#50fa7b" rx="3"/>
+  <text x="157" y="403" text-anchor="middle" fill="#282a36" font-family="monospace" font-size="11">v = cycle P5/P50/P95 view</text>
+
+  <!-- 4: Yearly breakdown -->
+  <rect x="13" y="415" width="712" height="445" fill="rgba(255,184,108,0.08)" stroke="#ffb86c" stroke-width="2" rx="2"/>
+  <circle cx="26" cy="450" r="11" fill="#ffb86c"/>
+  <text x="26" y="454" text-anchor="middle" fill="#282a36" font-family="monospace" font-size="12" font-weight="bold">3</text>
+  <rect x="38" y="442" width="198" height="18" fill="#ffb86c" rx="3"/>
+  <text x="137" y="455" text-anchor="middle" fill="#282a36" font-family="monospace" font-size="11">Yearly P50 breakdown</text>
+
+  <!-- 5: Ledger -->
+  <rect x="727" y="415" width="860" height="445" fill="rgba(189,147,249,0.08)" stroke="#bd93f9" stroke-width="2" rx="2"/>
+  <circle cx="740" cy="450" r="11" fill="#bd93f9"/>
+  <text x="740" y="454" text-anchor="middle" fill="white" font-family="monospace" font-size="12" font-weight="bold">4</text>
+  <rect x="752" y="442" width="156" height="18" fill="#bd93f9" rx="3"/>
+  <text x="830" y="455" text-anchor="middle" fill="white" font-family="monospace" font-size="11">Transaction ledger</text>
+</svg>
