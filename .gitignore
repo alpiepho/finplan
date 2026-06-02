@@ -39,6 +39,3 @@ planner*.csv
 
 tests_all.txt
 
-# Raw VHS screenshots (unprocessed — only annotated finals go in)
-#docs/screenshots/raw/
-
