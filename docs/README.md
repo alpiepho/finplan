@@ -20,6 +20,8 @@ Unlike simple retirement calculators, FinPlan models:
 
 ## Quick Start
 
+![FinPlan — Monte Carlo results (P50 real dollars)](screenshots/raw/example-04-results-mc-real-p50.png)
+
 ### Installation
 
 **Option 1: Docker (recommended, no Rust required)**

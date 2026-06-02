@@ -12,46 +12,7 @@ This tab is where you define your financial accounts and configure asset mapping
 
 ### Screen Layout
 
-```
-┌──────────────────────────────────────────────────────────────────────┐
-│ [1] Portfolio & Profiles  [2] Events  [3] Scenario  [4] Results ...  │
-├──────────────────────────────────────────────────────────────────────┤
-│                        PORTFOLIO OVERVIEW                            │
-│                                                                      │
-│ Net Worth: $2,034,500                                                │
-│ ├─ Checking       $50,000  ▓░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░      │
-│ ├─ Savings       $100,000  ▓▓░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░      │
-│ ├─ 401k          $700,000  ▓▓▓▓▓░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░     │
-│ ├─ Roth IRA      $600,000  ▓▓▓▓░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░     │
-│ ├─ Brokerage     $584,500  ▓▓▓░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░     │
-│ └─ Debt              $0    ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░     │
-│                                                                      │
-├──────────────────────────┬───────────────────────────────────────────┤
-│   ACCOUNTS               │  ASSET MAPPINGS                           │
-│                          │                                           │
-│ ▶ Checking         $50K  │  VFIAX -> S&P 500                         │
-│ ▶ Savings         $100K  │  VTSAX -> Total Market                    │
-│ ▶ 401k    (T)     $700K  │  BND   -> Bonds                           │
-│ ▶ Roth    (R)     $600K  │  VXUS  -> International                   │
-│ ▶ Brokerage (B)  $584K   │  [m]ap  [a]dd  [Shift+A]ll                │
-│                          │                                           │
-│ [a]dd [e]dit [d]elete    │  Unmapped: VGIT (?)                       │
-│                          │                                           │
-├──────────────────────────┴───────────────────────────────────────────┤
-│   TAX & INFLATION CONFIG       │   DETAILED MAPPINGS                 │
-│                                │                                     │
-│ Federal Bracket: 2024 Single   │ Asset Mappings Summary:             │
-│ State Tax: California (9.3%)   │  VFIAX → S&P 500                    │
-│ Capital Gains: 15%             │    (1000 shares @ $150 = $150K)     │
-│ Inflation Rate: 2.5%           │  VTSAX → Total Market               │
-│ [e]dit                         │    (500 shares @ $200 = $100K)      │
-│                                │  Account Mappings:                  │
-│                                │  401k → S&P 500 (100%)              │
-│                                │  Roth → 60/40 Stocks/Bonds          │
-│                                │                                     │
-│ Help: [a]dd account [e]dit [d]elete [m]ap profile [s]ave Ctrl+S      │
-└──────────────────────────────────────────────────────────────────────┘
-```
+![Tab 1: Portfolio & Profiles](screenshots/raw/example-01-portfolio-tab.png)
 
 ### Overview
 
@@ -206,43 +167,7 @@ Events are how you model life changes. They trigger income, expenses, asset purc
 
 ### Screen Layout
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│ [1] Portfolio  [2] Events  [3] Scenario  [4] Results  [5] Analysis  │
-├─────────────────────┬───────────────────────────────────────────────┤
-│   EVENT LIST        │  EVENT DETAILS                                │
-│                     │                                               │
-│ ▶ Annual Salary  ✓  │  Name: Annual Salary                          │
-│ ▶ Annual Expense ✓  │  Description: Base salary from employer       │
-│ ▶ Healthcare     ✓  │                                               │
-│ ▶ RSU Vesting    ✓  │  Enabled: Yes                                 │
-│ ▶ Roth Conv.     ✗  │  Once Only: No                                │
-│ ▶ Inheritance    ✓  │                                               │
-│                     │  TRIGGER                                      │
-│ [a]dd [e]dit [d]el  │    Type: Repeating (Yearly)                   │
-│ [c]opy [t]oggle     │    Start Age: 45                              │
-│ [f]ffects           │    Amount: $120,000                           │
-│                     │                                               │
-│                     │  EFFECTS                                      │
-│                     │    1. Income: $120,000 to Checking            │
-│                     │    2. Tax Withholding: $35,000 from Checking  │
-│                     │    3. Contribution: $85,000 to 401k           │
-│                     │                                               │
-├─────────────────────┴───────────────────────────────────────────────┤
-│ TIMELINE (Events sorted by age)                                     │
-│                                                                     │
-│ Age 45 ┌─ Annual Salary (Repeating)                                 │
-│        └─ Healthcare $3,000/yr (Repeating)                          │
-│ Age 55 ┌─ RSU Vesting $50k (Repeating)                              │
-│        └─ Roth Conversion $20k (One-time)                           │
-│ Age 62 ┌─ Retirement (trigger)                                      │
-│        ├─ Social Security starts $30k/yr                            │
-│        └─ Reduced expenses to $75k/yr                               │
-│ Age 70 └─ Healthcare increases to $8k/yr                            │
-│                                                                     │
-│ Help: [a]dd [e]dit [d]elete [c]opy [t]oggle [f]effects Ctrl+S       │
-└─────────────────────────────────────────────────────────────────────┘
-```
+![Tab 2: Events](screenshots/raw/example-02-events-tab.png)
 
 ### Overview
 
@@ -367,39 +292,7 @@ The **Scenario** tab is where you manage scenarios and configure simulation para
 
 ### Screen Layout
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│ [1] Portfolio  [2] Events  [3] Scenario  [4] Results  [5] Analysis  │
-├─────────────────────┬───────────────────────────────────────────────┤
-│  SCENARIO LIST      │  SIMULATION PARAMETERS                        │
-│                     │                                               │
-│ ▶ Main Baseline  ✓  │  Life Dates:                                  │
-│ ▶ Conservative      │    Birth Date: 1965-03-15                     │
-│ ▶ Aggressive        │    Start Date: 2025-01-01                     │
-│ ▶ Retire_60         │    Duration: 40 years                         │
-│ ▶ Retire_65         │                                               │
-│ ▶ Archive_2024      │  Spending:                                    │
-│                     │    Annual: $75,000                            │
-│ [n]ew [c]opy [e]dit │    Inflation Adjusted: Yes                    │
-│ [d]elete [s]ave     │                                               │
-│ [l]oad [i]mport     │  Accounts:                                    │
-│ [x]port             │    Checking       $50,000                     │
-│                     │    401k          $700,000                     │
-│                     │    Roth IRA      $600,000                     │
-│                     │    Brokerage     $584,500                     │
-│                     │                                               │
-│                     │  Status:                                      │
-│                     │    ✓ Configuration valid                      │
-│                     │    Ready to simulate                          │
-│                     │                                               │
-├─────────────────────┴───────────────────────────────────────────────┤
-│                                                                     │
-│  [r]un single  [m]onte carlo  [Shift+M] convergence  [Shift+R] all  │
-│  [p]review  [$] real/$  [e]dit parameters                           │
-│                                                                     │
-│ Status: Idle - Ready for simulation  • Last run: 2025-02-20         │
-└─────────────────────────────────────────────────────────────────────┘
-```
+![Tab 3: Scenario](screenshots/raw/example-03-scenario-tab.png)
 
 ### Overview
 
@@ -533,35 +426,11 @@ Results show your projected wealth, account balances, and transaction details.
 
 ### Screen Layout (Monte Carlo View)
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│ [1] Portfolio  [2] Events  [3] Scenario  [4] Results  [5] Analysis  │
-├──────────────────────────────┬──────────────────────────────────────┤
-│  NET WORTH (2045 P50 Nominal)│  ACCOUNT BREAKDOWN                   │
-│                              │                                      │
-│  $2M ─────┐                  │  Cash    $150K  ████░░░░░░  (8%)     │
-│  $1.5M    │╲                 │  T-401k  $400K  ████████░░░ (21%)    │
-│  $1M      │ ╲ ╲              │  Roth    $550K  ███████████░ (29%)   │
-│  $500K    │  ╲  ╲╲           │  Taxable $700K  ██████████████ (37%) │
-│  $0   ────┴───╲──╲╲──────    │  Debt        $0  ░░░░░░░░░░  (0%)    │
-│         2025  2035  2045     │                                      │
-│                              │  Total: $1,800,000                   │
-├──────────────────────────────┴──────────────────────────────────────┤
-│ LEDGER (Year-by-year breakdown)                                     │
-│                                                                     │
-│  Year Age Start      Income  Expenses  Taxes   Returns   Ending     │
-│  ────────────────────────────────────────────────────────────────   │
-│  2045  80 $1,754K   $30,000  $75,000  $8,500  +$50,200 $1,751K      │
-│  2046  81 $1,751K        $0  $75,000  $5,200  +$45,100 $1,716K      │
-│  2047  82 $1,716K        $0  $75,000  $3,100  +$42,900 $1,681K      │
-│  2048  83 $1,681K        $0  $75,000  $2,050  +$40,500 $1,645K      │
-│                                                                     │
-│  Scroll: [j/k] navigate  [Home/End] jump  [$] real/nominal [$] real │
-│  Analyze: [v] percentile  [g] granularity  [f] filter  [m] rerun    │
-│                                                                     │
-│ SUCCESS: 92% • P5: $400K • P50: $1,800K • P95: $3,200K • Mode: P50  │
-└─────────────────────────────────────────────────────────────────────┘
-```
+![Tab 4: Results — single run](screenshots/raw/example-04-results-single-run.png)
+
+![Tab 4: Results — Monte Carlo P50](screenshots/raw/example-04-results-mc-real-p50.png)
+
+![Tab 4: Results navigation demo](screenshots/raw/example-04-results-navigation.gif)
 
 ### Overview
 
@@ -694,68 +563,13 @@ Run sensitivity analysis to see how changes in parameters affect your outcomes.
 
 ### Screen Layout (1D Scatter Example)
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│ [1] Portfolio  [2] Events  [3] Scenario  [4] Results  [5] Analysis  │
-├─────────────────────┬───────────────────────────────────────────────┤
-│  SWEEP PARAMETERS   │  RESULTS: SUCCESS RATE vs RETIREMENT AGE      │
-│                     │                                               │
-│ ▶ Retirement Age    │  100% │           ╱╱╱                         │
-│   Min: 60           │   95% │         ╱╱                            │
-│   Max: 70           │   90% │       ╱╱  ◯ (current = 88%)           │
-│   Steps: 11         │   85% │     ╱╱                                │
-│                     │   80% │   ╱╱                                  │
-│ ▶ Annual Spending   │   75% │ ╱╱                                    │
-│   Min: $50K         │   70% │╱                                      │
-│   Max: $100K        │       │────────────────────────────────       │
-│   Steps: 6          │       │60  62  64  66  68  70                 │
-│                     │          Retirement Age (years)               │
-│ [a]dd [d]elete      │                                               │
-│ [e]dit [r]un        │  Data points: Success rates for each age      │
-│ [s]ettings          │  Trend: Working longer = higher success       │
-│ [t]oggle metric     │  Insight: Age 65 reaches 90% success rate     │
-│                     │                                               │
-│                     │  Metric: Success Rate                         │
-│                     │  [t]oggle  [c]onfigure  [+]add  [-]delete     │
-│                     │                                               │
-├─────────────────────┴───────────────────────────────────────────────┤
-│                                                                     │
-│ Parameters: 2  Charts: 1  [r]un analysis  [s]ettings  [$] real/$    │
-│                                                                     │
-│ Status: Results ready • Click chart to reconfigure                  │
-└─────────────────────────────────────────────────────────────────────┘
-```
+![Tab 5: Analysis — sensitivity](screenshots/raw/example-05-analysis-sensitivity.gif)
 
 ### Screen Layout (2D Heatmap Example)
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│ [1] Portfolio  [2] Events  [3] Scenario  [4] Results  [5] Analysis  │
-├─────────────────────┬───────────────────────────────────────────────┤
-│  SWEEP PARAMETERS   │  SUCCESS RATE: RETIREMENT AGE × ANNUAL SPEND  │
-│                     │                                               │
-│ ▶ Retirement Age    │  $100K │ 🟥 🟥 🟨 🟨 🟩 🟩                      │
-│ ▶ Annual Spending   │   $80K │ 🟨 🟨 🟩 🟩 🟩 🟩                      │
-│ ▶ Asset Allocation  │   $60K │ 🟩 🟩 🟩 🟩 🟩 🟩                      │
-│ ▶ Return Assumption │   $40K │ 🟩 🟩 🟩 🟩 🟩 🟩                      │
-│                     │        │ 60  62  64  66  68  70               │
-│ [a]dd [d]elete      │           Retirement Age                      │
-│ [e]dit [r]un        │                                               │
-│ [s]ettings          │  Legend:                                      │
-│ [t]oggle metric     │  🟥 <70% (Risky)                              │
-│                     │  🟨 70-85% (Moderate)                         │
-│                     │  🟩 85%+ (Safe)                               │
-│                     │                                               │
-│                     │  Sweet spot: Age 65 + $75K spending (90%)     │
-│                     │  [c]onfigure  [+]add  [-]delete               │
-│                     │                                               │
-├─────────────────────┴───────────────────────────────────────────────┤
-│                                                                     │
-│ Parameters: 4  Charts: 1  [r]un analysis  [s]ettings  [$] real/$    │
-│                                                                     │
-│ Status: Analysis complete • Hover over cells for exact percentages  │
-└─────────────────────────────────────────────────────────────────────┘
-```
+![Tab 5: Analysis — 2D heatmap](screenshots/raw/example-05-analysis-2d-heatmap.png)
+
+![Tab 5: Analysis — chart navigation](screenshots/raw/example-05-analysis-results-charts.gif)
 
 ### Overview
 
@@ -827,32 +641,12 @@ Once you run analysis with `r`, the results panel shows charts.
 - Shows interaction between two parameters
 
 **Example 1D Chart:**
-```
-How does retirement age affect success rate?
 
-Success Rate (%)
-100% |     ╱╱╱╱
- 75% |   ╱╱
- 50% | ╱╱
- 25%|╱
-  0%└─────────────────
-    60   65   70
-      Retirement Age
-```
+![Analysis sensitivity — metric navigation](screenshots/raw/example-05-analysis-sensitivity.gif)
 
 **Example 2D Heatmap:**
-```
-Success Rate by Retirement Age × Annual Spending
 
-Annual Spending ($)
-  100k |  🟩🟩🟩 (80%)
-   80k |  🟨🟨🟩 (60%)
-   60k |  🟥🟨🟩 (40%)
-   40k |  🟥🟥🟨 (20%)
-       └─────────────
-         60 65 70
-      Retirement Age
-```
+![Analysis — 2D heatmap](screenshots/raw/example-05-analysis-2d-heatmap.png)
 
 **Available Metrics:**
 

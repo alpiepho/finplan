@@ -45,12 +45,8 @@ Single run shows:
 - **Investment returns** (all at median)
 
 **Example Output:**
-```
-Year  Age  Net Worth   Income  Expenses  Taxes
-2025   60  $800,000   $100K    $75K     $15K
-2026   61  $850,000   $100K    $75K     $13K
-2027   62  $900,000   $100K    $75K     $12K
-```
+
+![Single run results](screenshots/raw/example-04-results-single-run.png)
 
 ### Limitations
 
@@ -110,33 +106,7 @@ Success Rate: 92% (920 runs succeeded)
 
 **What You'll See in the Results Tab:**
 
-```
-┌─────────────────────────────────────┐
-│  Monte Carlo Results (1000 runs)    │
-├─────────────────────────────────────┤
-│                                     │
-│ SUCCESS RATE: 92%                   │
-│ ██████████████████████░░ (920/1000) │
-│                                     │
-│ Final Net Worth:                    │
-│ P5 (worst 5%):        $50,000       │
-│ P50 (median):        $800,000       │
-│ P95 (best 5%):     $2,000,000       │
-│ Mean (average):      $750,000       │
-│                                     │
-│ Max Drawdown:                       │
-│ P5: -45%    P50: -25%    P95: -10%  │
-│                                     │
-│ Lifetime Taxes:                     │
-│ P5: $400K   P50: $600K   P95: $750K │
-│                                     │
-└─────────────────────────────────────┘
-
-Key Takeaway:
-✓ 92% success = Very good chance of plan working
-✓ P5 outcome positive = Safety cushion even in worst case
-✓ P50 outcome strong = Most likely scenario is comfortable
-```
+![Monte Carlo results — P50 real](screenshots/raw/example-04-results-mc-real-p50.png)
 
 **Metrics Shown:**
 

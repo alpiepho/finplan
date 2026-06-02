@@ -6,18 +6,7 @@ Complete keyboard shortcut reference for FinPlan. All keybindings are customizab
 
 When you launch FinPlan, you'll see tabs at the top of the screen:
 
-```
-┌────────────────────────────────────────────────────────────────┐
-│ [1] Portfolio & Profiles  [2] Events  [3] Scenario [4] Results │
-├────────────────────────────────────────────────────────────────┤
-│                      (Active tab content)                      │
-│                                                                │
-│                    Use keys below to navigate                  │
-│                                                                │
-├────────────────────────────────────────────────────────────────┤
-│ Keys: [1-5]=tabs [j/k]=nav [a/e/d]=add/edit/del [Enter]=select │
-└────────────────────────────────────────────────────────────────┘
-```
+![FinPlan — Portfolio & Profiles tab](screenshots/raw/example-01-portfolio-tab.png)
 
 ## Global Keybindings
 

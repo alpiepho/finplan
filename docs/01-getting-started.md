@@ -82,26 +82,9 @@ The example includes:
 
 ## What the App Looks Like
 
-Here's an overview of the interface:
+Here's an overview of the interface (Portfolio & Profiles tab):
 
-```
-┌────────────────────────────────────────────────────────────────┐
-│ [1] Portfolio  [2] Events  [3] Scenario  [4] Results [5]Analyze│
-├────────────────────────────────────────────────────────────────┤
-│                                                                │
-│   Main content area (changes based on active tab)              │
-│                                                                │
-│   Use [j/k] or arrows to navigate                              │
-│   Use [Tab/Shift+Tab] to switch panels within a tab            │
-│   Use [1-5] to switch between tabs                             │
-│                                                                │
-│   Tab-specific commands shown in status bar:                   │
-│   [a]dd [e]dit [d]elete [r]un [m]onte carlo                    │
-│                                                                │
-├────────────────────────────────────────────────────────────────┤
-│ Help: [q]uit  [Ctrl+S] save  [Esc] cancel  • Active: Portfolio │
-└────────────────────────────────────────────────────────────────┘
-```
+![Portfolio & Profiles tab](screenshots/raw/example-01-portfolio-tab.png)
 
 **Layout Features:**
 - **Tab bar** at top (numbered 1-5)

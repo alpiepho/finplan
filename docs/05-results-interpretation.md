@@ -30,54 +30,21 @@ Each bar represents one year. Bar height = total net worth. Bars are stacked by 
 
 #### Chart Shape Patterns
 
-**Steady Decline — expected and healthy:**
-```
-$2.0M ┤╲
-$1.5M ┤ ╲
-$1.0M ┤  ╲
-$500K ┤   ╲
-   $0 └────╲──────────────
-      60   70   80   90  100
+Different plan outcomes produce recognizable chart shapes:
 
-You're spending down savings at a planned rate.
-```
+**Steady Decline — expected and healthy:** Spending down savings at a planned rate.
 
-**Cliff — plan fails:**
-```
-$2.0M ┤────────────────┐
-$1.5M ┤                │
-$1.0M ┤                │
-$500K ┤                │
-   $0 └────────────────┴──
-      60               95
+**Cliff — plan fails:** Money runs out suddenly. Check the P5 view — if it shows a cliff, your plan is at risk.
 
-Money runs out suddenly. Success rate will be low.
-```
+**Plateau — excellent:** Income covers expenses; wealth is self-sustaining.
 
-**Plateau — excellent:**
-```
-$2.0M ┤     ╱───────────────
-$1.5M ┤    ╱
-$1.0M ┤   ╱
-$500K ┤  ╱
-   $0 └─────────────────────
-      60   70   80   90  100
+**Growth — over-saved:** Wealth keeps growing in retirement — you may be able to spend more or retire earlier.
 
-Income covers expenses. Wealth is self-sustaining.
-```
+The screenshots below show P50 (median outcome) and P5 (worst-5% outcome) for the same scenario:
 
-**Growth — over-saved or unexpected windfall:**
-```
-$4.0M ┤                  ╱
-$3.0M ┤              ╱╱╱
-$2.0M ┤          ╱╱╱
-$1.0M ┤      ╱╱╱
-   $0 └─────────────────────
-      60   70   80   90  100
+![Results — P50 median outcome](screenshots/raw/example-04-results-mc-real-p50.png)
 
-Wealth grows in retirement — may mean you can spend more
-or retire earlier.
-```
+![Results — P5 worst-case outcome](screenshots/raw/example-04-results-mc-real-p5.png)
 
 ### Account Breakdown Panel
 
@@ -108,15 +75,7 @@ Shows the current selected year's wealth split by category. What to look for at 
 
 Year-by-year breakdown. Navigate with `j/k` or arrow keys.
 
-```
-Year  Age  Start Bal   Income  Expenses  Taxes   Returns   End Bal
-────────────────────────────────────────────────────────────────────
-2025   60   $800,000  $120,000  $75,000  $15,000  +$50,000  $880,000
-2026   61   $880,000  $120,000  $75,000  $14,000  +$45,000  $956,000
-2027   62   $956,000   $75,000  $75,000  $12,000  +$48,000  $992,000  ← transition
-2028   63   $992,000        $0  $75,000   $8,000  +$50,000  $959,000  ← drawing down
-2029   64   $959,000        $0  $75,000   $6,000  +$48,000  $926,000
-```
+![Results — single run with ledger detail](screenshots/raw/example-04-results-single-run.png)
 
 **Ending Balance formula:** `Start + Income − Expenses − Taxes + Returns`
 
@@ -211,19 +170,8 @@ For how to configure and run sweeps, see [Tab Reference](02-tabs-guide.md#tab-5-
 
 Used when sweeping one parameter. The X-axis is the parameter value; the Y-axis is your chosen metric (usually success rate).
 
-```
-Success Rate (%)
+![Analysis — sensitivity metric navigation (1D sweep)](screenshots/raw/example-05-analysis-sensitivity.gif)
 
-100% │               ╱╱╱
- 95% │           ╱╱╱
- 90% │        ◯ ╱          ← current scenario (age 62, 88%)
- 85% │      ╱╱
- 80% │   ╱╱
- 75% │ ╱
-     └──────────────────────
-       60   62   64   66   68   70
-              Retirement Age
-```
 
 **How to use it:** Find the point where success rate crosses your target (e.g., 90%) and read down to the X-axis. That's your answer. In this example: retire at 64 for 90% confidence.
 
@@ -231,22 +179,8 @@ Success Rate (%)
 
 Used when sweeping two parameters simultaneously. Color shows the outcome — green is good, red is risky.
 
-```
-Annual Spending
+![Analysis — 2D heatmap (retirement age × living expenses)](screenshots/raw/example-05-analysis-2d-heatmap.png)
 
- $100K │ 🟥  🟥  🟨  🟨  🟩  🟩
-  $80K │ 🟥  🟨  🟨  🟩  🟩  🟩
-  $60K │ 🟨  🟩  🟩  🟩  🟩  🟩
-  $40K │ 🟩  🟩  🟩  🟩  🟩  🟩
-       └────────────────────────────
-         60   62   64   66   68   70
-                Retirement Age
-
-Legend:
-  🟩 85%+  (safe)
-  🟨 70–85% (moderate)
-  🟥 <70%  (risky)
-```
 
 The top-left corner (early retirement + high spending) is always the riskiest. The bottom-right (late retirement + low spending) is always the safest. You're looking for the boundary where color shifts from green to yellow — that's the edge of your comfort zone.
 
