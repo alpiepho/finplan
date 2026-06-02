@@ -1,7 +1,7 @@
 Output docs/screenshots/raw/example-05-analysis-2d-heatmap.png
 
 Set Shell "bash"
-Set Width 1600
+Set Width 1920
 Set Height 900
 Set FontSize 13
 Set Theme "Dracula"

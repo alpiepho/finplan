@@ -258,3 +258,72 @@ Claude owns steps 1, 2, 4, and 6. VHS owns step 3. `rsvg-convert` owns step 5.
 
 The annotation pipeline is fully unblocked. VHS produces the raw screenshots;
 Claude writes SVG overlays; `rsvg-convert` composites them. No additional installs needed.
+
+---
+
+## Screenshot Inventory — `examples/example.yaml`
+
+All files live in `docs/screenshots/raw/`. Tapes that produced them are in `docs/tapes/` with matching `example-` prefixes.
+
+### Tab 1 — Portfolio & Profiles
+
+| File | Description |
+|------|-------------|
+| `example-01-portfolio-tab.png` | Portfolio tab showing all 8 accounts: Checking, Savings, Brokerage (VFIAX/VGPMX/VTIAX), 401k (FXAIX), Roth IRA (FXAIX), Gold, Mortgage, House Value. Also shows the 5 return profiles (HYSA, GOLD, S&P 500, S&P Log Normal, S&P 500 Regime Switching). |
+
+### Tab 2 — Events
+
+| File | Description |
+|------|-------------|
+| `example-02-events-tab.png` | Events tab listing all 10 life events: Bi-Weekly Salary, Living Expenses, 401k Contribution, Buy House, Mortgage Payment, Retirement (age 58), Keep Checking Above Spending, Yearly Spend Post-Retirement, Medicare Part B (age 65), Social Security (age 67), RMD (age 73). |
+
+### Tab 3 — Scenario
+
+| File | Description |
+|------|-------------|
+| `example-03-scenario-tab.png` | Scenario parameters: birth date 1997-03-16, 62-year duration, historical returns with block size 5, US historical inflation (lognormal), single 2024 federal tax brackets, 5% state rate, 20% capital gains rate. |
+
+### Tab 4 — Results (single run)
+
+| File | Description |
+|------|-------------|
+| `example-04-results-single-run.png` | Deterministic single simulation. Shows net worth projection chart, account breakdown at year 0, yearly breakdown table, and ledger. |
+| `example-04-results-single-retirement-year.png` | Single run, year cursor advanced to year 29 (2055, age 58 — retirement trigger fires). Account breakdown panel reflects portfolio state at retirement. |
+| `example-04-results-single-rmd-year.png` | Single run, year cursor at year 44 (2070, age 73 — RMD trigger fires). Account breakdown shows portfolio at the start of required minimum distributions. |
+
+### Tab 4 — Results (Monte Carlo, real dollars)
+
+1000 MC iterations, historical block returns. Default view after running `m`. Real (inflation-adjusted) dollars.
+
+| File | Description |
+|------|-------------|
+| `example-04-results-mc-real-p50.png` | MC results, real dollars, P50 (median) — the middle outcome across all 1000 simulations. Default view after pressing `m`. |
+| `example-04-results-mc-real-p95.png` | MC results, real dollars, P95 (best case) — the 95th-percentile outcome. Press `v` once from P50. |
+| `example-04-results-mc-real-mean.png` | MC results, real dollars, Mean (average across all simulations). Press `v` twice from P50. |
+| `example-04-results-mc-real-p5.png` | MC results, real dollars, P5 (worst case) — the 5th-percentile outcome. Press `v` three times from P50. |
+
+### Tab 4 — Results (Monte Carlo, nominal dollars)
+
+Same MC run, toggled to nominal (future) dollar values with `$`. Nominal figures are larger due to inflation over a 62-year horizon.
+
+| File | Description |
+|------|-------------|
+| `example-04-results-mc-nominal-p5.png` | MC results, nominal dollars, P5. Captured first after pressing `$` (was on P5 real). |
+| `example-04-results-mc-nominal-p50.png` | MC results, nominal dollars, P50 (median). |
+| `example-04-results-mc-nominal-p95.png` | MC results, nominal dollars, P95 (best case). |
+| `example-04-results-mc-nominal-mean.png` | MC results, nominal dollars, Mean. |
+
+### Tab 4 — Results (animated navigation demo)
+
+| File | Description |
+|------|-------------|
+| `example-04-results-navigation.gif` | Animated GIF (30 fps, loops) demonstrating arrow-key navigation across all four Results panels. Startup and simulation run are hidden; animation begins with data fully loaded. Sequence: **(1) NetWorthChart** — Right×6 advances year cursor along bar chart, Left×6 retreats; **(2) AccountChart** — Tab switches panel, Right×5 advances year with account breakdown updating in sync, Left×3 retreats; **(3) YearlyBreakdown** — Tab switches panel, Right×3 advances year (highlighted row moves), Down×5 scrolls table rows, Up×3 scrolls back; **(4) Ledger** — Tab switches panel, Down×8 scrolls ledger entries, Up×4 scrolls back. Embed in markdown with `![Results navigation](path/to/example-04-results-navigation.gif)`. |
+
+### Tab 5 — Analysis
+
+| File | Description |
+|------|-------------|
+| `example-05-analysis-2d-heatmap.png` | Analysis tab after completing the full 3-parameter sweep (180,000 MC simulations: retirement age 35–50 × living expenses $4K–$10.5K × house price $850K–$1.35M). Shows sensitivity tornado, and all three configured charts side-by-side: heatmap (retirement age × living expenses, cividis, P50 net worth), heatmap (living expenses × buy house, viridis, P50 net worth), scatter (living expenses × success rate, viridis). Requires 1920px wide terminal (181 columns at FontSize 13 is too narrow for 3 slots; 1920px gives ~217 columns). |
+| `example-05-analysis-sensitivity.gif` | Animated GIF (30 fps, loops) showing Sensitivity panel metric navigation. Sweep hidden; animation begins with full results loaded on the Parameters panel. Sequence: **(1)** Tab to Sensitivity panel (focus highlight moves); **(2)** Down×5 cycles through all 6 available metrics — Success % → P50 → P5 → P95 → Taxes → Drawdown — tornado chart and distribution histogram update each step; **(3)** Up×5 cycles back to Success %. Useful for Phase 4 doc explaining what each sensitivity metric means. |
+| `example-05-analysis-sweep-params.gif` | Animated GIF (30 fps, loops) showing how to edit sweep parameter ranges. No sweep run required. Sequence: **(1)** Default Parameters panel, Retirement selected; **(2)** Down navigates to Living Expenses, Enter opens the edit modal; **(3)** Escape closes without saving; **(4)** Down to Buy House, Enter opens modal, Escape closes; **(5)** Up×2 back to Retirement, Enter opens modal, Escape closes. Shows the full add/edit/delete workflow hint (`[a]dd [d]el [Enter] edit`) in the panel border. |
+| `example-05-analysis-results-charts.gif` | Animated GIF (30 fps, loops) showing Results panel chart navigation and configuration. Sweep hidden; animation begins with full results loaded. Sequence: **(1)** Tab×3 moves through Parameters → Sensitivity → Config → Results (panel focus border transfers each step); **(2)** Right×3 cycles chart selection through chart 0 (heatmap: retirement age × living expenses), chart 1 (heatmap: living expenses × buy house), chart 2 (scatter: living expenses × success rate), wrapping back; **(3)** Left×2 retreats; **(4)** Enter opens the chart configuration modal; **(5)** Escape closes modal. Status bar hint `[h/l] select [c]configure chart` visible when Results is focused. |
